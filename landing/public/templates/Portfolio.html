@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click Me - Earth Sight</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #38bdf8 0%, #0c4a6e 100%);
+        }
+        .fullscreen-btn {
+            font-size: 2.5rem;
+            padding: 2rem 4rem;
+            border: none;
+            border-radius: 2rem;
+            background: #fff;
+            color: #0c4a6e;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(56,189,248,0.15);
+            transition: background 0.2s, color 0.2s;
+        }
+        .fullscreen-btn:hover {
+            background: #0c4a6e;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <button class="fullscreen-btn" onclick="window.open('http://localhost:3000', '_blank')">Click Me</button>
+</body>
+</html>
