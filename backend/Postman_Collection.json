@@ -1,0 +1,413 @@
+{
+  "info": {
+    "name": "EarthSlight API Collection",
+    "description": "Complete API collection for EarthSlight - Environmental Risk Monitoring & Real Estate Prediction Platform. AI prediction optimized for <50ms response time with intelligent Python/JavaScript fallback system. Email alerts system for Nepal deployment (Telegram-free).",
+    "version": "1.2.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        }
+      }
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Updated\",\n  \"emailNotifications\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Environmental Data",
+      "item": [
+        {
+          "name": "Get Dummy Environmental Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/environment/dummy-data",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "environment", "dummy-data"]
+            }
+          }
+        },
+        {
+          "name": "Get Environmental Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/environment/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "environment", "statistics"]
+            }
+          }
+        },
+        {
+          "name": "Get Risks by Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/environment/risks/deforestation",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "environment", "risks", "deforestation"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Real Estate Prediction",
+      "item": [
+        {
+          "name": "Generate Prediction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"floors\": 2,\n  \"area\": 1200,\n  \"bedrooms\": 3,\n  \"bathrooms\": 2,\n  \"age\": 10,\n  \"location\": \"Seattle\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/predict",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "predict"]
+            }
+          }
+        },
+        {
+          "name": "Get AI Model Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/predict/model-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "predict", "model-status"]
+            }
+          }
+        },
+        {
+          "name": "Test AI Model",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/predict/test-model",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "predict", "test-model"]
+            }
+          }
+        },
+        {
+          "name": "Get Prediction History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/predict/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "predict", "history"]
+            }
+          }
+        },
+        {
+          "name": "Get Market Insights",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/predict/insights?location=Los Angeles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "predict", "insights"],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "Los Angeles"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PDF Reports",
+      "item": [
+        {
+          "name": "Generate PDF Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"predictionData\": {\n    \"prediction\": {\n      \"currentPrice\": 850000,\n      \"confidence\": 92,\n      \"factors\": [\n        {\"name\": \"Location\", \"impact\": \"2.5\", \"description\": \"Location premium\"},\n        {\"name\": \"Area\", \"impact\": \"1.2\", \"description\": \"Square footage\"},\n        {\"name\": \"Bedrooms\", \"impact\": \"1.15\", \"description\": \"Number of bedrooms\"},\n        {\"name\": \"Bathrooms\", \"impact\": \"1.1\", \"description\": \"Number of bathrooms\"},\n        {\"name\": \"Age\", \"impact\": \"0.96\", \"description\": \"Property age\"}\n      ]\n    },\n    \"forecast\": [\n      {\"year\": 2024, \"price\": 850000, \"growth\": \"0.0\", \"confidence\": 92},\n      {\"year\": 2025, \"price\": 884000, \"growth\": \"4.0\", \"confidence\": 89}\n    ],\n    \"summary\": {\n      \"totalProperties\": 750,\n      \"averagePrice\": 765000,\n      \"marketTrend\": \"increasing\",\n      \"locationScore\": 85\n    }\n  },\n  \"userInput\": {\n    \"floors\": 3,\n    \"area\": 1200,\n    \"bedrooms\": 3,\n    \"bathrooms\": 2,\n    \"age\": 4,\n    \"location\": \"Los Angeles\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pdf/report",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pdf", "report"]
+            }
+          }
+        },
+        {
+          "name": "Download PDF Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pdf/download/report_1234567890_userid.pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pdf", "download", "report_1234567890_userid.pdf"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Email Alerts",
+      "item": [
+        {
+          "name": "Get Email Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/email/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "status"]
+            }
+          }
+        },
+        {
+          "name": "Send Manual Alerts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/send-alerts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "send-alerts"]
+            }
+          }
+        },
+        {
+          "name": "Test Deforestation Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"DEFORESTATION ALERT: Illegal logging detected in Chitwan National Park. Estimated area: 15 hectares. GPS coordinates: 27.5291, 84.3542. Immediate investigation required!\",\n  \"type\": \"deforestation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/email/test-alert",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "test-alert"]
+            }
+          }
+        },
+        {
+          "name": "Test Mining Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"MINING ALERT: Unauthorized mining operation detected near Langtang National Park. Heavy machinery spotted via satellite imagery. Location: 28.2096, 85.5418\",\n  \"type\": \"mining\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/email/test-alert",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "test-alert"]
+            }
+          }
+        },
+        {
+          "name": "Test Forest Fire Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"FOREST FIRE ALERT: Wildfire detected spreading rapidly in Sagarmatha National Park. Wind speed: 45 km/h. Evacuation recommended for nearby communities. GPS: 27.9881, 86.9250\",\n  \"type\": \"fire\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/email/test-alert",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "test-alert"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 
