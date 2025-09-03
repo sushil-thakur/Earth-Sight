@@ -138,25 +138,25 @@ const Monitor: React.FC<MonitorProps> = ({ roomGLTF }): JSX.Element => {
                                 <path d="M8 3.5a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z" />
                                 <path d="M8 5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5A.5.5 0 0 1 8 5z" />
                                 <path d="M7.646 1.146a.5.5 0 0 1 .708 0l1.5 1.5a.5.5 0 0 1-.708.708L8.5 2.707V4.5a.5.5 0 0 1-1 0V2.707l-.646.647a.5.5 0 1 1-.708-.708l1.5-1.5zM8 10a.5.5 0 0 1 .5.5v2.793l.646-.647a.5.5 0 0 1 .708.708l-1.5 1.5a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708l.646.647V10.5a.5.5 0 0 1 .5-.5z" />
-                            </svg>
-                            <div>
-                                <div className={styles['hint-title']}>Try scrolling!</div>
-                                <div className={styles['hint-subtitle']}>This is real HTML content you can interact with 👇</div>
-                                <div className={`${styles['hint-subtitle']} ${styles['hint-subtitle-extra']}`}>To zoom out,
-                                    {isFullscreen ? ' exit fullscreen, ' : ' '}
-                                    place cursor outside the monitor and scroll back</div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* fullscreen hint */}
-                {showFullscreenHint && (
-                    <div className={styles['monitor-fullscreen-instructions-hint']}
-                        style={{ animation: `${styles.fadeInOut} ${FULLSCREEN_HINT_TIMEOUT / 1000}s forwards` }}>
-                        <div className={styles['hint-icon']}>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#9aa0a6">
-                                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+                            <button
+                                style={{
+                                    position: 'absolute',
+                                    top: 10,
+                                    right: 10,
+                                    zIndex: 1001,
+                                    background: '#3498db',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    padding: '8px 16px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                                }}
+                                onClick={() => window.open('http://localhost:3000', '_blank')}
+                            >
+                                Explore more
+                            </button>
                             </svg>
                             →
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="#9aa0a6">
@@ -288,25 +288,25 @@ const Monitor: React.FC<MonitorProps> = ({ roomGLTF }): JSX.Element => {
 
                     {/* web content (portfolio) */}
                     <div className={styles['web-content']}>
-                        <button
-                            style={{
-                                position: 'absolute',
-                                top: 10,
-                                right: 10,
-                                zIndex: 1001,
-                                background: '#3498db',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                padding: '8px 16px',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                            }}
-                            onClick={() => window.open('http://localhost:3000', '_blank')}
-                        >
-                            Click Me (Portfolio)
-                        </button>
+                                                {/* Centered Explore more button */}
+                                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                                    <button
+                                                        style={{
+                                                            background: '#fff',
+                                                            color: '#2563eb',
+                                                            border: 'none',
+                                                            borderRadius: '20px',
+                                                            padding: '24px 40px',
+                                                            cursor: 'pointer',
+                                                            fontWeight: 'bold',
+                                                            fontSize: '2rem',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                                                        }}
+                                                        onClick={() => window.open('http://localhost:3000', '_blank')}
+                                                    >
+                                                        Explore more
+                                                    </button>
+                                                </div>
                         <iframe
                             src="/templates/Portfolio.html"
                             title="Portfolio"
