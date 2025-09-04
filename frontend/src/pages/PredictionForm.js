@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { 
-  Home, 
-  Calculator, 
-  Download, 
-  TrendingUp, 
-  MapPin, 
+import {
+  Calculator,
+  Download,
+  TrendingUp,
+  MapPin,
   Layers,
   Square,
   Bed,
@@ -19,6 +19,7 @@ import {
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS, REQUEST_CONFIG } from '../config/api';
+import { useTheme } from '../contexts/ThemeContext';
 
 const PredictionForm = () => {
   const [formData, setFormData] = useState({
@@ -34,6 +35,7 @@ const PredictionForm = () => {
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [generatingReport, setGeneratingReport] = useState(false);
+  const { theme } = useTheme();
 
   const locations = [
     'Los Angeles',
@@ -181,25 +183,84 @@ const PredictionForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-950 via-dark-900 to-dark-800 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div
+      className="min-h-screen p-6 relative"
+      style={{
+        background: theme.bg,
+        color: theme.textColor
+      }}
+    >
+      {/* Dynamic Particles based on theme */}
+      <div className={theme.particles}>
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 10}s`,
+              animationDuration: `${Math.random() * 12 + 8}s`
+            }}
+          />
+        ))}
+      </div>
+
+      <motion.div
+        className="max-w-7xl mx-auto space-y-6"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+      >
         {/* Header */}
-        <div className="text-center">
-          <h1 className="text-4xl font-display font-bold gradient-text mb-2">AI-Powered Real Estate Prediction</h1>
-          <p className="text-gray-300 text-lg">
-            Advanced machine learning algorithms for accurate property valuation
-          </p>
-        </div>
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <motion.h1
+            className="text-5xl font-display font-bold organic-text mb-3"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            🤖 AI-Powered Real Estate Prediction
+          </motion.h1>
+          <motion.p
+            className="text-white/85 text-xl font-medium"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            🌱 Advanced machine learning algorithms for accurate property valuation
+          </motion.p>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Prediction Form */}
           <div className="space-y-6">
-            <div className="card-cyber">
+            <motion.div
+              className="organic-card p-8"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-r from-neon-blue to-cyan-500 rounded-lg flex items-center justify-center">
-                  <Calculator className="h-6 w-6 text-white" />
-                </div>
-                <h2 className="text-xl font-semibold text-white">Property Details</h2>
+                <motion.div
+                  className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl flex items-center justify-center interactive-element"
+                  whileHover={{ rotate: 15, scale: 1.1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Calculator className="h-7 w-7 text-white" />
+                </motion.div>
+                <motion.h2
+                  className="text-2xl font-semibold organic-text"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  🏠 Property Details
+                </motion.h2>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -360,7 +421,7 @@ const PredictionForm = () => {
                   )}
                 </button>
               </form>
-            </div>
+            </motion.div>
 
             {/* Key Factors */}
             {prediction && (
@@ -516,7 +577,7 @@ const PredictionForm = () => {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

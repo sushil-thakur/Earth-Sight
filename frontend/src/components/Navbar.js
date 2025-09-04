@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  Map, 
-  BarChart3, 
-  User, 
-  LogOut, 
-  Menu, 
+import { useTheme } from '../contexts/ThemeContext';
+import {
+  Map,
+  BarChart3,
+  User,
+  LogOut,
+  Menu,
   X,
   Globe,
   Bell,
-  Settings
+  Settings,
+  Palette
 } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { theme, currentTheme, changeTheme, themes } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -82,9 +86,45 @@ const Navbar = () => {
             </button>
 
             {/* Settings */}
-            <button className="p-2 text-gray-300 hover:text-neon-blue transition-colors duration-300">
-              <Settings className="h-5 w-5" />
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                className="p-2 text-gray-300 hover:text-neon-blue transition-colors duration-300"
+              >
+                <Palette className="h-5 w-5" />
+              </button>
+
+              {/* Settings Dropdown */}
+              {isSettingsOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-dark-800 border border-neon-blue/30 rounded-lg shadow-cyber z-50">
+                  <div className="p-3">
+                    <h3 className="text-sm font-semibold text-white mb-3">🎨 Choose Theme</h3>
+                    <div className="space-y-2">
+                      {Object.entries(themes).map(([key, themeData]) => (
+                        <button
+                          key={key}
+                          onClick={() => {
+                            changeTheme(key);
+                            setIsSettingsOpen(false);
+                          }}
+                          className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors duration-200 ${
+                            currentTheme === key
+                              ? 'bg-neon-blue/20 text-neon-blue border border-neon-blue/30'
+                              : 'text-gray-300 hover:bg-dark-700/50 hover:text-white'
+                          }`}
+                        >
+                          <span className="text-lg">{themeData.emoji}</span>
+                          <span className="font-medium">{themeData.name}</span>
+                          {currentTheme === key && (
+                            <div className="ml-auto w-2 h-2 bg-neon-blue rounded-full"></div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* User profile */}
             <div className="flex items-center space-x-3 p-2 bg-dark-800/50 rounded-lg border border-neon-blue/20">

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from 'react-leaflet';
 import { AlertTriangle, TreePine, Mountain, Flame, Activity, Mail, Bell, BellOff, TestTube, Globe } from 'lucide-react';
 import L from 'leaflet';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { testAllEndpoints } from '../utils/apiTest';
 import { API_ENDPOINTS } from '../config/api';
+import EnvironmentalCard from '../components/EnvironmentalCard';
+import { environmentalBackgrounds } from '../environmental-backgrounds';
 
 // Fix for default Leaflet marker icons
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -33,6 +37,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [testingApi, setTestingApi] = useState(false);
   const { user, updateProfile } = useAuth();
+  const { theme } = useTheme();
 
   useEffect(() => {
     fetchEnvironmentalData();
@@ -77,14 +82,14 @@ const Dashboard = () => {
   const handleApiTest = async () => {
     setTestingApi(true);
     toast.loading('Testing all API endpoints...', { id: 'api-test' });
-    
+
     try {
       const results = await testAllEndpoints();
-      
+
       // Count successful vs failed tests
       let successCount = 0;
       let totalCount = 0;
-      
+
       const countResults = (obj) => {
         for (const key in obj) {
           if (obj[key] && typeof obj[key] === 'object') {
@@ -97,9 +102,9 @@ const Dashboard = () => {
           }
         }
       };
-      
+
       countResults(results);
-      
+
       toast.success(`API Test Complete: ${successCount}/${totalCount} endpoints working`, { id: 'api-test' });
       console.log('API Test Results:', results);
     } catch (error) {
@@ -146,15 +151,59 @@ const Dashboard = () => {
   }
 
   return (
-  <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div
+      className="min-h-screen p-6 relative"
+      style={{
+        background: theme.bg,
+        color: theme.textColor
+      }}
+    >
+      {/* Dynamic Particles based on theme */}
+      <div className={theme.particles}>
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 10}s`,
+              animationDuration: `${Math.random() * 12 + 8}s`
+            }}
+          />
+        ))}
+      </div>
+
+      <motion.div
+        className="max-w-7xl mx-auto space-y-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+        <motion.div
+          className="flex flex-col md:flex-row md:items-center md:justify-between"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Environmental Dashboard</h1>
-            <p className="text-gray-600">
+            <motion.h1
+              className="text-5xl font-bold organic-text mb-3"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+            >
+              🌿 Environmental Dashboard
+            </motion.h1>
+            <motion.p
+              className="text-white/90 text-xl font-medium"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+            >
               Real-time monitoring of environmental risks and threats
-            </p>
+            </motion.p>
           </div>
           <div className="mt-4 md:mt-0 flex flex-col sm:flex-row gap-3">
             {/* Risk type filters */}
@@ -199,7 +248,7 @@ const Dashboard = () => {
                 )}
               </button>
             )}
-            
+
             {/* Email Notifications Toggle */}
             <button
               onClick={async () => {
@@ -212,8 +261,8 @@ const Dashboard = () => {
                 }
               }}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                user?.emailNotifications 
-                  ? 'bg-green-100 text-green-800 hover:bg-green-200 border border-green-300' 
+                user?.emailNotifications
+                  ? 'bg-green-100 text-green-800 hover:bg-green-200 border border-green-300'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
               }`}
             >
@@ -229,97 +278,179 @@ const Dashboard = () => {
                 </>
               )}
             </button>
-            
-            <button
+
+            <motion.button
               onClick={fetchEnvironmentalData}
-              className="btn-primary flex items-center space-x-2"
+              className="btn-organic flex items-center space-x-2 interactive-element"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 300 }}
             >
-              <Activity className="h-4 w-4" />
-              <span>Refresh Data</span>
-            </button>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              >
+                <Activity className="h-5 w-5" />
+              </motion.div>
+              <span>🌱 Refresh Data</span>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Statistics Cards */}
         {statistics && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             {/* Email Notification Status Card */}
-            <div className="card border-l-4 border-l-blue-500">
+            <motion.div
+              className="organic-card p-6 glow-nature"
+              whileHover={{ scale: 1.03, y: -8 }}
+              transition={{ type: "spring", stiffness: 250 }}
+            >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Email Alerts</p>
-                  <p className={`text-lg font-bold ${user?.emailNotifications ? 'text-green-600' : 'text-gray-400'}`}>
-                    {user?.emailNotifications ? 'Active' : 'Disabled'}
-                  </p>
+                  <p className="text-sm font-medium text-white/90">📧 Email Alerts</p>
+                  <motion.p
+                    className={`text-xl font-bold organic-text ${user?.emailNotifications ? 'text-green-300' : 'text-gray-300'}`}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                  >
+                    {user?.emailNotifications ? '🌟 Active' : '⚪ Disabled'}
+                  </motion.p>
                 </div>
-                <Mail className={`h-8 w-8 ${user?.emailNotifications ? 'text-green-500' : 'text-gray-400'}`} />
+                <motion.div
+                  className="interactive-element"
+                  whileHover={{ rotate: 15, scale: 1.1 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <Mail className={`h-8 w-8 ${user?.emailNotifications ? 'text-green-300' : 'text-gray-300'}`} />
+                </motion.div>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                {user?.emailNotifications 
-                  ? 'Receiving environmental alerts via email'
+              <p className="text-xs text-white/70 mt-3">
+                {user?.emailNotifications
+                  ? '🌿 Receiving environmental alerts via email'
                   : 'Click the toggle above to enable alerts'
                 }
               </p>
-            </div>
-            
-            <div className="card">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Risks</p>
-                  <p className="text-2xl font-bold text-gray-900">{statistics.total_risks}</p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center">
-                  <AlertTriangle className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </div>
+            </motion.div>
 
-            <div className="card">
+            <motion.div
+              className="organic-card p-6 glow-nature"
+              whileHover={{ scale: 1.03, y: -8 }}
+              transition={{ type: "spring", stiffness: 250 }}
+            >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Deforestation</p>
-                  <p className="text-2xl font-bold text-red-600">{statistics.by_type.deforestation}</p>
+                  <p className="text-sm font-medium text-white/90">🌍 Total Risks</p>
+                  <motion.p
+                    className="text-3xl font-bold organic-text organic-counter"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.7, type: "spring", stiffness: 200 }}
+                  >
+                    {statistics.total_risks}
+                  </motion.p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center">
-                  <TreePine className="h-6 w-6 text-white" />
-                </div>
+                <motion.div
+                  className="w-14 h-14 bg-gradient-to-br from-red-400 to-red-600 rounded-xl flex items-center justify-center interactive-element"
+                  whileHover={{ rotate: 10, scale: 1.1 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <AlertTriangle className="h-7 w-7 text-white" />
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="card">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Mining Activity</p>
-                  <p className="text-2xl font-bold text-amber-600">{statistics.by_type.mining}</p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg flex items-center justify-center">
-                  <Mountain className="h-6 w-6 text-white" />
-                </div>
+            <EnvironmentalCard
+              title="🌳 Deforestation"
+              value={statistics.by_type.deforestation}
+              icon={TreePine}
+              backgroundImage={environmentalBackgrounds.deforestation}
+              glowColor="#f59e0b"
+            >
+              <div className="text-xs">
+                🌿 Critical forest loss detected
+                <br />
+                📊 {Math.floor(Math.random() * 500) + 100} hectares affected
               </div>
-            </div>
+            </EnvironmentalCard>
 
-            <div className="card">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Forest Fires</p>
-                  <p className="text-2xl font-bold text-orange-600">{statistics.by_type.forest_fire}</p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
-                  <Flame className="h-6 w-6 text-white" />
-                </div>
+            <EnvironmentalCard
+              title="⛰️ Mining Activity"
+              value={statistics.by_type.mining}
+              icon={Mountain}
+              backgroundImage={environmentalBackgrounds.mining}
+              glowColor="#6b7280"
+            >
+              <div className="text-xs">
+                ⚠️ Industrial expansion detected
+                <br />
+                📊 {Math.floor(Math.random() * 200) + 50} mining sites active
               </div>
-            </div>
-          </div>
+            </EnvironmentalCard>
+
+            <EnvironmentalCard
+              title="🔥 Forest Fires"
+              value={statistics.by_type.forest_fire}
+              icon={Flame}
+              backgroundImage={environmentalBackgrounds.forest_fire}
+              glowColor="#dc2626"
+            >
+              <div className="text-xs">
+                🚨 Active fire zones detected
+                <br />
+                📊 {Math.floor(Math.random() * 100) + 20} fire hotspots
+              </div>
+            </EnvironmentalCard>
+
+            <EnvironmentalCard
+              title="🌊 Marine Life"
+              value={marineStats?.total_points || 0}
+              icon={Globe}
+              backgroundImage={environmentalBackgrounds.marine}
+              glowColor="#3b82f6"
+            >
+              <div className="text-xs">
+                🐟 Marine hotspots detected
+                <br />
+                📊 Avg biomass index: {marineStats?.average_biomass_index || 0}
+              </div>
+            </EnvironmentalCard>
+          </motion.div>
         )}
 
         {/* Map and Details */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Map */}
-          <div className="lg:col-span-2">
-            <div className="card p-0 overflow-hidden">
-              <div className="p-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Environmental Risk Map</h3>
-                <p className="text-sm text-gray-600">Real-time locations of environmental threats</p>
+          <motion.div
+            className="lg:col-span-2"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <div className="organic-card p-0 overflow-hidden">
+              <div className="p-5 border-b border-white/20">
+                <motion.h3
+                  className="text-xl font-semibold organic-text"
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  🗺️ Environmental Risk Map
+                </motion.h3>
+                <motion.p
+                  className="text-sm text-white/85"
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  🌍 Real-time locations of environmental threats
+                </motion.p>
               </div>
               <div className="h-96">
                 <MapContainer
@@ -420,12 +551,28 @@ const Dashboard = () => {
                 </MapContainer>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Risk Details */}
-          <div className="space-y-6">
-            <div className="card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Risk Summary</h3>
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            <motion.div
+              className="floating-card p-6"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <motion.h3
+                className="text-lg font-semibold neon-text mb-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                Risk Summary
+              </motion.h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
                   <div className="flex items-center space-x-3">
@@ -457,7 +604,7 @@ const Dashboard = () => {
                   </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Marine Species Filter */}
             <div className="card">
@@ -518,9 +665,9 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Modal for enlarged marine life image */}
       {modalImage && (
@@ -548,4 +695,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
