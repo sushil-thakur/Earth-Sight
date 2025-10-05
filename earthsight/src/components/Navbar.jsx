@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
 
 import Button from "./Button";
+import { Link } from 'react-router-dom'
 
 const navItems = ["Home", "Deforestation", "Real Estate", "About", "Contact"];
 
@@ -85,13 +86,21 @@ const NavBar = () => {
           <div className="flex h-full items-center">
             <div className="hidden md:block">
               {navItems.map((item, index) => (
-                <a
-                  key={index}
-                  href={`#${item.toLowerCase()}`}
-                  className="nav-hover-btn"
-                >
-                  {item}
-                </a>
+                item === 'Deforestation' ? (
+                  <Link key={index} to="/deforestation" className="nav-hover-btn">{item}</Link>
+                ) : item === 'Home' ? (
+                  <Link key={index} to="/" className="nav-hover-btn">{item}</Link>
+                ) : item === 'Real Estate' ? (
+                  <Link key={index} to="/real-estate" className="nav-hover-btn">{item}</Link>
+                ) : (
+                  <a
+                    key={index}
+                    href={`#${item.toLowerCase()}`}
+                    className="nav-hover-btn"
+                  >
+                    {item}
+                  </a>
+                )
               ))}
             </div>
 

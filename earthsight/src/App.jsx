@@ -1,26 +1,20 @@
 import React from 'react'
-import Hero from './components/Hero'
-import About from './components/About'
+import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
-import Features from './components/Features'
-import Story from './components/Story'
-import Contact from './components/Contact'
-import Footer from './components/Footer'
-import ImageSlider from './components/ImageSlider'
+import Home from './pages/Home'
+import Deforestation from './pages/Deforestation'
+import RealEstate from './pages/RealEstate'
 
 
 const App = () => {
   return (
    <main className='relative min-h-screen w-screen overflow-x-hidden'>
-    <Navbar/>
-    <Hero/>
-   <About/>
-   <ImageSlider/>
-   <Features/>
-   <Story/>
-   <Contact/>
-   <Footer/>
-   
+    <Navbar />
+    <Routes>
+  <Route path="/" element={<Home/>} />
+  <Route path="/deforestation" element={<Deforestation/>} />
+  <Route path="/real-estate" element={<RealEstate/>} />
+    </Routes>
    </main>
   )
 }
