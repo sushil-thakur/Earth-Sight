@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
 
 import Button from "./Button";
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuthModal } from '../contexts/AuthModalContext'
 
 const navItems = ["Home", "Deforestation", "Real Estate", "About", "Contact"];
 
@@ -17,10 +18,11 @@ const NavBar = () => {
   // Refs for audio and navigation container
   const audioElementRef = useRef(null);
   const navContainerRef = useRef(null);
-
   const { y: currentScrollY } = useWindowScroll();
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  // modal control for login/register
+  const { open } = useAuthModal()
 
   // Toggle audio and visual indicator
   const toggleAudioIndicator = () => {
@@ -85,23 +87,37 @@ const NavBar = () => {
           {/* Navigation Links and Audio Button */}
           <div className="flex h-full items-center">
             <div className="hidden md:block">
-              {navItems.map((item, index) => (
-                item === 'Deforestation' ? (
-                  <Link key={index} to="/deforestation" className="nav-hover-btn">{item}</Link>
-                ) : item === 'Home' ? (
-                  <Link key={index} to="/" className="nav-hover-btn">{item}</Link>
-                ) : item === 'Real Estate' ? (
-                  <Link key={index} to="/real-estate" className="nav-hover-btn">{item}</Link>
-                ) : (
-                  <a
-                    key={index}
-                    href={`#${item.toLowerCase()}`}
-                    className="nav-hover-btn"
-                  >
-                    {item}
-                  </a>
+              {navItems.map((item, index) => {
+                const protectedPages = ['Deforestation', 'Real Estate']
+                const isProtected = protectedPages.includes(item)
+
+                const handleClick = (e) => {
+                  if (isProtected) {
+                    const token = localStorage.getItem('token')
+                    if (!token) {
+                      e.preventDefault()
+                      open('login')
+                      return
+                    }
+                  }
+                }
+
+                if (item === 'Deforestation') {
+                  return <Link key={index} to="/deforestation" onClick={handleClick} className="nav-hover-btn">{item}</Link>
+                }
+
+                if (item === 'Home') {
+                  return <Link key={index} to="/" className="nav-hover-btn">{item}</Link>
+                }
+
+                if (item === 'Real Estate') {
+                  return <Link key={index} to="/real-estate" onClick={handleClick} className="nav-hover-btn">{item}</Link>
+                }
+
+                return (
+                  <a key={index} href={`#${item.toLowerCase()}`} className="nav-hover-btn">{item}</a>
                 )
-              ))}
+              })}
             </div>
 
             <button

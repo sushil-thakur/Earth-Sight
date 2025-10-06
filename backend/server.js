@@ -26,8 +26,20 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+// Configure CORS to echo back allowed origin (useful for multiple dev ports)
+const allowedDefault = ['http://localhost:5173', 'http://localhost:3000']
+const envOrigin = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(s => s.trim()) : []
+const allowedOrigins = Array.from(new Set([...allowedDefault, ...envOrigin]))
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like curl or server-to-server)
+    if (!origin) return callback(null, true)
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true)
+    }
+    return callback(new Error('CORS policy: Origin not allowed'))
+  },
   credentials: true
 }));
 app.use(bodyParser.json());
