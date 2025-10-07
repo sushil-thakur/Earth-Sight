@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import EnvironmentMap from '../components/EnvironmentMap'
+import CesiumMap from '../components/CesiumMap'
 
 // Lucide Icons as SVG components
 const Wallet = () => (
@@ -456,7 +456,7 @@ export default function Dashboard() {
                         <p className="text-sm text-slate-400 mt-1">Real-time global tracking</p>
                       </div>
                     </div>
-                    <EnvironmentMap
+                    <CesiumMap
                       points={[
                         { id: 1, lat: -3.4653, lng: -62.2159, title: 'Amazon Deforestation', description: 'Critical deforestation activity detected', color: '#ef4444' },
                         { id: 2, lat: 0.0, lng: -160.0, title: 'Pacific Marine Life', description: 'Marine ecosystem monitoring active', color: '#3b82f6' },
