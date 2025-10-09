@@ -12,6 +12,13 @@ body {
   font-family: "General Sans", sans-serif;
 }
 
+/* Hide Cesium built-in floating performance messages (only) */
+.cesium-performance-watchdog-message-area,
+.cesium-performance-watchdog-message,
+.cesium-performance-watchdog-message-dismiss {
+  display: none !important;
+}
+
 @layer base {
   @font-face {
     font-family: "circular-web";
