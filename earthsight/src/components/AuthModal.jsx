@@ -1,57 +1,78 @@
-import React, { useState } from 'react'
-import { useAuthModal } from '../contexts/AuthModalContext'
-import { useAuth } from '../contexts/AuthContext'
+import React, { useState } from "react";
+import { useAuthModal } from "../contexts/AuthModalContext";
+import { useAuth } from "../contexts/AuthContext";
 
 const AuthModal = () => {
-  const { isOpen, mode, close, setMode } = useAuthModal()
-  const { login, register } = useAuth()
-  const [loading, setLoading] = useState(false)
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', emailNotifications: true })
-  const [error, setError] = useState(null)
+  const { isOpen, mode, close, setMode } = useAuthModal();
+  const { login, register } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    emailNotifications: true,
+  });
+  const [error, setError] = useState(null);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const onChange = (e) => {
-    const { name, value, type, checked } = e.target
-    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
-  }
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
   const submit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
     try {
-      if (mode === 'login') {
-        if (!form.email || !form.password) throw new Error('Email and password are required')
-        const res = await login(form.email, form.password)
-        if (!res || res.success === false) throw new Error(res?.error || 'Login failed')
+      if (mode === "login") {
+        if (!form.email || !form.password)
+          throw new Error("Email and password are required");
+        const res = await login(form.email, form.password);
+        if (!res || res.success === false)
+          throw new Error(res?.error || "Login failed");
       } else {
-        if (!form.name || !form.email || !form.password) throw new Error('Name, email and password are required')
-        if (form.password !== form.confirmPassword) throw new Error('Passwords do not match')
-        if (form.password.length < 6) throw new Error('Password must be at least 6 characters')
-        const { confirmPassword, ...registerData } = form
-        const res = await register(registerData)
-        if (!res || res.success === false) throw new Error(res?.error || 'Registration failed')
+        if (!form.name || !form.email || !form.password)
+          throw new Error("Name, email and password are required");
+        if (form.password !== form.confirmPassword)
+          throw new Error("Passwords do not match");
+        if (form.password.length < 6)
+          throw new Error("Password must be at least 6 characters");
+        const { confirmPassword, ...registerData } = form;
+        const res = await register(registerData);
+        if (!res || res.success === false)
+          throw new Error(res?.error || "Registration failed");
       }
       // success
-      close()
+      close();
     } catch (err) {
       // Prefer backend error message when available (axios)
-      const serverMsg = err?.response?.data?.error || err?.response?.data?.message
-      setError(serverMsg || err.message || 'Failed')
+      const serverMsg =
+        err?.response?.data?.error || err?.response?.data?.message;
+      setError(serverMsg || err.message || "Failed");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60">
-      <div className="grid grid-cols-2 gap-6 w-[900px] rounded-2xl overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md">
+      <div className="grid grid-cols-2 gap-6 w-[900px] rounded-2xl overflow-hidden shadow-2xl bg-white/10">
         {/* Left panel - visual */}
         <div className="relative bg-gradient-to-br from-neon-blue to-neon-purple p-8 flex flex-col justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-white mb-2">Welcome to EarthSlight</h2>
-            <p className="text-sm text-white/90 mb-6">AI-powered environmental intelligence with real-time alerts and predictions.</p>
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Welcome to EarthSlight
+            </h2>
+            <p className="text-sm text-white/90 mb-6">
+              AI-powered environmental intelligence with real-time alerts and
+              predictions.
+            </p>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full bg-white/90" />
@@ -59,7 +80,9 @@ const AuthModal = () => {
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full bg-white/90" />
-                <span className="text-white text-sm">AI real-estate predictions</span>
+                <span className="text-white text-sm">
+                  AI real-estate predictions
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full bg-white/90" />
@@ -69,12 +92,14 @@ const AuthModal = () => {
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="three-body" style={{'--uib-color':'#fff'}}>
+            <div className="three-body" style={{ "--uib-color": "#fff" }}>
               <div className="three-body__dot" />
               <div className="three-body__dot" />
               <div className="three-body__dot" />
             </div>
-            <div className="text-right text-white/80 text-sm">Secure · Fast · Accurate</div>
+            <div className="text-right text-white/80 text-sm">
+              Secure · Fast · Accurate
+            </div>
           </div>
 
           <div className="absolute -right-20 -bottom-20 w-[260px] h-[260px] bg-white/5 rounded-full blur-3xl" />
@@ -83,44 +108,106 @@ const AuthModal = () => {
         {/* Right panel - form */}
         <div className="bg-dark-900 p-8">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{mode === 'login' ? 'Sign in' : 'Create account'}</h3>
+            <h3 className="text-xl font-semibold">
+              {mode === "login" ? "Sign in" : "Create account"}
+            </h3>
             <div className="space-x-2">
-              <button onClick={() => setMode('login')} className={`px-3 py-1 rounded ${mode==='login'?'bg-neon-blue text-black':'text-gray-400'}`}>Sign in</button>
-              <button onClick={() => setMode('register')} className={`px-3 py-1 rounded ${mode==='register'?'bg-neon-blue text-black':'text-gray-400'}`}>Register</button>
+              <button
+                onClick={() => setMode("login")}
+                className={`px-3 py-1 rounded bg-blue-600 ${
+                  mode === "login" ? "bg-neon-blue text-black" : "text-gray-400"
+                }`}
+              >
+                Sign in
+              </button>
+              <button
+                onClick={() => setMode("register")}
+                className={`px-3 py-1 rounded bg-yellow-500 ${
+                  mode === "register"
+                    ? "bg-neon-blue text-black"
+                    : "text-gray-100"
+                }`}
+              >
+                Register
+              </button>
             </div>
           </div>
 
           {error && <div className="text-sm text-red-400 mb-2">{error}</div>}
 
           <form onSubmit={submit} className="space-y-4">
-            {mode === 'register' && (
-              <input name="name" placeholder="Full name" value={form.name} onChange={onChange} className="w-full p-3 rounded bg-white/5 placeholder-gray-400" />
+            {mode === "register" && (
+              <input
+                name="name"
+                placeholder="Full name"
+                value={form.name}
+                onChange={onChange}
+                className="w-full p-3 rounded bg-white/5 placeholder-gray-400"
+              />
             )}
-            <input name="email" placeholder="Email" value={form.email} onChange={onChange} className="w-full p-3 rounded bg-white/5 placeholder-gray-400" />
-            <input name="password" type="password" placeholder="Password" value={form.password} onChange={onChange} className="w-full p-3 rounded bg-white/5 placeholder-gray-400" />
-            {mode === 'register' && (
-              <input name="confirmPassword" type="password" placeholder="Confirm password" value={form.confirmPassword} onChange={onChange} className="w-full p-3 rounded bg-white/5 placeholder-gray-400" />
+            <input
+              name="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={onChange}
+              className="w-full p-3 rounded bg-white/5 placeholder-gray-400"
+            />
+            <input
+              name="password"
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={onChange}
+              className="w-full p-3 rounded bg-white/5 placeholder-gray-400"
+            />
+            {mode === "register" && (
+              <input
+                name="confirmPassword"
+                type="password"
+                placeholder="Confirm password"
+                value={form.confirmPassword}
+                onChange={onChange}
+                className="w-full p-3 rounded bg-white/5 placeholder-gray-400"
+              />
             )}
 
-            {mode === 'register' && (
+            {mode === "register" && (
               <label className="flex items-center space-x-3 text-sm">
-                <input type="checkbox" name="emailNotifications" checked={form.emailNotifications} onChange={onChange} className="h-4 w-4" />
-                <span className="text-gray-300">Receive environmental alerts via email</span>
+                <input
+                  type="checkbox"
+                  name="emailNotifications"
+                  checked={form.emailNotifications}
+                  onChange={onChange}
+                  className="h-4 w-4"
+                />
+                <span className="text-gray-300">
+                  Receive environmental alerts via email
+                </span>
               </label>
             )}
 
             <div className="flex items-center justify-between">
-              <button type="submit" disabled={loading} className="btn-primary px-6 py-3 flex items-center gap-3">
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary px-6 py-3 flex items-center gap-3"
+              >
                 {loading ? (
-                  <div className="three-body" style={{'--uib-color':'#000'}}>
+                  <div className="three-body" style={{ "--uib-color": "#000" }}>
                     <div className="three-body__dot" />
                     <div className="three-body__dot" />
                     <div className="three-body__dot" />
                   </div>
                 ) : null}
-                <span>{mode === 'login' ? 'Sign in' : 'Create account'}</span>
+                <span>{mode === "login" ? "Sign in" : "Create account"}</span>
               </button>
-              <button type="button" onClick={close} className="text-sm text-gray-400">Close</button>
+              <button
+                type="button"
+                onClick={close}
+                className="text-sm text-gray-400"
+              >
+                Close
+              </button>
             </div>
           </form>
 
@@ -130,7 +217,7 @@ const AuthModal = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AuthModal
+export default AuthModal;
