@@ -318,4 +318,38 @@ router.get('/download/:filename', authenticateToken, async (req, res) => {
   }
 });
 
+// OCR / Content analyze endpoint (stub) - uses OCR_API_KEY and GROQ_API_KEY from env
+router.post('/analyze', authenticateToken, async (req, res) => {
+  try {
+    const { filename } = req.body;
+    // Ensure API keys exist in environment
+    const ocrKey = process.env.OCR_API_KEY;
+    const groqKey = process.env.GROQ_API_KEY;
+
+    if (!ocrKey || !groqKey) {
+      return res.status(400).json({ error: 'OCR_API_KEY and GROQ_API_KEY must be set in server environment' });
+    }
+
+    // For now, we will not call external services from server code here.
+    // Instead, provide a deterministic mock analysis response so frontend can integrate UX.
+    const mockAnalysis = {
+      filename: filename || null,
+      textExtracted: 'Sample extracted text from PDF... (mock)',
+      suggestions: [
+        'Consider increasing the listing price by 5% based on neighborhood trends.',
+        'Property would benefit from minor renovations in the kitchen area to increase valuation.',
+        'Nearby amenities score is high; highlight transit access in the listing.'
+      ],
+      ocrKeyPresent: !!ocrKey,
+      groqKeyPresent: !!groqKey,
+      timestamp: new Date().toISOString()
+    };
+
+    res.json({ success: true, analysis: mockAnalysis });
+  } catch (err) {
+    console.error('PDF analyze error:', err);
+    res.status(500).json({ error: 'Failed to analyze PDF' });
+  }
+});
+
 module.exports = router; 
