@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { predictionApi, environmentApi } from "../utils/api"
+import { predictionApi, environmentApi, pdfApi } from "../utils/api"
+import api from "../utils/api"
 import { Brain, Sparkles } from "lucide-react"
 import { PropertyForm } from "../components/property-form"
 import { InteractiveMap } from "../components/interactive-map"
@@ -120,15 +121,18 @@ export default function EarthSightDashboard() {
     bathrooms: "",
     floors: "",
     age: "",
+    latitude: '',
+    longitude: '',
+    pinColor: '#ff7a18'
   })
 
+  const [snackbar, setSnackbar] = useState({ open: false, message: '' })
+  const [generatingReport, setGeneratingReport] = useState(false)
+
   const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content:
-        "Hello! I'm your AI real estate assistant. Upload a PDF document to analyze property data, or ask me anything about real estate predictions.",
-    },
+    { role: 'assistant', content: "Hello — upload a PDF or ask a question." },
   ])
+  const [pdfExtractedText, setPdfExtractedText] = useState(null)
 
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -211,6 +215,9 @@ export default function EarthSightDashboard() {
     }
   }, [])
 
+  // If backend did not provide locations, fallback to a small set of US cities
+
+
   const currentLocationData = formData.location ? locationData[formData.location] : null
 
   const handleFormChange = (field, value) => {
@@ -220,6 +227,28 @@ export default function EarthSightDashboard() {
   const handleMapLocationSelect = (locationName) => {
     setFormData((prev) => ({ ...prev, location: locationName }))
   }
+
+  const handleCoordinateSelect = ({ lat, lon }) => {
+    setFormData((prev) => ({ ...prev, latitude: lat.toFixed ? lat.toFixed(6) : String(lat), longitude: lon.toFixed ? lon.toFixed(6) : String(lon) }))
+  }
+
+  const handleUpdatePinFromForm = ({ lat, lon, color }) => {
+    // update form values (they may already be in formData) and notify map via controlled props
+    setFormData((prev) => ({ ...prev, latitude: lat, longitude: lon, pinColor: color || prev.pinColor }))
+  }
+
+  const handlePinConfirm = ({ position, color }) => {
+    setSnackbar({ open: true, message: 'Location confirmed' })
+    setTimeout(() => setSnackbar({ open: false, message: '' }), 2500)
+    // Persist the confirmed location into form state so the map remains controlled
+    try {
+      if (position && position.lat != null && position.lon != null) {
+        setFormData(prev => ({ ...prev, latitude: Number(position.lat).toFixed ? Number(position.lat).toFixed(6) : String(position.lat), longitude: Number(position.lon).toFixed ? Number(position.lon).toFixed(6) : String(position.lon), pinColor: color || prev.pinColor }))
+      }
+    } catch (e) {}
+    // you might also persist the confirmed location to backend here
+  }
+
 
   const calculatePrediction = () => {
     if (!formData.location || !formData.area) {
@@ -272,43 +301,195 @@ export default function EarthSightDashboard() {
       .finally(() => setIsLoading(false))
   }
 
-  const handleSend = () => {
+  const handleDownloadReport = async () => {
+    // Create a payload with prediction data (best-effort) and the current form data
+    setGeneratingReport(true)
+    try {
+      const predictionData = {
+        prediction: { currentPrice: predictedPrice || 0, confidence: 0, factors: [] },
+        summary: forecastData && forecastData.length ? { averagePrice: forecastData[0].price } : {},
+        forecast: forecastData || []
+      }
+
+      // Ensure lat/lng keys exist for the backend template
+      const userInput = { ...formData }
+      if (!userInput.lat && (userInput.latitude || userInput.longitude)) {
+        userInput.lat = userInput.latitude || ''
+        userInput.lng = userInput.longitude || ''
+      }
+
+      const token = (typeof window !== 'undefined') ? (localStorage.getItem('token') || localStorage.getItem('authToken')) : null
+
+      const resp = await api.post('/pdf/report', { predictionData, userInput }, { responseType: 'blob', headers: Object.assign({ 'Accept': 'application/pdf' }, token ? { Authorization: `Bearer ${token}` } : {}) })
+
+      const url = window.URL.createObjectURL(new Blob([resp.data]))
+      const link = document.createElement('a')
+      link.href = url
+
+      const contentDisposition = resp.headers && resp.headers['content-disposition']
+      let filename = `earthsight-report-${Date.now()}.pdf`
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^";]+)"?/) 
+        if (match) filename = match[1]
+      }
+
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+
+      setSnackbar({ open: true, message: 'Report downloaded' })
+      setTimeout(() => setSnackbar({ open: false, message: '' }), 2500)
+    } catch (err) {
+      console.error('Report generation error:', err)
+      setSnackbar({ open: true, message: 'Failed to generate report' })
+      setTimeout(() => setSnackbar({ open: false, message: '' }), 2500)
+    } finally {
+      setGeneratingReport(false)
+    }
+  }
+
+  const handleSend = async () => {
     if (!input.trim()) return
 
-    const userMessage = { role: "user", content: input }
+    // capture the input before clearing it so async handlers can use it
+    const questionText = input.trim()
+    const userMessage = { role: 'user', content: questionText }
     setMessages((prev) => [...prev, userMessage])
-    setInput("")
+    setInput('')
     setIsProcessing(true)
 
+    // If a PDF has been uploaded and text extracted, forward the question and extracted text to backend
+    if (pdfExtractedText) {
+      try {
+        console.log('Sending PDF query to backend. question length:', questionText.length, 'extractedText present:', Boolean(pdfExtractedText))
+        if (pdfExtractedText && typeof pdfExtractedText === 'string') {
+          console.log('extractedText snippet:', pdfExtractedText.slice(0, 200))
+        }
+
+        const data = await pdfApi.query({
+          question: questionText,
+          extractedText: pdfExtractedText
+        })
+
+        if (!data.success) {
+          console.error('PDF query API error', data)
+          setMessages((prev) => [
+            ...prev,
+            { role: 'assistant', content: data.error || 'Failed to get answer from PDF. Please try again.' }
+          ])
+          return
+        }
+
+        const assistantText = data.assistantResponse || 'No response from assistant.'
+
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: assistantText }
+        ])
+
+  // Show warning if OpenRouter API failed
+        if (data.warning) {
+          setMessages((prev) => [
+            ...prev,
+            { role: 'assistant', content: `Note: ${data.warning}` }
+          ])
+        }
+
+      } catch (err) {
+        console.error('PDF query error', err)
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: 'Failed to get answer from PDF. Please try again.' }
+        ])
+      } finally {
+        setIsProcessing(false)
+      }
+      return
+    }
+
+    // Default local assistant fallback when no PDF context
     setTimeout(() => {
       const responses = [
-        "Based on current market trends, I can provide detailed insights about property valuations in your specified area.",
-        "The data suggests a positive market trend with an average annual appreciation of 7-9% in this region.",
+        'Based on current market trends, I can provide detailed insights about property valuations in your specified area.',
+        'The data suggests a positive market trend with an average annual appreciation of 7-9% in this region.',
         "I've analyzed the property details. The location score indicates high demand, making this a solid investment opportunity.",
-        "Considering the factors, the predicted price aligns well with comparable properties in the vicinity.",
+        'Considering the factors, the predicted price aligns well with comparable properties in the vicinity.',
       ]
 
-      const assistantMessage = {
-        role: "assistant",
-        content: responses[Math.floor(Math.random() * responses.length)],
-      }
+      const assistantMessage = { role: 'assistant', content: responses[Math.floor(Math.random() * responses.length)] }
 
       setMessages((prev) => [...prev, assistantMessage])
       setIsProcessing(false)
-    }, 1500)
+    }, 700)
   }
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0]
-    if (file && file.type === "application/pdf") {
+    if (!file) return
+
+    if (file.type !== 'application/pdf') {
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content: `I've received your PDF document "${file.name}". I can now answer questions about its contents. What would you like to know?`,
-        },
+        { role: 'assistant', content: 'Please upload a PDF file.' },
       ])
+      return
     }
+
+    // Upload PDF to backend analyze endpoint using pdfApi utility
+    const uploadAndAnalyze = async () => {
+      setIsProcessing(true)
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        console.log('Uploading PDF for analysis:', file.name)
+        const data = await pdfApi.analyze(formData)
+
+        if (!data.success) {
+          console.error('Analyze API error', data)
+          setMessages((prev) => [
+            ...prev,
+            { role: 'assistant', content: data.error || 'Failed to analyze PDF. Please try again later.' },
+          ])
+          return
+        }
+
+        // Store extracted text so subsequent chat questions can query the PDF context
+        if (data.extractedText) {
+          setPdfExtractedText(data.extractedText)
+          console.log('PDF text extracted successfully, length:', data.extractedText.length)
+        }
+
+        // Use assistant response from backend or fallback message
+        const assistantText = data.assistantResponse || `PDF "${file.name}" uploaded and processed successfully. You can now ask questions about this document.`
+
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: assistantText },
+        ])
+
+  // Show warning if OpenRouter API failed but OCR succeeded
+        if (data.warning) {
+          setMessages((prev) => [
+            ...prev,
+            { role: 'assistant', content: `Note: ${data.warning}` },
+          ])
+        }
+
+      } catch (err) {
+        console.error('Upload/analyze error', err)
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: 'An error occurred while uploading the PDF. Please check your connection and try again.' },
+        ])
+      } finally {
+        setIsProcessing(false)
+      }
+    }
+
+    uploadAndAnalyze()
   }
 
   const formatPrice = (price) => {
@@ -352,7 +533,16 @@ export default function EarthSightDashboard() {
           <div className="space-y-8">
             <PropertyForm formData={formData} availableLocations={availableLocations} onFormChange={handleFormChange} />
 
-            <InteractiveMap selectedLocation={formData.location} onLocationSelect={handleMapLocationSelect} />
+            <InteractiveMap
+              selectedLocation={formData.location}
+              onLocationSelect={handleMapLocationSelect}
+              onCoordinateSelect={handleCoordinateSelect}
+              availableLocations={availableLocations}
+              controlledPosition={formData.latitude && formData.longitude ? { lat: Number(formData.latitude), lon: Number(formData.longitude) } : null}
+              controlledColor={formData.pinColor}
+              onUpdatePin={handleUpdatePinFromForm}
+              onPinConfirm={handlePinConfirm}
+            />
 
             <MarketSummary location={formData.location} locationData={currentLocationData} />
           </div>
@@ -397,6 +587,15 @@ export default function EarthSightDashboard() {
               <Sparkles className="w-5 h-5" />
             </div>
           </button>
+          <div className="mt-4">
+            <button
+              onClick={handleDownloadReport}
+              disabled={generatingReport}
+              className="relative w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 font-semibold text-lg shadow-md text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {generatingReport ? 'Generating Report...' : 'Download Report'}
+            </button>
+          </div>
         </div>
 
         {showResults && (
@@ -407,6 +606,13 @@ export default function EarthSightDashboard() {
       </main>
 
       <DashboardFooter />
+
+      {/* Snackbar */}
+      {snackbar.open && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+          <div className="bg-emerald-600 text-white px-4 py-2 rounded-md shadow-lg">{snackbar.message}</div>
+        </div>
+      )}
 
       {/* Inline Styles for Animations */}
       <style>{`

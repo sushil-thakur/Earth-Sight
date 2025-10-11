@@ -328,4 +328,26 @@ router.get('/marine-life/statistics', (req, res) => {
   }
 });
 
+// Return a lightweight list of available location names for frontend selects
+router.get('/locations', (req, res) => {
+  try {
+    const locations = [
+      'Kathmandu',
+      'Lalitpur',
+      'Pokhara',
+      'Bhaktapur',
+      'Chitwan',
+      'Biratnagar',
+      'Butwal',
+      'Dharan',
+      'Hetauda'
+    ];
+
+    res.json({ success: true, locations, timestamp: new Date().toISOString() });
+  } catch (err) {
+    console.error('Error returning locations:', err);
+    res.status(500).json({ error: 'Failed to return locations' });
+  }
+});
+
 module.exports = router; 
