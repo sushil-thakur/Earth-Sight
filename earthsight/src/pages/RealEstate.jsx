@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react"
-import { predictionApi, environmentApi, pdfApi } from "../utils/api"
-import { Brain, Sparkles } from "lucide-react"
-import { PropertyForm } from "../components/property-form"
-import { InteractiveMap } from "../components/interactive-map"
-import { MarketSummary } from "../components/market-summary"
-import { AIAssistant } from "../components/ai-assistant"
-import { PriceGuessingGame } from "../components/price-guessing-game"
-import { FeaturedProperties } from "../components/feature-propertie"
-import { PredictionResults } from "../components/predictions-results"
-import { showToast } from "../components/FuturisticToast"
-import { KeyFactors } from "../components/key-factors"
-import { LoadingAnimation } from "../components/loading-animation"
-import { DashboardFooter } from "../components/dashboard-footer"
+import { useState, useEffect } from "react";
+import { predictionApi, environmentApi, pdfApi } from "../utils/api";
+import { Brain, Sparkles } from "lucide-react";
+import { PropertyForm } from "../components/property-form";
+import { InteractiveMap } from "../components/interactive-map";
+import { MarketSummary } from "../components/market-summary";
+import { AIAssistant } from "../components/ai-assistant";
+import { PriceGuessingGame } from "../components/price-guessing-game";
+import { FeaturedProperties } from "../components/feature-propertie";
+import { PredictionResults } from "../components/predictions-results";
+import { showToast } from "../components/FuturisticToast";
+import { KeyFactors } from "../components/key-factors";
+import { LoadingAnimation } from "../components/loading-animation";
+import { DashboardFooter } from "../components/dashboard-footer";
 
 const locationData = {
   Kathmandu: {
@@ -53,7 +53,7 @@ const locationData = {
       { type: "Resort Villa", price: "$650,000", area: "5000 sq ft" },
     ],
   },
-}
+};
 
 const gameProperties = [
   {
@@ -110,7 +110,7 @@ const gameProperties = [
     actualPrice: 21000000,
     image: "/villa-with-garden.jpg",
   },
-]
+];
 
 export default function EarthSightDashboard() {
   const [formData, setFormData] = useState({
@@ -120,147 +120,173 @@ export default function EarthSightDashboard() {
     bathrooms: "",
     floors: "",
     age: "",
-    latitude: '',
-    longitude: '',
-    pinColor: '#ff7a18'
-  })
+    latitude: "",
+    longitude: "",
+    pinColor: "#ff7a18",
+  });
 
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hello — upload a PDF or ask a question." },
-  ])
-  const [pdfExtractedText, setPdfExtractedText] = useState(null)
+    { role: "assistant", content: "Hello — upload a PDF or ask a question." },
+  ]);
+  const [pdfExtractedText, setPdfExtractedText] = useState(null);
 
-  const [input, setInput] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [showResults, setShowResults] = useState(false)
-  const [predictedPrice, setPredictedPrice] = useState(0)
-  const [forecastData, setForecastData] = useState([])
-  const [predictionData, setPredictionData] = useState(null)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [availableLocations, setAvailableLocations] = useState([])
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [predictedPrice, setPredictedPrice] = useState(0);
+  const [forecastData, setForecastData] = useState([]);
+  const [predictionData, setPredictionData] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [availableLocations, setAvailableLocations] = useState([]);
 
   // Game state
-  const [gameScore, setGameScore] = useState(0)
-  const [gameRound, setGameRound] = useState(0)
-  const [currentProperty, setCurrentProperty] = useState(null)
-  const [userGuess, setUserGuess] = useState("")
-  const [gameResult, setGameResult] = useState(null)
-  const [showGameResult, setShowGameResult] = useState(false)
+  const [gameScore, setGameScore] = useState(0);
+  const [gameRound, setGameRound] = useState(0);
+  const [currentProperty, setCurrentProperty] = useState(null);
+  const [userGuess, setUserGuess] = useState("");
+  const [gameResult, setGameResult] = useState(null);
+  const [showGameResult, setShowGameResult] = useState(false);
 
   const startNewRound = () => {
-    const randomProperty = gameProperties[Math.floor(Math.random() * gameProperties.length)]
-    setCurrentProperty(randomProperty)
-    setUserGuess("")
-    setGameResult(null)
-    setShowGameResult(false)
-  }
+    const randomProperty =
+      gameProperties[Math.floor(Math.random() * gameProperties.length)];
+    setCurrentProperty(randomProperty);
+    setUserGuess("");
+    setGameResult(null);
+    setShowGameResult(false);
+  };
 
   const submitGuess = () => {
-    if (!userGuess || !currentProperty) return
+    if (!userGuess || !currentProperty) return;
 
-    const guess = Number.parseFloat(userGuess)
-    const actual = currentProperty.actualPrice
-    const difference = Math.abs(guess - actual)
-    const percentageOff = (difference / actual) * 100
+    const guess = Number.parseFloat(userGuess);
+    const actual = currentProperty.actualPrice;
+    const difference = Math.abs(guess - actual);
+    const percentageOff = (difference / actual) * 100;
 
-    let points = 0
-    let message = ""
+    let points = 0;
+    let message = "";
 
     if (percentageOff < 5) {
-      points = 100
-      message = "Perfect! Almost exact!"
+      points = 100;
+      message = "Perfect! Almost exact!";
     } else if (percentageOff < 10) {
-      points = 80
-      message = "Excellent guess!"
+      points = 80;
+      message = "Excellent guess!";
     } else if (percentageOff < 20) {
-      points = 60
-      message = "Good estimate!"
+      points = 60;
+      message = "Good estimate!";
     } else if (percentageOff < 30) {
-      points = 40
-      message = "Not bad!"
+      points = 40;
+      message = "Not bad!";
     } else {
-      points = 20
-      message = "Keep trying!"
+      points = 20;
+      message = "Keep trying!";
     }
 
-    setGameScore(gameScore + points)
-    setGameRound(gameRound + 1)
-    setGameResult({ points, message, percentageOff: percentageOff.toFixed(1) })
-    setShowGameResult(true)
-  }
+    setGameScore(gameScore + points);
+    setGameRound(gameRound + 1);
+    setGameResult({ points, message, percentageOff: percentageOff.toFixed(1) });
+    setShowGameResult(true);
+  };
 
   useEffect(() => {
     if (!currentProperty) {
-      startNewRound()
+      startNewRound();
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
     environmentApi
       .getLocations()
       .then((resp) => {
         if (mounted && resp && resp.locations) {
-          setAvailableLocations(resp.locations)
+          setAvailableLocations(resp.locations);
         }
       })
       .catch((err) => {
-        console.warn("Failed to fetch locations from backend, falling back to defaults", err)
-      })
+        console.warn(
+          "Failed to fetch locations from backend, falling back to defaults",
+          err
+        );
+      });
     return () => {
-      mounted = false
-    }
-  }, [])
+      mounted = false;
+    };
+  }, []);
 
   // If backend did not provide locations, fallback to a small set of US cities
 
-
-  const currentLocationData = formData.location ? locationData[formData.location] : null
+  const currentLocationData = formData.location
+    ? locationData[formData.location]
+    : null;
 
   const handleFormChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleMapLocationSelect = (locationName) => {
-    setFormData((prev) => ({ ...prev, location: locationName }))
-  }
+    setFormData((prev) => ({ ...prev, location: locationName }));
+  };
 
   const handleCoordinateSelect = ({ lat, lon }) => {
-    setFormData((prev) => ({ ...prev, latitude: lat.toFixed ? lat.toFixed(6) : String(lat), longitude: lon.toFixed ? lon.toFixed(6) : String(lon) }))
-  }
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat.toFixed ? lat.toFixed(6) : String(lat),
+      longitude: lon.toFixed ? lon.toFixed(6) : String(lon),
+    }));
+  };
 
   const handleUpdatePinFromForm = ({ lat, lon, color }) => {
     // update form values (they may already be in formData) and notify map via controlled props
-    setFormData((prev) => ({ ...prev, latitude: lat, longitude: lon, pinColor: color || prev.pinColor }))
-  }
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lon,
+      pinColor: color || prev.pinColor,
+    }));
+  };
 
   const handlePinConfirm = ({ position, color }) => {
-    showToast('📍 Location confirmed successfully!', 'success', 2500)
+    showToast("📍 Location confirmed successfully!", "success", 2500);
     // Persist the confirmed location into form state so the map remains controlled
     try {
       if (position && position.lat != null && position.lon != null) {
-        setFormData(prev => ({ ...prev, latitude: Number(position.lat).toFixed ? Number(position.lat).toFixed(6) : String(position.lat), longitude: Number(position.lon).toFixed ? Number(position.lon).toFixed(6) : String(position.lon), pinColor: color || prev.pinColor }))
+        setFormData((prev) => ({
+          ...prev,
+          latitude: Number(position.lat).toFixed
+            ? Number(position.lat).toFixed(6)
+            : String(position.lat),
+          longitude: Number(position.lon).toFixed
+            ? Number(position.lon).toFixed(6)
+            : String(position.lon),
+          pinColor: color || prev.pinColor,
+        }));
       }
     } catch (e) {}
     // you might also persist the confirmed location to backend here
-  }
-
+  };
 
   const calculatePrediction = () => {
     // Validate required fields
     if (!formData.area) {
-      showToast("⚠️ Please fill in the property area", "warning", 3000)
-      return
+      showToast("⚠️ Please fill in the property area", "warning", 3000);
+      return;
     }
 
     // Check if we have location OR coordinates
     if (!formData.location && (!formData.latitude || !formData.longitude)) {
-      showToast("📍 Please select a location on the map or enter location name", "warning", 3000)
-      return
+      showToast(
+        "📍 Please select a location on the map or enter location name",
+        "warning",
+        3000
+      );
+      return;
     }
 
-    setIsLoading(true)
-    setShowResults(false)
+    setIsLoading(true);
+    setShowResults(false);
 
     // Prepare payload exactly as backend expects
     const payload = {
@@ -271,215 +297,270 @@ export default function EarthSightDashboard() {
       age: Number(formData.age) || 0,
       location: formData.location || null,
       lat: formData.latitude ? Number(formData.latitude) : null,
-      lng: formData.longitude ? Number(formData.longitude) : null
-    }
+      lng: formData.longitude ? Number(formData.longitude) : null,
+    };
 
-    console.log('Sending prediction request:', payload)
+    console.log("Sending prediction request:", payload);
 
     predictionApi
       .predict(payload)
       .then((resp) => {
-        console.log('Prediction response:', resp)
-        
+        console.log("Prediction response:", resp);
+
         if (resp && resp.success && resp.prediction) {
           // Store full prediction data with form inputs for PDF generation
           setPredictionData({
             ...resp.prediction,
-            ...payload  // Include form data for PDF report
-          })
-          
+            ...payload, // Include form data for PDF report
+          });
+
           // Set predicted price from backend
-          setPredictedPrice(resp.prediction.currentPrice || 0)
-          
+          setPredictedPrice(resp.prediction.currentPrice || 0);
+
           // Set forecast data from backend
-          let forecastLength = 0
-          if (resp.forecast && Array.isArray(resp.forecast) && resp.forecast.length > 0) {
-            const forecast = resp.forecast.map((f) => ({ 
-              year: f.year, 
+          let forecastLength = 0;
+          if (
+            resp.forecast &&
+            Array.isArray(resp.forecast) &&
+            resp.forecast.length > 0
+          ) {
+            const forecast = resp.forecast.map((f) => ({
+              year: f.year,
               price: f.price || 0,
               growth: f.growth || 0,
-              confidence: f.confidence || 0
-            }))
-            forecastLength = forecast.length
-            console.log('Forecast data set:', forecast)
-            setForecastData(forecast)
+              confidence: f.confidence || 0,
+            }));
+            forecastLength = forecast.length;
+            console.log("Forecast data set:", forecast);
+            setForecastData(forecast);
           } else {
-            console.warn('No forecast data in response')
-            setForecastData([])
+            console.warn("No forecast data in response");
+            setForecastData([]);
           }
-          
+
           // Update location data with backend summary if available
-          if (resp.summary && formData.location && locationData[formData.location]) {
+          if (
+            resp.summary &&
+            formData.location &&
+            locationData[formData.location]
+          ) {
             locationData[formData.location] = {
               ...locationData[formData.location],
-              propertiesAnalyzed: resp.summary.totalProperties || locationData[formData.location].propertiesAnalyzed,
-              averagePrice: formatPrice(resp.summary.averagePrice || resp.prediction.currentPrice),
-              marketTrend: resp.summary.marketTrend || locationData[formData.location].trend,
-              investmentScore: resp.summary.locationScore || locationData[formData.location].investmentScore
-            }
+              propertiesAnalyzed:
+                resp.summary.totalProperties ||
+                locationData[formData.location].propertiesAnalyzed,
+              averagePrice: formatPrice(
+                resp.summary.averagePrice || resp.prediction.currentPrice
+              ),
+              marketTrend:
+                resp.summary.marketTrend ||
+                locationData[formData.location].trend,
+              investmentScore:
+                resp.summary.locationScore ||
+                locationData[formData.location].investmentScore,
+            };
           }
-          
-          console.log('Setting showResults to true')
-          console.log('Predicted price:', resp.prediction.currentPrice)
-          console.log('Forecast length:', forecastLength)
-          setShowResults(true)
-          showToast('✨ Prediction generated successfully!', 'success', 3000)
+
+          console.log("Setting showResults to true");
+          console.log("Predicted price:", resp.prediction.currentPrice);
+          console.log("Forecast length:", forecastLength);
+          setShowResults(true);
+          showToast("✨ Prediction generated successfully!", "success", 3000);
         } else {
-          console.error('Invalid response format:', resp)
-          showToast('❌ Failed to get prediction. Please try again.', 'error', 3000)
-          setPredictedPrice(0)
+          console.error("Invalid response format:", resp);
+          showToast(
+            "❌ Failed to get prediction. Please try again.",
+            "error",
+            3000
+          );
+          setPredictedPrice(0);
         }
       })
       .catch((err) => {
-        console.error("Prediction API error:", err)
-        showToast(`❌ ${err.response?.data?.error || 'Prediction failed. Please check your inputs.'}`, 'error', 3000)
-        setPredictedPrice(0)
-        setShowResults(false)
+        console.error("Prediction API error:", err);
+        showToast(
+          `❌ ${
+            err.response?.data?.error ||
+            "Prediction failed. Please check your inputs."
+          }`,
+          "error",
+          3000
+        );
+        setPredictedPrice(0);
+        setShowResults(false);
       })
-      .finally(() => setIsLoading(false))
-  }
+      .finally(() => setIsLoading(false));
+  };
 
   const handleSend = async () => {
-    if (!input.trim()) return
+    if (!input.trim()) return;
 
     // capture the input before clearing it so async handlers can use it
-    const questionText = input.trim()
-    const userMessage = { role: 'user', content: questionText }
-    setMessages((prev) => [...prev, userMessage])
-    setInput('')
-    setIsProcessing(true)
+    const questionText = input.trim();
+    const userMessage = { role: "user", content: questionText };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsProcessing(true);
 
     // If a PDF has been uploaded and text extracted, forward the question and extracted text to backend
     if (pdfExtractedText) {
       try {
-        console.log('Sending PDF query to backend. question length:', questionText.length, 'extractedText present:', Boolean(pdfExtractedText))
-        if (pdfExtractedText && typeof pdfExtractedText === 'string') {
-          console.log('extractedText snippet:', pdfExtractedText.slice(0, 200))
+        console.log(
+          "Sending PDF query to backend. question length:",
+          questionText.length,
+          "extractedText present:",
+          Boolean(pdfExtractedText)
+        );
+        if (pdfExtractedText && typeof pdfExtractedText === "string") {
+          console.log("extractedText snippet:", pdfExtractedText.slice(0, 200));
         }
 
         const data = await pdfApi.query({
           question: questionText,
-          extractedText: pdfExtractedText
-        })
+          extractedText: pdfExtractedText,
+        });
 
         if (!data.success) {
-          console.error('PDF query API error', data)
+          console.error("PDF query API error", data);
           setMessages((prev) => [
             ...prev,
-            { role: 'assistant', content: data.error || 'Failed to get answer from PDF. Please try again.' }
-          ])
-          return
+            {
+              role: "assistant",
+              content:
+                data.error ||
+                "Failed to get answer from PDF. Please try again.",
+            },
+          ]);
+          return;
         }
 
-        const assistantText = data.assistantResponse || 'No response from assistant.'
+        const assistantText =
+          data.assistantResponse || "No response from assistant.";
 
         setMessages((prev) => [
           ...prev,
-          { role: 'assistant', content: assistantText }
-        ])
+          { role: "assistant", content: assistantText },
+        ]);
 
-  // Show warning if OpenRouter API failed
+        // Show warning if OpenRouter API failed
         if (data.warning) {
           setMessages((prev) => [
             ...prev,
-            { role: 'assistant', content: `Note: ${data.warning}` }
-          ])
+            { role: "assistant", content: `Note: ${data.warning}` },
+          ]);
         }
-
       } catch (err) {
-        console.error('PDF query error', err)
+        console.error("PDF query error", err);
         setMessages((prev) => [
           ...prev,
-          { role: 'assistant', content: 'Failed to get answer from PDF. Please try again.' }
-        ])
+          {
+            role: "assistant",
+            content: "Failed to get answer from PDF. Please try again.",
+          },
+        ]);
       } finally {
-        setIsProcessing(false)
+        setIsProcessing(false);
       }
-      return
+      return;
     }
 
     // Default local assistant fallback when no PDF context
     setTimeout(() => {
       const responses = [
-        'Based on current market trends, I can provide detailed insights about property valuations in your specified area.',
-        'The data suggests a positive market trend with an average annual appreciation of 7-9% in this region.',
+        "Based on current market trends, I can provide detailed insights about property valuations in your specified area.",
+        "The data suggests a positive market trend with an average annual appreciation of 7-9% in this region.",
         "I've analyzed the property details. The location score indicates high demand, making this a solid investment opportunity.",
-        'Considering the factors, the predicted price aligns well with comparable properties in the vicinity.',
-      ]
+        "Considering the factors, the predicted price aligns well with comparable properties in the vicinity.",
+      ];
 
-      const assistantMessage = { role: 'assistant', content: responses[Math.floor(Math.random() * responses.length)] }
+      const assistantMessage = {
+        role: "assistant",
+        content: responses[Math.floor(Math.random() * responses.length)],
+      };
 
-      setMessages((prev) => [...prev, assistantMessage])
-      setIsProcessing(false)
-    }, 700)
-  }
+      setMessages((prev) => [...prev, assistantMessage]);
+      setIsProcessing(false);
+    }, 700);
+  };
 
   const handleFileUpload = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    if (file.type !== 'application/pdf') {
+    if (file.type !== "application/pdf") {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: 'Please upload a PDF file.' },
-      ])
-      return
+        { role: "assistant", content: "Please upload a PDF file." },
+      ]);
+      return;
     }
 
     // Upload PDF to backend analyze endpoint using pdfApi utility
     const uploadAndAnalyze = async () => {
-      setIsProcessing(true)
+      setIsProcessing(true);
       try {
-        const formData = new FormData()
-        formData.append('file', file)
+        const formData = new FormData();
+        formData.append("file", file);
 
-        console.log('Uploading PDF for analysis:', file.name)
-        const data = await pdfApi.analyze(formData)
+        console.log("Uploading PDF for analysis:", file.name);
+        const data = await pdfApi.analyze(formData);
 
         if (!data.success) {
-          console.error('Analyze API error', data)
+          console.error("Analyze API error", data);
           setMessages((prev) => [
             ...prev,
-            { role: 'assistant', content: data.error || 'Failed to analyze PDF. Please try again later.' },
-          ])
-          return
+            {
+              role: "assistant",
+              content:
+                data.error || "Failed to analyze PDF. Please try again later.",
+            },
+          ]);
+          return;
         }
 
         // Store extracted text so subsequent chat questions can query the PDF context
         if (data.extractedText) {
-          setPdfExtractedText(data.extractedText)
-          console.log('PDF text extracted successfully, length:', data.extractedText.length)
+          setPdfExtractedText(data.extractedText);
+          console.log(
+            "PDF text extracted successfully, length:",
+            data.extractedText.length
+          );
         }
 
         // Use assistant response from backend or fallback message
-        const assistantText = data.assistantResponse || `PDF "${file.name}" uploaded and processed successfully. You can now ask questions about this document.`
+        const assistantText =
+          data.assistantResponse ||
+          `PDF "${file.name}" uploaded and processed successfully. You can now ask questions about this document.`;
 
         setMessages((prev) => [
           ...prev,
-          { role: 'assistant', content: assistantText },
-        ])
+          { role: "assistant", content: assistantText },
+        ]);
 
-  // Show warning if OpenRouter API failed but OCR succeeded
+        // Show warning if OpenRouter API failed but OCR succeeded
         if (data.warning) {
           setMessages((prev) => [
             ...prev,
-            { role: 'assistant', content: `Note: ${data.warning}` },
-          ])
+            { role: "assistant", content: `Note: ${data.warning}` },
+          ]);
         }
-
       } catch (err) {
-        console.error('Upload/analyze error', err)
+        console.error("Upload/analyze error", err);
         setMessages((prev) => [
           ...prev,
-          { role: 'assistant', content: 'An error occurred while uploading the PDF. Please check your connection and try again.' },
-        ])
+          {
+            role: "assistant",
+            content:
+              "An error occurred while uploading the PDF. Please check your connection and try again.",
+          },
+        ]);
       } finally {
-        setIsProcessing(false)
+        setIsProcessing(false);
       }
-    }
+    };
 
-    uploadAndAnalyze()
-  }
+    uploadAndAnalyze();
+  };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
@@ -487,8 +568,8 @@ export default function EarthSightDashboard() {
       currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(price)
-  }
+    }).format(price);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-white relative overflow-hidden">
@@ -518,13 +599,18 @@ export default function EarthSightDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
           {/* Left Column - Property Form & Map */}
           <div className="space-y-8">
-            <PropertyForm formData={formData} availableLocations={availableLocations} onFormChange={handleFormChange} />
-
-            <InteractiveMap 
-              onCoordinateSelect={handleCoordinateSelect}
+            <PropertyForm
+              formData={formData}
+              availableLocations={availableLocations}
+              onFormChange={handleFormChange}
             />
 
-            <MarketSummary location={formData.location} locationData={currentLocationData} />
+            <InteractiveMap onCoordinateSelect={handleCoordinateSelect} />
+
+            <MarketSummary
+              location={formData.location}
+              locationData={currentLocationData}
+            />
           </div>
 
           {/* Right Column */}
@@ -572,13 +658,14 @@ export default function EarthSightDashboard() {
         {showResults && predictedPrice > 0 && (
           <div>
             <div className="text-white text-center py-4 bg-green-500/20 rounded-lg mb-4">
-              ✅ Results Ready! Price: {formatPrice(predictedPrice)} | Forecast items: {forecastData.length}
+              ✅ Results Ready! Price: {formatPrice(predictedPrice)} | Forecast
+              items: {forecastData.length}
             </div>
-            <PredictionResults 
+            <PredictionResults
               predictionData={predictionData}
-              predictedPrice={predictedPrice} 
-              forecastData={forecastData} 
-              formatPrice={formatPrice} 
+              predictedPrice={predictedPrice}
+              forecastData={forecastData}
+              formatPrice={formatPrice}
             />
           </div>
         )}
@@ -703,5 +790,5 @@ export default function EarthSightDashboard() {
         }
       `}</style>
     </div>
-  )
+  );
 }
