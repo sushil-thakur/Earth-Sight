@@ -57,7 +57,7 @@ const About = () => {
   const repeatedTech = [...Technology, ...Technology];
 
   return (
-    <div className="">
+    <div className="text-emerald-400">
       <div className="h-[600px] w-full relative">
         <video
           src="/videos/hero-1.mp4"
@@ -90,11 +90,11 @@ const About = () => {
       <div className="px-8 py-6 md:py-8">
         <div className="flex flex-col py-6">
           {/* Mission */}
-          <div className="bg-gradient-to-br from-blue-50 to-emerald-50 rounded-3xl p-12 border border-blue-100 shadow-sm">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-slate-900 text-center">
+          <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 rounded-3xl p-12 border border-blue-100 shadow-sm">
+            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">
               Our Mission
             </h2>
-            <p className="text-base md:text-xl text-slate-700 leading-relaxed text-center">
+            <p className="text-base md:text-xl text-white leading-relaxed text-center">
               To empower researchers, policymakers, and investors with reliable,
               actionable insights derived from satellite imagery. By bridging
               environmental monitoring and real estate prediction, we strive to
@@ -106,10 +106,10 @@ const About = () => {
           {/* What We Do */}
           <div className="py-14">
             <div className="text-center pb-10">
-              <h2 className="text-2xl md:text-4xl font-bold mb-4 text-slate-900">
+              <h2 className="text-2xl md:text-4xl font-bold mb-4">
                 What We Do?
               </h2>
-              <p className="text-lg text-slate-600">
+              <p className="text-lg text-white">
                 Comprehensive solutions for environmental and real estate
                 intelligence
               </p>
@@ -128,17 +128,17 @@ const About = () => {
                   }}
                   viewport={{ once: true }}
                   key={idx}
-                  className="bg-white rounded-2xl px-6 py-8 shadow-lg hover:shadow-xl border border-slate-100"
+                  className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl px-6 py-8 shadow-lg hover:shadow-xl"
                 >
                   <div className="flex gap-3 items-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mb-6">
+                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 text-white">
                       {weDo.icon}
                     </div>
-                    <h3 className="text-2xl font-semibold mb-4 text-slate-900">
+                    <h3 className="text-2xl font-semibold mb-4 text-white">
                       {weDo.title}
                     </h3>
                   </div>
-                  <p className="text-slate-600 leading-relaxed text-lg">
+                  <p className="text-white leading-relaxed text-lg">
                     {weDo.des}
                   </p>
                 </motion.div>
@@ -149,15 +149,15 @@ const About = () => {
 
           {/* Technology */}
           <section className="flex flex-col space-y-4">
-            <h2 className="text-center text-2xl md:text-4xl font-bold mb-4 text-slate-900">
+            <h2 className="text-center text-2xl md:text-4xl font-bold mb-4">
               Technology Stack Used?
             </h2>
-            <Marquee speed={10}>
-              <div className="flex items-center gap-5">
+            <Marquee speed={50}>
+              <div className="flex items-center gap-5 pr-5">
                 {repeatedTech.map((tech, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-2 text-xl font-circular-web font-light text-black"
+                    className="flex items-center gap-2 text-xl font-circular-web font-light text-white"
                   >
                     <div>{tech.icon}</div>
                     {tech.name}
@@ -171,7 +171,7 @@ const About = () => {
 
         {/* Team and expertise */}
         <section className="py-8 md:py-10">
-          <h2 className="text-center text-2xl md:text-4xl font-bold mb-4 text-slate-900">
+          <h2 className="text-center text-2xl md:text-4xl font-bold mb-4">
             Team Members
           </h2>
           <div className="relative px-9 md:px-36 pt-5">
@@ -202,7 +202,7 @@ const About = () => {
             >
               {Members.map((member, idx) => (
                 <SwiperSlide key={idx}>
-                  <div className="h-[350px] w-full bg-white flex flex-col items-center justify-center gap-3 rounded-xl">
+                  <div className="h-[350px] w-full bg-[#1e1b4b] flex flex-col items-center justify-center gap-3 rounded-xl border border-white">
                     <img
                       src={member.img}
                       alt="No Member Image"

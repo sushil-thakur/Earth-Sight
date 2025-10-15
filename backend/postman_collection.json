@@ -1,0 +1,314 @@
+{
+  "info": {
+    "name": "EarthSlight Backend - Postman Collection",
+    "_postman_id": "earthsight-backend-collection",
+    "description": "Collection for testing the EarthSlight backend API. Set the environment variable `baseUrl` (e.g. http://localhost:5000) and `authToken` for protected routes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","health"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Password123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","auth","register"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Password123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","auth","login"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Profile (GET)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","auth","profile"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Update Profile (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Name\",\n  \"emailNotifications\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","auth","profile"]
+        }
+      }
+    },
+    {
+      "name": "Environment - Dummy Data",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/environment/dummy-data",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","environment","dummy-data"]
+        }
+      }
+    },
+    {
+      "name": "Environment - Statistics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/environment/statistics",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","environment","statistics"]
+        }
+      }
+    },
+    {
+      "name": "Environment - Risks by Type",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/environment/risks/deforestation",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","environment","risks","deforestation"]
+        },
+        "description": "Replace 'deforestation' with mining or forest_fire as needed"
+      }
+    },
+    {
+      "name": "Environment - Marine Life (all)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/environment/marine-life",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","environment","marine-life"]
+        }
+      }
+    },
+    {
+      "name": "Environment - Marine Life (filter by species)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/environment/marine-life?species=Yellowfin%20Tuna",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","environment","marine-life"],
+          "query": [ { "key": "species", "value": "Yellowfin Tuna" } ]
+        }
+      }
+    },
+    {
+      "name": "Environment - Marine Life Statistics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/environment/marine-life/statistics",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","environment","marine-life","statistics"]
+        }
+      }
+    },
+    {
+      "name": "Prediction - Generate (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"floors\": 2,\n  \"area\": 1200,\n  \"bedrooms\": 3,\n  \"bathrooms\": 2,\n  \"age\": 10,\n  \"location\": \"Los Angeles\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/predict/",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","predict"]
+        }
+      }
+    },
+    {
+      "name": "Prediction - Model Status (GET)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{authToken}}" } ],
+        "url": {
+          "raw": "{{baseUrl}}/api/predict/model-status",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","predict","model-status"]
+        }
+      }
+    },
+    {
+      "name": "Prediction - Test Model (POST)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{authToken}}" } ],
+        "url": {
+          "raw": "{{baseUrl}}/api/predict/test-model",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","predict","test-model"]
+        }
+      }
+    },
+    {
+      "name": "Prediction - History (GET)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{authToken}}" } ],
+        "url": {
+          "raw": "{{baseUrl}}/api/predict/history",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","predict","history"]
+        }
+      }
+    },
+    {
+      "name": "Prediction - Insights (GET)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{authToken}}" } ],
+        "url": {
+          "raw": "{{baseUrl}}/api/predict/insights?location=Los%20Angeles",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","predict","insights"],
+          "query": [ { "key": "location", "value": "Los Angeles" } ]
+        }
+      }
+    },
+    {
+      "name": "PDF - Generate Report (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"predictionData\": { /* minimal structure or use a previous prediction response */ },\n  \"userInput\": { \"location\": \"Los Angeles\", \"area\": 1200 }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/pdf/report",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","pdf","report"]
+        }
+      }
+    },
+    {
+      "name": "PDF - Download (GET)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{authToken}}" } ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pdf/download/report_filename.pdf",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","pdf","download","report_filename.pdf"]
+        }
+      }
+    },
+    {
+      "name": "Email - Status (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/email/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","email","status"]
+        }
+      }
+    },
+    {
+      "name": "Email - Test Alert (POST)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Test alert from Postman\",\n  \"type\": \"test\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/email/test-alert",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","email","test-alert"]
+        }
+      }
+    },
+    {
+      "name": "Alerts - Send Alerts (POST)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{authToken}}" } ],
+        "url": {
+          "raw": "{{baseUrl}}/api/send-alerts",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","send-alerts"]
+        }
+      }
+    }
+  ]
+}

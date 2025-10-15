@@ -7,12 +7,22 @@
 body {
   width: 100dvw;
   overflow-x: hidden;
-  background-color: #dfdff0;
   font-family: "General Sans", sans-serif;
+
+  /* Gradient background equivalent to Tailwind's bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 */
+  background: linear-gradient(to bottom right, #020617, #1e1b4b, #020617);
+  color: white; /* optional, matches dark gradient */
 }
 
 .test {
   border: 1px solid red;
+}
+
+/* Hide Cesium built-in floating performance messages (only) */
+.cesium-performance-watchdog-message-area,
+.cesium-performance-watchdog-message,
+.cesium-performance-watchdog-message-dismiss {
+  display: none !important;
 }
 
 @layer base {

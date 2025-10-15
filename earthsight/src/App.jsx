@@ -3,16 +3,16 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Deforestation from "./pages/Deforestation";
-import RealEstate from "./pages/RealEstate";
 import ProtectedRoute from "./components/ProtectedRoute";
 import About from "./pages/AboutUs";
 import Contact from "./pages/ContactUs";
+import EarthSightDashboard from "./pages/RealEstate";
 
 const App = () => {
   return (
     <main className="relative min-h-screen w-screen overflow-x-hidden">
       <Navbar />
-      {/* <div className="h-16" /> */}
+      <div className="h-16" />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route
@@ -27,19 +27,12 @@ const App = () => {
           path="/real-estate"
           element={
             <ProtectedRoute>
-              <RealEstate />
+              <EarthSightDashboard />
             </ProtectedRoute>
           }
         />
         <Route path="/about" element={<About />} />
-        <Route
-          path="/contact"
-          element={
-            <ProtectedRoute>
-              <Contact />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
     </main>
   );

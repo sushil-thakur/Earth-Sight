@@ -75,7 +75,6 @@ const NavBar = () => {
           {/* Logo and Product button */}
           <div className="flex items-center gap-7">
             <img src="/img/logo.png" alt="logo" className="w-10" />
-
             <Button
               id="product-button"
               title="Earth-Sight"

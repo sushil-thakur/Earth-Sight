@@ -10,7 +10,7 @@ const socialLinks = [
 
 const Footer = () => {
   return (
-    <footer className="w-full bg- text-black pt-10 pb-6">
+    <footer className="w-full bg- text-white pt-10 pb-6">
       {/* Divider */}
       <div className="h-[1px] bg-slate-700 mb-8" />
 
@@ -20,7 +20,7 @@ const Footer = () => {
           <h3 className="text-lg font-semibold mb-3 text-emerald-400">
             About Earth Sight
           </h3>
-          <p className="text-sm text-black leading-relaxed">
+          <p className="text-sm leading-relaxed">
             We leverage satellite imagery and AI to monitor environmental
             changes, predict real estate trends, and support sustainable
             development across Nepal and beyond.
@@ -32,7 +32,7 @@ const Footer = () => {
           <h3 className="text-lg font-semibold mb-3 text-emerald-400">
             Quick Links
           </h3>
-          <ul className="flex flex-col gap-2 text-black text-sm">
+          <ul className="flex flex-col gap-2 text-sm">
             {FootLinks.map((foot, idx) => (
               <li key={idx}>
                 <a
@@ -51,7 +51,7 @@ const Footer = () => {
           <h3 className="text-lg font-semibold mb-3 text-emerald-400">
             Contact
           </h3>
-          <ul className="text-black text-sm flex flex-col gap-2">
+          <ul className="text-sm flex flex-col gap-2">
             <li>Email: support@earthsight.com</li>
             <li>Phone: +977-9800000000</li>
             <li>Address: Kathmandu, Nepal</li>
@@ -67,7 +67,7 @@ const Footer = () => {
             <input
               type="email"
               placeholder="Your email"
-              className="px-3 py-2 text-sm text-black rounded-l-md focus:outline-none w-full"
+              className="px-3 py-2 text-sm rounded-l-md focus:outline-none w-full"
             />
             <button
               type="submit"
@@ -76,7 +76,7 @@ const Footer = () => {
               Subscribe
             </button>
           </form>
-          <p className="text-sm text-black mt-3">
+          <p className="text-sm mt-3">
             Get our latest insights and updates delivered to your inbox.
           </p>
         </div>
