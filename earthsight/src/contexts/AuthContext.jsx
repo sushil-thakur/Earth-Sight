@@ -13,6 +13,34 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Check if session is expired (5 minutes)
+  const isSessionExpired = () => {
+    const loginTime = localStorage.getItem('loginTime')
+    if (!loginTime) return true
+    
+    const now = new Date().getTime()
+    const elapsed = now - parseInt(loginTime)
+    const fiveMinutes = 5 * 60 * 1000 // 5 minutes in milliseconds
+    
+    return elapsed > fiveMinutes
+  }
+
+  // Auto logout when session expires
+  useEffect(() => {
+    const checkSession = () => {
+      if (user && isSessionExpired()) {
+        console.log('Session expired - logging out')
+        logout()
+        alert('Your session has expired. Please login again.')
+      }
+    }
+
+    // Check every 30 seconds
+    const interval = setInterval(checkSession, 30000)
+    
+    return () => clearInterval(interval)
+  }, [user])
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {

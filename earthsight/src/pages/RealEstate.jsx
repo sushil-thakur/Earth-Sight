@@ -19,12 +19,12 @@ const locationData = {
     priceChange: "+12.5%",
     investmentScore: 92,
     propertiesAnalyzed: 1247,
-    averagePrice: "NPR 85,00,000",
+    averagePrice: "$350,000",
     amenities: ["Shopping Malls", "Schools", "Hospitals", "Parks"],
     recentListings: [
-      { type: "3BHK Apartment", price: "NPR 1.2 Cr", area: "1800 sq ft" },
-      { type: "Villa", price: "NPR 3.5 Cr", area: "4500 sq ft" },
-      { type: "2BHK Flat", price: "NPR 85 L", area: "1200 sq ft" },
+      { type: "3BHK Apartment", price: "$420,000", area: "1800 sq ft" },
+      { type: "Villa", price: "$750,000", area: "4500 sq ft" },
+      { type: "2BHK Flat", price: "$280,000", area: "1200 sq ft" },
     ],
   },
   Lalitpur: {
@@ -32,12 +32,12 @@ const locationData = {
     priceChange: "+8.3%",
     investmentScore: 88,
     propertiesAnalyzed: 892,
-    averagePrice: "NPR 78,00,000",
+    averagePrice: "$320,000",
     amenities: ["Cafes", "Universities", "Hospitals", "Gardens"],
     recentListings: [
-      { type: "Penthouse", price: "NPR 2.8 Cr", area: "3200 sq ft" },
-      { type: "Studio", price: "NPR 45 L", area: "650 sq ft" },
-      { type: "4BHK House", price: "NPR 1.9 Cr", area: "2800 sq ft" },
+      { type: "Penthouse", price: "$580,000", area: "3200 sq ft" },
+      { type: "Studio", price: "$180,000", area: "650 sq ft" },
+      { type: "4BHK House", price: "$520,000", area: "2800 sq ft" },
     ],
   },
   Pokhara: {
@@ -45,12 +45,12 @@ const locationData = {
     priceChange: "+15.2%",
     investmentScore: 85,
     propertiesAnalyzed: 654,
-    averagePrice: "NPR 62,00,000",
+    averagePrice: "$280,000",
     amenities: ["Lake View", "Resorts", "Adventure Sports", "Nature"],
     recentListings: [
-      { type: "Lake House", price: "NPR 2.1 Cr", area: "3500 sq ft" },
-      { type: "Cottage", price: "NPR 95 L", area: "1500 sq ft" },
-      { type: "Resort Villa", price: "NPR 3.2 Cr", area: "5000 sq ft" },
+      { type: "Lake House", price: "$480,000", area: "3500 sq ft" },
+      { type: "Cottage", price: "$320,000", area: "1500 sq ft" },
+      { type: "Resort Villa", price: "$650,000", area: "5000 sq ft" },
     ],
   },
 };
@@ -227,6 +227,27 @@ export default function EarthSightDashboard() {
     setFormData((prev) => ({ ...prev, location: locationName }));
   };
 
+  const handleCoordinateSelect = ({ lat, lon }) => {
+    setFormData((prev) => ({ ...prev, latitude: lat.toFixed ? lat.toFixed(6) : String(lat), longitude: lon.toFixed ? lon.toFixed(6) : String(lon) }))
+  }
+
+  const handleUpdatePinFromForm = ({ lat, lon, color }) => {
+    // update form values (they may already be in formData) and notify map via controlled props
+    setFormData((prev) => ({ ...prev, latitude: lat, longitude: lon, pinColor: color || prev.pinColor }))
+  }
+
+  const handlePinConfirm = ({ position, color }) => {
+    showToast('📍 Location confirmed successfully!', 'success', 2500)
+    // Persist the confirmed location into form state so the map remains controlled
+    try {
+      if (position && position.lat != null && position.lon != null) {
+        setFormData(prev => ({ ...prev, latitude: Number(position.lat).toFixed ? Number(position.lat).toFixed(6) : String(position.lat), longitude: Number(position.lon).toFixed ? Number(position.lon).toFixed(6) : String(position.lon), pinColor: color || prev.pinColor }))
+      }
+    } catch (e) {}
+    // you might also persist the confirmed location to backend here
+  }
+
+
   const calculatePrediction = () => {
     if (!formData.location || !formData.area) {
       alert("Please fill in at least location and area");
@@ -236,6 +257,7 @@ export default function EarthSightDashboard() {
     setIsLoading(true);
     setShowResults(false);
 
+    // Prepare payload exactly as backend expects
     const payload = {
       floors: Number(formData.floors) || 1,
       area: Number(formData.area) || 1000,
@@ -244,6 +266,8 @@ export default function EarthSightDashboard() {
       age: Number(formData.age) || 0,
       location: formData.location,
     };
+
+    console.log('Sending prediction request:', payload)
 
     predictionApi
       .predict(payload)
@@ -288,10 +312,60 @@ export default function EarthSightDashboard() {
     setInput("");
     setIsProcessing(true);
 
+    // If a PDF has been uploaded and text extracted, forward the question and extracted text to backend
+    if (pdfExtractedText) {
+      try {
+        console.log('Sending PDF query to backend. question length:', questionText.length, 'extractedText present:', Boolean(pdfExtractedText))
+        if (pdfExtractedText && typeof pdfExtractedText === 'string') {
+          console.log('extractedText snippet:', pdfExtractedText.slice(0, 200))
+        }
+
+        const data = await pdfApi.query({
+          question: questionText,
+          extractedText: pdfExtractedText
+        })
+
+        if (!data.success) {
+          console.error('PDF query API error', data)
+          setMessages((prev) => [
+            ...prev,
+            { role: 'assistant', content: data.error || 'Failed to get answer from PDF. Please try again.' }
+          ])
+          return
+        }
+
+        const assistantText = data.assistantResponse || 'No response from assistant.'
+
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: assistantText }
+        ])
+
+  // Show warning if OpenRouter API failed
+        if (data.warning) {
+          setMessages((prev) => [
+            ...prev,
+            { role: 'assistant', content: `Note: ${data.warning}` }
+          ])
+        }
+
+      } catch (err) {
+        console.error('PDF query error', err)
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: 'Failed to get answer from PDF. Please try again.' }
+        ])
+      } finally {
+        setIsProcessing(false)
+      }
+      return
+    }
+
+    // Default local assistant fallback when no PDF context
     setTimeout(() => {
       const responses = [
-        "Based on current market trends, I can provide detailed insights about property valuations in your specified area.",
-        "The data suggests a positive market trend with an average annual appreciation of 7-9% in this region.",
+        'Based on current market trends, I can provide detailed insights about property valuations in your specified area.',
+        'The data suggests a positive market trend with an average annual appreciation of 7-9% in this region.',
         "I've analyzed the property details. The location score indicates high demand, making this a solid investment opportunity.",
         "Considering the factors, the predicted price aligns well with comparable properties in the vicinity.",
       ];
@@ -320,9 +394,9 @@ export default function EarthSightDashboard() {
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-NP", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "NPR",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
@@ -354,7 +428,7 @@ export default function EarthSightDashboard() {
       {/* <DashboardHeader /> */}
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-10 relative z-10">
+      <main className="container mx-auto px-6 py-32 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
           {/* Left Column - Property Form & Map */}
           <div className="space-y-8">

@@ -25,6 +25,16 @@ body {
   display: none !important;
 }
 
+/* Ensure Cesium container renders properly */
+.cesium-container {
+  background: transparent !important;
+}
+
+.cesium-container canvas {
+  border-radius: inherit;
+  outline: none !important;
+}
+
 @layer base {
   @font-face {
     font-family: "circular-web";

@@ -6,6 +6,9 @@ class EmailService {
   constructor() {
     this.transporter = null;
     this.isInitialized = false;
+    // Track sent alerts to prevent duplicates
+    this.sentAlerts = new Map(); // Format: { alertHash: timestamp }
+    this.ALERT_COOLDOWN = 60 * 60 * 1000; // 1 hour cooldown for same alert
     this.init();
   }
 
@@ -128,6 +131,15 @@ class EmailService {
       // Generate dummy environmental data
       const environmentalData = this.generateDummyAlertData();
       
+      // Generate hash for this alert
+      const alertHash = this.generateAlertHash(environmentalData);
+      
+      // Check if this alert was recently sent
+      if (this.isAlertRecentlySent(alertHash)) {
+        console.log(`⏭️  Skipping duplicate alert: ${environmentalData.type} at ${environmentalData.location} (sent within last hour)`);
+        return;
+      }
+      
       let successCount = 0;
       let errorCount = 0;
 
@@ -149,6 +161,12 @@ class EmailService {
             await new Promise(resolve => setTimeout(resolve, 3000));
           }
         }
+      }
+
+      // Mark alert as sent only if at least one email was successful
+      if (successCount > 0) {
+        this.markAlertAsSent(alertHash);
+        console.log(`🔖 Alert marked as sent: ${alertHash}`);
       }
 
       console.log(`📊 Environmental alerts completed: ${successCount} successful, ${errorCount} failed`);
@@ -342,6 +360,126 @@ class EmailService {
       area: Math.floor(Math.random() * 1000) + 100,
       confidence: Math.floor(Math.random() * 30) + 70
     };
+  }
+
+  // Generate unique hash for alert to prevent duplicates
+  generateAlertHash(alertData) {
+    // Create hash based on type, location, and severity (ignore timestamp and random values)
+    return `${alertData.type}_${alertData.location}_${alertData.severity}`;
+  }
+
+  // Check if alert was recently sent (within cooldown period)
+  isAlertRecentlySent(alertHash) {
+    if (!this.sentAlerts.has(alertHash)) {
+      return false;
+    }
+
+    const lastSentTime = this.sentAlerts.get(alertHash);
+    const timeSinceLastSent = Date.now() - lastSentTime;
+
+    // If cooldown period has passed, remove from tracking
+    if (timeSinceLastSent > this.ALERT_COOLDOWN) {
+      this.sentAlerts.delete(alertHash);
+      return false;
+    }
+
+    return true;
+  }
+
+  // Mark alert as sent
+  markAlertAsSent(alertHash) {
+    this.sentAlerts.set(alertHash, Date.now());
+    
+    // Clean up old entries (older than 2x cooldown period)
+    const cleanupThreshold = Date.now() - (this.ALERT_COOLDOWN * 2);
+    for (const [hash, timestamp] of this.sentAlerts.entries()) {
+      if (timestamp < cleanupThreshold) {
+        this.sentAlerts.delete(hash);
+      }
+    }
+  }
+
+  // Create custom alert HTML
+  createCustomAlertHTML(message, alertConfig, timestamp, userName) {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Environmental Alert</title>
+</head>
+<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <div style="background-color: ${alertConfig.color}; color: white; padding: 20px; text-align: center;">
+      <h1 style="margin: 0; font-size: 28px;">${alertConfig.emoji}</h1>
+      <h2 style="margin: 10px 0 0 0; font-size: 20px;">${alertConfig.subject}</h2>
+      <p style="margin: 10px 0 0 0; font-size: 14px;">EarthSlight Monitoring System</p>
+    </div>
+    <div style="padding: 30px;">
+      <p style="margin: 0 0 20px 0; font-size: 16px;">Dear ${userName || 'User'},</p>
+      <div style="background-color: #fff3cd; border-left: 4px solid ${alertConfig.color}; padding: 20px; margin: 20px 0; border-radius: 4px;">
+        <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #333;">${message}</p>
+      </div>
+      <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin: 20px 0;">
+        <p style="margin: 0; font-size: 13px; color: #666;">
+          <strong>Time:</strong> ${timestamp}<br>
+          <strong>Priority:</strong> <span style="color: ${alertConfig.color}; font-weight: bold;">HIGH</span>
+        </p>
+      </div>
+      <p style="margin: 20px 0; color: #666; font-size: 14px;">
+        This is an automated alert from the EarthSlight environmental monitoring system. 
+        Immediate attention may be required.
+      </p>
+      <div style="background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin: 20px 0;">
+        <p style="margin: 0; font-size: 13px; color: #2e7d32;">
+          <strong>💡 Recommended Actions:</strong><br>
+          • Monitor the situation closely<br>
+          • Alert local authorities if necessary<br>
+          • Check the dashboard for real-time updates<br>
+          • Document any observations
+        </p>
+      </div>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="http://localhost:5173" style="display: inline-block; background-color: ${alertConfig.color}; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Dashboard</a>
+      </div>
+      <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin: 20px 0;">
+        <p style="margin: 0; font-size: 12px; color: #666; text-align: center;">
+          EarthSlight - Environmental Risk Monitoring & Real Estate Prediction<br>
+          © ${new Date().getFullYear()} All rights reserved
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+  }
+
+  // Create custom alert plain text
+  createCustomAlertText(message, type, timestamp, userName) {
+    return `
+ENVIRONMENTAL ALERT - ${type.toUpperCase()}
+
+Dear ${userName || 'User'},
+
+${message}
+
+Time: ${timestamp}
+Priority: HIGH
+
+This is an automated alert from the EarthSlight environmental monitoring system.
+
+Recommended Actions:
+• Monitor the situation closely
+• Alert local authorities if necessary
+• Check the dashboard for real-time updates
+• Document any observations
+
+---
+EarthSlight Team
+Environmental Risk Monitoring & Real Estate Prediction
+© ${new Date().getFullYear()} All rights reserved
+`;
   }
 
   // Format alert email for standard environmental alerts

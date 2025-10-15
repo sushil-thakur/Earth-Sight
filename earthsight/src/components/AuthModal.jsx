@@ -17,6 +17,8 @@ const AuthModal = () => {
 
   if (!isOpen) return null;
 
+  const isSignUp = mode === 'register'
+
   const onChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -101,8 +103,7 @@ const AuthModal = () => {
               Secure · Fast · Accurate
             </div>
           </div>
-
-          <div className="absolute -right-20 -bottom-20 w-[260px] h-[260px] bg-white/5 rounded-full blur-3xl" />
+          <span className="text-2xl font-bold text-gray-800">earthsight</span>
         </div>
 
         {/* Right panel - form */}
@@ -132,8 +133,17 @@ const AuthModal = () => {
               </button>
             </div>
           </div>
+        </div>
 
-          {error && <div className="text-sm text-red-400 mb-2">{error}</div>}
+        {/* Sign In Form */}
+        <div
+          className={`absolute top-0 left-0 w-1/2 h-full flex items-center justify-center p-12 transition-all duration-700 ease-in-out ${
+            isSignUp ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
+        >
+          <div className="w-full max-w-sm">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Sign in to Account</h2>
+            <p className="text-gray-500 mb-8">Use your email account</p>
 
           <form onSubmit={submit} className="space-y-4">
             {mode === "register" && (
@@ -184,7 +194,6 @@ const AuthModal = () => {
                   Receive environmental alerts via email
                 </span>
               </label>
-            )}
 
             <div className="flex items-center justify-between">
               <button

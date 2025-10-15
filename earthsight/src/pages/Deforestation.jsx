@@ -606,7 +606,7 @@ export default function Dashboard() {
 
           <div className="mb-12">
             {!sidebarCollapsed && (
-              <h1 className="text-2xl font-bold rgb-text-animate">YOURLOGO</h1>
+              <h1 className="text-2xl font-bold rgb-text-animate">EARTHSIGHT</h1>
             )}
             {sidebarCollapsed && (
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
@@ -855,6 +855,68 @@ export default function Dashboard() {
           </div>
         </main>
       </div>
+
+      {/* Futuristic Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-2xl max-w-md w-full border border-violet-500/30 animate-scaleIn overflow-hidden">
+            {/* Animated border glow */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-500 to-violet-600 opacity-50 blur-xl animate-pulse" />
+            
+            {/* Content */}
+            <div className="relative p-8">
+              {/* Icon with animation */}
+              <div className="flex justify-center mb-6">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-500/50 animate-bounce">
+                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                  </div>
+                  {/* Pulsing rings */}
+                  <div className="absolute inset-0 rounded-full border-4 border-violet-500/30 animate-ping" />
+                  <div className="absolute inset-0 rounded-full border-2 border-fuchsia-500/20 animate-pulse" />
+                </div>
+              </div>
+
+              {/* Title */}
+              <h2 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-violet-400 via-fuchsia-400 to-violet-400 bg-clip-text text-transparent animate-shimmer">
+                Confirm Logout
+              </h2>
+
+              {/* Message */}
+              <p className="text-slate-300 text-center mb-8 text-lg">
+                Are you sure you want to logout?
+              </p>
+
+              {/* Buttons */}
+              <div className="flex gap-4">
+                {/* Cancel Button */}
+                <button
+                  onClick={cancelLogout}
+                  className="flex-1 px-6 py-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-600/50 hover:border-slate-500 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-slate-500/30 active:scale-95"
+                >
+                  Cancel
+                </button>
+
+                {/* Confirm Button */}
+                <button
+                  onClick={confirmLogout}
+                  className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-semibold shadow-lg shadow-violet-500/50 hover:shadow-violet-500/70 transition-all duration-300 hover:scale-105 active:scale-95 relative overflow-hidden group"
+                >
+                  <span className="relative z-10">OK</span>
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+                </button>
+              </div>
+            </div>
+
+            {/* Decorative elements */}
+            <div className="absolute top-0 left-0 w-20 h-20 bg-violet-500/10 rounded-full blur-2xl" />
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-fuchsia-500/10 rounded-full blur-3xl" />
+          </div>
+        </div>
+      )}
     </>
   );
 }

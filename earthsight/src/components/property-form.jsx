@@ -1,4 +1,4 @@
-export function PropertyForm({ formData, availableLocations, onFormChange }) {
+export function PropertyForm({ formData, availableLocations, onFormChange, onUpdatePin }) {
   return (
     <div className="relative group">
       <div className="absolute -inset-[1px] rounded-3xl animate-rgb-border opacity-75 group-hover:opacity-100 transition-opacity"></div>
@@ -20,6 +20,43 @@ export function PropertyForm({ formData, availableLocations, onFormChange }) {
         </div>
 
         <div className="space-y-5">
+                {/* Latitude / Longitude fields (optional, populated from map clicks) */}
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-indigo-300">Latitude</label>
+                  <input
+                    type="number"
+                    step="0.000001"
+                    placeholder="Click on map or type latitude"
+                    value={formData.latitude || ''}
+                    onChange={(e) => onFormChange('latitude', e.target.value)}
+                    className="w-full px-4 py-3.5 rounded-xl bg-slate-800/30 border border-indigo-500/20 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none text-white placeholder:text-slate-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-indigo-300">Longitude</label>
+                  <input
+                    type="number"
+                    step="0.000001"
+                    placeholder="Click on map or type longitude"
+                    value={formData.longitude || ''}
+                    onChange={(e) => onFormChange('longitude', e.target.value)}
+                    className="w-full px-4 py-3.5 rounded-xl bg-slate-800/30 border border-indigo-500/20 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none text-white placeholder:text-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-indigo-300">Pin color</label>
+                  <input
+                    type="color"
+                    value={formData.pinColor || '#ff7a18'}
+                    onChange={(e) => onFormChange('pinColor', e.target.value)}
+                    className="w-24 h-10 p-0 border-0 bg-transparent cursor-pointer"
+                  />
+                </div>
+
+                <div className="mt-2">
+                  <button onClick={() => onUpdatePin && onUpdatePin({ lat: formData.latitude, lon: formData.longitude, color: formData.pinColor })} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Update Pin</button>
+                </div>
           <div>
             <label className="block text-sm font-semibold mb-2 text-indigo-300">Location</label>
             <select
@@ -30,8 +67,8 @@ export function PropertyForm({ formData, availableLocations, onFormChange }) {
             >
               <option value="">Select location</option>
               {availableLocations.length ? (
-                availableLocations.map((loc) => (
-                  <option key={loc.id} value={loc.name} className="bg-slate-900">
+                availableLocations.map((loc, idx) => (
+                  <option key={loc.id || loc.name || idx} value={loc.name} className="bg-slate-900">
                     {loc.name}
                   </option>
                 ))
@@ -42,12 +79,12 @@ export function PropertyForm({ formData, availableLocations, onFormChange }) {
           </div>
 
           {[
-            { field: "area", label: "Area (sq ft)", placeholder: "e.g., 1500" },
-            { field: "bedrooms", label: "Bedrooms", placeholder: "e.g., 3" },
-            { field: "bathrooms", label: "Bathrooms", placeholder: "e.g., 2" },
-            { field: "floors", label: "Floors", placeholder: "e.g., 2" },
-            { field: "age", label: "Age (years)", placeholder: "e.g., 5" },
-          ].map(({ field, label, placeholder }) => (
+            { field: "area", label: "Area (sq ft)", placeholder: "e.g., 1500", max: 10000, min: 1 },
+            { field: "bedrooms", label: "Bedrooms", placeholder: "e.g., 3", max: 100, min: 0 },
+            { field: "bathrooms", label: "Bathrooms", placeholder: "e.g., 2", max: 100, min: 0 },
+            { field: "floors", label: "Floors", placeholder: "e.g., 2", max: 100, min: 1 },
+            { field: "age", label: "Age (years)", placeholder: "e.g., 5", max: 200, min: 0 },
+          ].map(({ field, label, placeholder, max, min }) => (
             <div key={field}>
               <label className="block text-sm font-semibold mb-2 text-indigo-300">{label}</label>
               <input
@@ -55,6 +92,8 @@ export function PropertyForm({ formData, availableLocations, onFormChange }) {
                 placeholder={placeholder}
                 value={formData[field]}
                 onChange={(e) => onFormChange(field, e.target.value)}
+                min={min}
+                max={max}
                 className="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-indigo-500/30 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-white placeholder:text-slate-500"
               />
             </div>
