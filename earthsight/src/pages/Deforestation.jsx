@@ -120,6 +120,23 @@ const ChevronLeft = () => (
   </svg>
 );
 
+const Settings = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const Trash = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 6h18"/>
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+    <line x1="10" x2="10" y1="11" y2="17"/>
+    <line x1="14" x2="14" y1="11" y2="17"/>
+  </svg>
+);
+
 const ChevronRight = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m9 18 6-6-6-6"/>
@@ -197,11 +214,22 @@ function FloatingOrbs() {
 // EnvironmentMap was moved to src/components/EnvironmentMap.jsx and is imported above
 
 export default function Dashboard() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [hoveredCard, setHoveredCard] = useState(null);
   const [newsCount, setNewsCount] = useState(4);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  
+  // Get user initials from user name
+  const getUserInitials = () => {
+    if (!user || !user.name) return 'U';
+    const names = user.name.trim().split(' ');
+    if (names.length >= 2) {
+      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+    }
+    return names[0][0].toUpperCase();
+  };
   
   const handleLogout = () => {
     setShowLogoutModal(true);
@@ -418,25 +446,76 @@ export default function Dashboard() {
               </div>
               
               <div className="flex items-center gap-4">
+                {/* User Avatar with Dropdown */}
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400">
-                    <Search />
+                  <div 
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="w-10 h-10 rounded-full border-2 rgb-border-animate hover:border-blue-500 transition-colors cursor-pointer overflow-hidden bg-blue-500/10 flex items-center justify-center card-click-effect"
+                  >
+                    <span className="text-sm font-semibold text-blue-500">{getUserInitials()}</span>
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="pl-10 w-64 h-10 rounded-lg bg-slate-900/50 border-2 rgb-border-animate focus:border-blue-500 transition-colors outline-none px-3 text-sm text-white placeholder-slate-500"
-                  />
-                </div>
-                <button className="relative w-10 h-10 rounded-lg hover:bg-slate-900 flex items-center justify-center transition-colors icon-spin-hover card-click-effect">
-                  <Briefcase />
-                </button>
-                <button className="relative w-10 h-10 rounded-lg hover:bg-slate-900 flex items-center justify-center transition-colors icon-spin-hover card-click-effect">
-                  <Bell />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                </button>
-                <div className="w-10 h-10 rounded-full border-2 rgb-border-animate hover:border-blue-500 transition-colors cursor-pointer overflow-hidden bg-blue-500/10 flex items-center justify-center card-click-effect">
-                  <span className="text-sm font-semibold text-blue-500">JD</span>
+
+                  {/* Dropdown Menu */}
+                  {showUserMenu && (
+                    <>
+                      {/* Backdrop to close menu */}
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setShowUserMenu(false)}
+                      />
+                      
+                      {/* Menu */}
+                      <div className="absolute right-0 mt-2 w-56 bg-slate-900 border-2 rgb-border-animate rounded-xl shadow-2xl shadow-blue-500/20 overflow-hidden z-50 animate-fadeIn">
+                        {/* User Info */}
+                        <div className="px-4 py-3 border-b border-slate-800">
+                          <p className="text-sm font-semibold text-white">{user?.name || 'User'}</p>
+                          <p className="text-xs text-slate-400 truncate">{user?.email || 'user@example.com'}</p>
+                        </div>
+
+                        {/* Menu Items */}
+                        <div className="py-2">
+                          <button
+                            onClick={() => {
+                              setShowUserMenu(false);
+                              showToast('⚙️ Settings coming soon!', 'info', 2000);
+                            }}
+                            className="w-full px-4 py-2.5 text-left text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-3"
+                          >
+                            <Settings />
+                            <span>Settings</span>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setShowUserMenu(false);
+                              // Show confirmation for account deletion
+                              if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                                showToast('🗑️ Account deletion feature coming soon!', 'warning', 3000);
+                              }
+                            }}
+                            className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors flex items-center gap-3"
+                          >
+                            <Trash />
+                            <span>Delete Account</span>
+                          </button>
+                        </div>
+
+                        {/* Logout */}
+                        <div className="border-t border-slate-800 py-2">
+                          <button
+                            onClick={() => {
+                              setShowUserMenu(false);
+                              handleLogout();
+                            }}
+                            className="w-full px-4 py-2.5 text-left text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-3"
+                          >
+                            <LogOut />
+                            <span>Logout</span>
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

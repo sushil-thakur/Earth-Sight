@@ -44,19 +44,6 @@ export function PropertyForm({ formData, availableLocations, onFormChange, onUpd
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold mb-2 text-indigo-300">Pin color</label>
-                  <input
-                    type="color"
-                    value={formData.pinColor || '#ff7a18'}
-                    onChange={(e) => onFormChange('pinColor', e.target.value)}
-                    className="w-24 h-10 p-0 border-0 bg-transparent cursor-pointer"
-                  />
-                </div>
-
-                <div className="mt-2">
-                  <button onClick={() => onUpdatePin && onUpdatePin({ lat: formData.latitude, lon: formData.longitude, color: formData.pinColor })} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Update Pin</button>
-                </div>
           <div>
             <label className="block text-sm font-semibold mb-2 text-indigo-300">Location</label>
             <select
