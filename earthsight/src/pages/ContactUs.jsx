@@ -8,16 +8,45 @@ import {
 } from "react-icons/fa";
 import Footer from "../components/Footer";
 
-export default function Contact() {
+export default function ContactUs() {
   return (
-    <section className="py-4 px-6 lg:px-20 text-emerald-400">
-      <div className="max-w-6xl mx-auto">
+    <section className="text-emerald-400">
+      <div className="h-[600px] w-full relative">
+        <video
+          src="/videos/hero-1.mp4"
+          loop
+          playsInline
+          autoPlay
+          muted
+          className="h-full w-full rounded-xl object-cover"
+        />
+        <div className="absolute inset-0 bg-black/50">
+          <div className="flex flex-col items-center justify-center h-full w-full text-white space-y-3">
+            <h1 className="text-4xl md:text-6xl font-bold font-zentry text-center">
+              Turning Satellite Data Into
+              <br /> Actionable Insights
+            </h1>
+            <p className="text-sm md:text-base text-center">
+              We combine satellite imagery and AI-powered analytics
+              <br className="md:hidden inline" /> to monitor{" "}
+              <br className="hidden md:inline" />
+              environmental changes and predict real
+              <br className="md:hidden inline" /> estate trends,
+              <br className="hidden md:inline" /> enabling smarter decisions for
+              a
+              <br className="md:hidden inline" />
+              sustainable future.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="w-full px-20 py-8">
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold">
             Get in Touch with Us
           </h2>
-          <p className="text-white mt-3 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-black mt-3 max-w-3xl mx-auto leading-relaxed">
             We're passionate about leveraging satellite imagery and geospatial
             analytics to support environmental sustainability. Whether you're a
             researcher, organization, or policymaker — let’s collaborate to make
@@ -34,7 +63,7 @@ export default function Contact() {
               <FaMapMarkerAlt className="text-emerald-600 text-2xl" />
               <div>
                 <h4 className="font-semibold">Our Office</h4>
-                <p className="text-white">
+                <p className="text-black">
                   Kathmandu, Nepal
                   <br />
                   Earth Observation & Environmental Lab
@@ -46,7 +75,7 @@ export default function Contact() {
               <FaPhoneAlt className="text-emerald-600 text-2xl" />
               <div>
                 <h4 className="font-semibold">Phone</h4>
-                <p className="text-white">+977-9812345678</p>
+                <p className="text-black">+977-9812345678</p>
               </div>
             </div>
 
@@ -54,14 +83,14 @@ export default function Contact() {
               <FaEnvelope className="text-emerald-600 text-2xl" />
               <div>
                 <h4 className="font-semibold">Email</h4>
-                <p className="text-white">contact@envsatellite.com</p>
+                <p className="text-black">contact@envsatellite.com</p>
               </div>
             </div>
 
             {/* Office Hours */}
             <div>
               <h4 className="font-semibold">Office Hours</h4>
-              <p className="text-white">
+              <p className="text-black">
                 Sunday – Friday: 9:00 AM – 6:00 PM <br />
                 Saturday: Closed
               </p>
@@ -84,7 +113,7 @@ export default function Contact() {
             </div>
 
             {/* Mission */}
-            <p className="text-white text-sm mt-6 leading-relaxed">
+            <p className="text-black text-sm mt-6 leading-relaxed">
               🌱 Our mission is to provide accessible, reliable environmental
               insights through satellite data, empowering governments, NGOs, and
               communities to protect ecosystems and plan sustainable futures.

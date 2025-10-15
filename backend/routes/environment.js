@@ -328,4 +328,28 @@ router.get('/marine-life/statistics', (req, res) => {
   }
 });
 
+// Return a lightweight list of available location names for frontend selects
+router.get('/locations', (req, res) => {
+  try {
+    // Locations that match the AI model's trained locations
+    const locations = [
+      { id: 1, name: 'Los Angeles', country: 'USA', lat: 34.0522, lng: -118.2437 },
+      { id: 2, name: 'New York', country: 'USA', lat: 40.7128, lng: -74.0060 },
+      { id: 3, name: 'San Francisco', country: 'USA', lat: 37.7749, lng: -122.4194 },
+      { id: 4, name: 'Chicago', country: 'USA', lat: 41.8781, lng: -87.6298 },
+      { id: 5, name: 'Miami', country: 'USA', lat: 25.7617, lng: -80.1918 },
+      { id: 6, name: 'Seattle', country: 'USA', lat: 47.6062, lng: -122.3321 },
+      { id: 7, name: 'Austin', country: 'USA', lat: 30.2672, lng: -97.7431 },
+      { id: 8, name: 'Denver', country: 'USA', lat: 39.7392, lng: -104.9903 },
+      { id: 9, name: 'Boston', country: 'USA', lat: 42.3601, lng: -71.0589 },
+      { id: 10, name: 'Portland', country: 'USA', lat: 45.5152, lng: -122.6784 }
+    ];
+
+    res.json({ success: true, locations, timestamp: new Date().toISOString() });
+  } catch (err) {
+    console.error('Error returning locations:', err);
+    res.status(500).json({ error: 'Failed to return locations' });
+  }
+});
+
 module.exports = router; 

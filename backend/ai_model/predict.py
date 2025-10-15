@@ -69,7 +69,7 @@ class RealEstatePredictor:
         df = pd.DataFrame(data)
         
         # Calculate synthetic prices based on features
-        base_price = 150000
+        base_price = 50000  # Reduced from 150000 to get more realistic prices
         prices = []
         
         for _, row in df.iterrows():

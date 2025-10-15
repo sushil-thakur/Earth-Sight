@@ -90,11 +90,11 @@ const About = () => {
       <div className="px-8 py-6 md:py-8">
         <div className="flex flex-col py-6">
           {/* Mission */}
-          <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 rounded-3xl p-12 border border-blue-100 shadow-sm">
+          <div className="bg-white border border=[#1e1b4b] rounded-3xl p-12 shadow-sm">
             <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">
               Our Mission
             </h2>
-            <p className="text-base md:text-xl text-white leading-relaxed text-center">
+            <p className="text-base md:text-xl text-black leading-relaxed text-center">
               To empower researchers, policymakers, and investors with reliable,
               actionable insights derived from satellite imagery. By bridging
               environmental monitoring and real estate prediction, we strive to
@@ -109,7 +109,7 @@ const About = () => {
               <h2 className="text-2xl md:text-4xl font-bold mb-4">
                 What We Do?
               </h2>
-              <p className="text-lg text-white">
+              <p className="text-lg text-black">
                 Comprehensive solutions for environmental and real estate
                 intelligence
               </p>
@@ -131,14 +131,14 @@ const About = () => {
                   className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl px-6 py-8 shadow-lg hover:shadow-xl"
                 >
                   <div className="flex gap-3 items-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 text-white">
+                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 text-black">
                       {weDo.icon}
                     </div>
-                    <h3 className="text-2xl font-semibold mb-4 text-white">
+                    <h3 className="text-2xl font-semibold mb-4 text-black">
                       {weDo.title}
                     </h3>
                   </div>
-                  <p className="text-white leading-relaxed text-lg">
+                  <p className="text-black leading-relaxed text-lg">
                     {weDo.des}
                   </p>
                 </motion.div>
@@ -157,7 +157,7 @@ const About = () => {
                 {repeatedTech.map((tech, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-2 text-xl font-circular-web font-light text-white"
+                    className="flex items-center gap-2 text-xl font-circular-web font-light text-black"
                   >
                     <div>{tech.icon}</div>
                     {tech.name}
@@ -202,7 +202,7 @@ const About = () => {
             >
               {Members.map((member, idx) => (
                 <SwiperSlide key={idx}>
-                  <div className="h-[350px] w-full bg-[#1e1b4b] flex flex-col items-center justify-center gap-3 rounded-xl border border-white">
+                  <div className="h-[350px] w-full bg-white flex flex-col items-center justify-center gap-3 rounded-xl border border-[#1e1b4b]">
                     <img
                       src={member.img}
                       alt="No Member Image"

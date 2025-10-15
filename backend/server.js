@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 // Load environment variables
 dotenv.config();
@@ -50,8 +51,9 @@ app.use(cors({
   },
   credentials: true
 }));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Allow larger JSON payloads (extracted PDF text can be large). Set to 5mb.
+app.use(bodyParser.json({ limit: process.env.BODY_PARSER_LIMIT || '5mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: process.env.BODY_PARSER_LIMIT || '5mb' }));
 
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -165,6 +167,8 @@ async function initializeServices() {
     // Initialize AI Model Service
     console.log('Initializing AI Model Service...');
     await aiModelService.initialize();
+    // Check OpenRouter connectivity if configured
+    await checkOpenRouterConnectivity();
     
     // Initialize Email alert scheduler
     console.log('Initializing Email Service...');
@@ -173,6 +177,34 @@ async function initializeServices() {
     console.log('All services initialized successfully!');
   } catch (error) {
     console.error('Error initializing services:', error);
+  }
+}
+
+async function checkOpenRouterConnectivity() {
+  try {
+    const openRouterKey = process.env.OPENROUTER_API_KEY || process.env.OPENROUTER_KEY
+    if (!openRouterKey) {
+      console.log('OpenRouter key not configured — skipping connectivity check')
+      return
+    }
+    const openRouterUrl = process.env.OPENROUTER_URL || process.env.OPENROUTER_API_URL || 'https://api.openrouter.ai/v1/chat/completions'
+    const model = process.env.OPENROUTER_MODEL || 'gpt-4o-mini'
+    console.log('Checking OpenRouter connectivity...', { tryUrl: openRouterUrl, model })
+
+    const payload = {
+      model,
+      messages: [
+        { role: 'system', content: 'You are a connectivity test agent.' },
+        { role: 'user', content: 'Say hello in one sentence.' }
+      ],
+      max_tokens: 20
+    }
+
+    const resp = await axios.post(openRouterUrl, payload, { headers: { Authorization: `Bearer ${openRouterKey}`, 'Content-Type': 'application/json' }, timeout: 10000 })
+    const data = resp && resp.data
+    console.log('OpenRouter connectivity check succeeded:', resp.status, data && (data.choices ? 'choices present' : 'no choices'))
+  } catch (err) {
+    console.warn('OpenRouter connectivity check failed:', err && (err.response ? `${err.response.status} ${JSON.stringify(err.response.data).slice(0,200)}` : err.message))
   }
 }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { predictionApi, environmentApi } from "../utils/api";
+import { predictionApi, environmentApi, pdfApi } from "../utils/api";
 import { Brain, Sparkles } from "lucide-react";
 import { PropertyForm } from "../components/property-form";
 import { InteractiveMap } from "../components/interactive-map";
@@ -8,9 +8,9 @@ import { AIAssistant } from "../components/ai-assistant";
 import { PriceGuessingGame } from "../components/price-guessing-game";
 import { FeaturedProperties } from "../components/feature-propertie";
 import { PredictionResults } from "../components/predictions-results";
+import { showToast } from "../components/FuturisticToast";
 import { KeyFactors } from "../components/key-factors";
 import { LoadingAnimation } from "../components/loading-animation";
-import { DashboardHeader } from "../components/dashboard-header";
 import { DashboardFooter } from "../components/dashboard-footer";
 
 const locationData = {
@@ -19,12 +19,12 @@ const locationData = {
     priceChange: "+12.5%",
     investmentScore: 92,
     propertiesAnalyzed: 1247,
-    averagePrice: "NPR 85,00,000",
+    averagePrice: "$350,000",
     amenities: ["Shopping Malls", "Schools", "Hospitals", "Parks"],
     recentListings: [
-      { type: "3BHK Apartment", price: "NPR 1.2 Cr", area: "1800 sq ft" },
-      { type: "Villa", price: "NPR 3.5 Cr", area: "4500 sq ft" },
-      { type: "2BHK Flat", price: "NPR 85 L", area: "1200 sq ft" },
+      { type: "3BHK Apartment", price: "$420,000", area: "1800 sq ft" },
+      { type: "Villa", price: "$750,000", area: "4500 sq ft" },
+      { type: "2BHK Flat", price: "$280,000", area: "1200 sq ft" },
     ],
   },
   Lalitpur: {
@@ -32,12 +32,12 @@ const locationData = {
     priceChange: "+8.3%",
     investmentScore: 88,
     propertiesAnalyzed: 892,
-    averagePrice: "NPR 78,00,000",
+    averagePrice: "$320,000",
     amenities: ["Cafes", "Universities", "Hospitals", "Gardens"],
     recentListings: [
-      { type: "Penthouse", price: "NPR 2.8 Cr", area: "3200 sq ft" },
-      { type: "Studio", price: "NPR 45 L", area: "650 sq ft" },
-      { type: "4BHK House", price: "NPR 1.9 Cr", area: "2800 sq ft" },
+      { type: "Penthouse", price: "$580,000", area: "3200 sq ft" },
+      { type: "Studio", price: "$180,000", area: "650 sq ft" },
+      { type: "4BHK House", price: "$520,000", area: "2800 sq ft" },
     ],
   },
   Pokhara: {
@@ -45,12 +45,12 @@ const locationData = {
     priceChange: "+15.2%",
     investmentScore: 85,
     propertiesAnalyzed: 654,
-    averagePrice: "NPR 62,00,000",
+    averagePrice: "$280,000",
     amenities: ["Lake View", "Resorts", "Adventure Sports", "Nature"],
     recentListings: [
-      { type: "Lake House", price: "NPR 2.1 Cr", area: "3500 sq ft" },
-      { type: "Cottage", price: "NPR 95 L", area: "1500 sq ft" },
-      { type: "Resort Villa", price: "NPR 3.2 Cr", area: "5000 sq ft" },
+      { type: "Lake House", price: "$480,000", area: "3500 sq ft" },
+      { type: "Cottage", price: "$320,000", area: "1500 sq ft" },
+      { type: "Resort Villa", price: "$650,000", area: "5000 sq ft" },
     ],
   },
 };
@@ -120,21 +120,22 @@ export default function EarthSightDashboard() {
     bathrooms: "",
     floors: "",
     age: "",
+    latitude: "",
+    longitude: "",
+    pinColor: "#ff7a18",
   });
 
   const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content:
-        "Hello! I'm your AI real estate assistant. Upload a PDF document to analyze property data, or ask me anything about real estate predictions.",
-    },
+    { role: "assistant", content: "Hello — upload a PDF or ask a question." },
   ]);
+  const [pdfExtractedText, setPdfExtractedText] = useState(null);
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [predictedPrice, setPredictedPrice] = useState(0);
   const [forecastData, setForecastData] = useState([]);
+  const [predictionData, setPredictionData] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [availableLocations, setAvailableLocations] = useState([]);
 
@@ -158,7 +159,7 @@ export default function EarthSightDashboard() {
   const submitGuess = () => {
     if (!userGuess || !currentProperty) return;
 
-    const guess = Number.parseFloat(userGuess) * 10000000;
+    const guess = Number.parseFloat(userGuess);
     const actual = currentProperty.actualPrice;
     const difference = Math.abs(guess - actual);
     const percentageOff = (difference / actual) * 100;
@@ -215,6 +216,8 @@ export default function EarthSightDashboard() {
     };
   }, []);
 
+  // If backend did not provide locations, fallback to a small set of US cities
+
   const currentLocationData = formData.location
     ? locationData[formData.location]
     : null;
@@ -227,67 +230,241 @@ export default function EarthSightDashboard() {
     setFormData((prev) => ({ ...prev, location: locationName }));
   };
 
+  const handleCoordinateSelect = ({ lat, lon }) => {
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat.toFixed ? lat.toFixed(6) : String(lat),
+      longitude: lon.toFixed ? lon.toFixed(6) : String(lon),
+    }));
+  };
+
+  const handleUpdatePinFromForm = ({ lat, lon, color }) => {
+    // update form values (they may already be in formData) and notify map via controlled props
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lon,
+      pinColor: color || prev.pinColor,
+    }));
+  };
+
+  const handlePinConfirm = ({ position, color }) => {
+    showToast("📍 Location confirmed successfully!", "success", 2500);
+    // Persist the confirmed location into form state so the map remains controlled
+    try {
+      if (position && position.lat != null && position.lon != null) {
+        setFormData((prev) => ({
+          ...prev,
+          latitude: Number(position.lat).toFixed
+            ? Number(position.lat).toFixed(6)
+            : String(position.lat),
+          longitude: Number(position.lon).toFixed
+            ? Number(position.lon).toFixed(6)
+            : String(position.lon),
+          pinColor: color || prev.pinColor,
+        }));
+      }
+    } catch (e) {}
+    // you might also persist the confirmed location to backend here
+  };
+
   const calculatePrediction = () => {
-    if (!formData.location || !formData.area) {
-      alert("Please fill in at least location and area");
+    // Validate required fields
+    if (!formData.area) {
+      showToast("⚠️ Please fill in the property area", "warning", 3000);
+      return;
+    }
+
+    // Check if we have location OR coordinates
+    if (!formData.location && (!formData.latitude || !formData.longitude)) {
+      showToast(
+        "📍 Please select a location on the map or enter location name",
+        "warning",
+        3000
+      );
       return;
     }
 
     setIsLoading(true);
     setShowResults(false);
 
+    // Prepare payload exactly as backend expects
     const payload = {
       floors: Number(formData.floors) || 1,
       area: Number(formData.area) || 1000,
       bedrooms: Number(formData.bedrooms) || 2,
       bathrooms: Number(formData.bathrooms) || 1,
       age: Number(formData.age) || 0,
-      location: formData.location,
+      location: formData.location || null,
+      lat: formData.latitude ? Number(formData.latitude) : null,
+      lng: formData.longitude ? Number(formData.longitude) : null,
     };
+
+    console.log("Sending prediction request:", payload);
 
     predictionApi
       .predict(payload)
       .then((resp) => {
-        try {
-          if (resp && resp.prediction && resp.prediction.currentPrice) {
-            setPredictedPrice(resp.prediction.currentPrice);
-          }
-          if (resp && resp.forecast && Array.isArray(resp.forecast)) {
-            setForecastData(
-              resp.forecast.map((f) => ({ year: f.year, price: f.price }))
-            );
+        console.log("Prediction response:", resp);
+
+        if (resp && resp.success && resp.prediction) {
+          // Store full prediction data with form inputs for PDF generation
+          setPredictionData({
+            ...resp.prediction,
+            ...payload, // Include form data for PDF report
+          });
+
+          // Set predicted price from backend
+          setPredictedPrice(resp.prediction.currentPrice || 0);
+
+          // Set forecast data from backend
+          let forecastLength = 0;
+          if (
+            resp.forecast &&
+            Array.isArray(resp.forecast) &&
+            resp.forecast.length > 0
+          ) {
+            const forecast = resp.forecast.map((f) => ({
+              year: f.year,
+              price: f.price || 0,
+              growth: f.growth || 0,
+              confidence: f.confidence || 0,
+            }));
+            forecastLength = forecast.length;
+            console.log("Forecast data set:", forecast);
+            setForecastData(forecast);
           } else {
-            const currentYear = new Date().getFullYear();
-            const chartData = Array.from({ length: 10 }, (_, i) => {
-              const year = currentYear + i;
-              const growthRate = 1.08;
-              const price = predictedPrice * Math.pow(growthRate, i);
-              return { year, price: Math.round(price) };
-            });
-            setForecastData(chartData);
+            console.warn("No forecast data in response");
+            setForecastData([]);
           }
+
+          // Update location data with backend summary if available
+          if (
+            resp.summary &&
+            formData.location &&
+            locationData[formData.location]
+          ) {
+            locationData[formData.location] = {
+              ...locationData[formData.location],
+              propertiesAnalyzed:
+                resp.summary.totalProperties ||
+                locationData[formData.location].propertiesAnalyzed,
+              averagePrice: formatPrice(
+                resp.summary.averagePrice || resp.prediction.currentPrice
+              ),
+              marketTrend:
+                resp.summary.marketTrend ||
+                locationData[formData.location].trend,
+              investmentScore:
+                resp.summary.locationScore ||
+                locationData[formData.location].investmentScore,
+            };
+          }
+
+          console.log("Setting showResults to true");
+          console.log("Predicted price:", resp.prediction.currentPrice);
+          console.log("Forecast length:", forecastLength);
           setShowResults(true);
-        } catch (e) {
+          showToast("✨ Prediction generated successfully!", "success", 3000);
+        } else {
+          console.error("Invalid response format:", resp);
+          showToast(
+            "❌ Failed to get prediction. Please try again.",
+            "error",
+            3000
+          );
           setPredictedPrice(0);
-          setShowResults(true);
         }
       })
       .catch((err) => {
-        console.error("Prediction API error", err);
+        console.error("Prediction API error:", err);
+        showToast(
+          `❌ ${
+            err.response?.data?.error ||
+            "Prediction failed. Please check your inputs."
+          }`,
+          "error",
+          3000
+        );
         setPredictedPrice(0);
-        setShowResults(true);
+        setShowResults(false);
       })
       .finally(() => setIsLoading(false));
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    const userMessage = { role: "user", content: input };
+    // capture the input before clearing it so async handlers can use it
+    const questionText = input.trim();
+    const userMessage = { role: "user", content: questionText };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsProcessing(true);
 
+    // If a PDF has been uploaded and text extracted, forward the question and extracted text to backend
+    if (pdfExtractedText) {
+      try {
+        console.log(
+          "Sending PDF query to backend. question length:",
+          questionText.length,
+          "extractedText present:",
+          Boolean(pdfExtractedText)
+        );
+        if (pdfExtractedText && typeof pdfExtractedText === "string") {
+          console.log("extractedText snippet:", pdfExtractedText.slice(0, 200));
+        }
+
+        const data = await pdfApi.query({
+          question: questionText,
+          extractedText: pdfExtractedText,
+        });
+
+        if (!data.success) {
+          console.error("PDF query API error", data);
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content:
+                data.error ||
+                "Failed to get answer from PDF. Please try again.",
+            },
+          ]);
+          return;
+        }
+
+        const assistantText =
+          data.assistantResponse || "No response from assistant.";
+
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: assistantText },
+        ]);
+
+        // Show warning if OpenRouter API failed
+        if (data.warning) {
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: `Note: ${data.warning}` },
+          ]);
+        }
+      } catch (err) {
+        console.error("PDF query error", err);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: "Failed to get answer from PDF. Please try again.",
+          },
+        ]);
+      } finally {
+        setIsProcessing(false);
+      }
+      return;
+    }
+
+    // Default local assistant fallback when no PDF context
     setTimeout(() => {
       const responses = [
         "Based on current market trends, I can provide detailed insights about property valuations in your specified area.",
@@ -303,26 +480,92 @@ export default function EarthSightDashboard() {
 
       setMessages((prev) => [...prev, assistantMessage]);
       setIsProcessing(false);
-    }, 1500);
+    }, 700);
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
-    if (file && file.type === "application/pdf") {
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content: `I've received your PDF document "${file.name}". I can now answer questions about its contents. What would you like to know?`,
-        },
+        { role: "assistant", content: "Please upload a PDF file." },
       ]);
+      return;
     }
+
+    // Upload PDF to backend analyze endpoint using pdfApi utility
+    const uploadAndAnalyze = async () => {
+      setIsProcessing(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        console.log("Uploading PDF for analysis:", file.name);
+        const data = await pdfApi.analyze(formData);
+
+        if (!data.success) {
+          console.error("Analyze API error", data);
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content:
+                data.error || "Failed to analyze PDF. Please try again later.",
+            },
+          ]);
+          return;
+        }
+
+        // Store extracted text so subsequent chat questions can query the PDF context
+        if (data.extractedText) {
+          setPdfExtractedText(data.extractedText);
+          console.log(
+            "PDF text extracted successfully, length:",
+            data.extractedText.length
+          );
+        }
+
+        // Use assistant response from backend or fallback message
+        const assistantText =
+          data.assistantResponse ||
+          `PDF "${file.name}" uploaded and processed successfully. You can now ask questions about this document.`;
+
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: assistantText },
+        ]);
+
+        // Show warning if OpenRouter API failed but OCR succeeded
+        if (data.warning) {
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: `Note: ${data.warning}` },
+          ]);
+        }
+      } catch (err) {
+        console.error("Upload/analyze error", err);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content:
+              "An error occurred while uploading the PDF. Please check your connection and try again.",
+          },
+        ]);
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    uploadAndAnalyze();
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-NP", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "NPR",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
@@ -351,10 +594,8 @@ export default function EarthSightDashboard() {
 
       <LoadingAnimation isLoading={isLoading} />
 
-      {/* <DashboardHeader /> */}
-
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-10 relative z-10">
+      <main className="container mx-auto px-6 py-32 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
           {/* Left Column - Property Form & Map */}
           <div className="space-y-8">
@@ -364,10 +605,7 @@ export default function EarthSightDashboard() {
               onFormChange={handleFormChange}
             />
 
-            <InteractiveMap
-              selectedLocation={formData.location}
-              onLocationSelect={handleMapLocationSelect}
-            />
+            <InteractiveMap onCoordinateSelect={handleCoordinateSelect} />
 
             <MarketSummary
               location={formData.location}
@@ -417,12 +655,19 @@ export default function EarthSightDashboard() {
           </button>
         </div>
 
-        {showResults && (
-          <PredictionResults
-            predictedPrice={predictedPrice}
-            forecastData={forecastData}
-            formatPrice={formatPrice}
-          />
+        {showResults && predictedPrice > 0 && (
+          <div>
+            <div className="text-white text-center py-4 bg-green-500/20 rounded-lg mb-4">
+              ✅ Results Ready! Price: {formatPrice(predictedPrice)} | Forecast
+              items: {forecastData.length}
+            </div>
+            <PredictionResults
+              predictionData={predictionData}
+              predictedPrice={predictedPrice}
+              forecastData={forecastData}
+              formatPrice={formatPrice}
+            />
+          </div>
         )}
 
         <KeyFactors />

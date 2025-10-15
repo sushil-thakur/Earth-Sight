@@ -10,7 +10,7 @@ const socialLinks = [
 
 const Footer = () => {
   return (
-    <footer className="w-full bg- text-white pt-10 pb-6">
+    <footer className="w-full text-black pt-10 pb-6">
       {/* Divider */}
       <div className="h-[1px] bg-slate-700 mb-8" />
 

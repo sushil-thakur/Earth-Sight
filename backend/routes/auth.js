@@ -95,10 +95,11 @@ router.post('/login', async (req, res) => {
     // Generate token
     const token = generateToken(user._id);
 
-    // Send alert email to the logged-in user
+    // Send alert email to the logged-in user (with deduplication)
     try {
-      console.log(`[ALERT] Attempting to send login alert to:`, user.email);
-      await emailService.sendAlertToUser(user, {
+      console.log(`[ALERT] Checking login alert for:`, user.email);
+      
+      const loginAlertData = {
         type: 'login',
         icon: '🔔',
         severity: 'Info',
@@ -109,8 +110,32 @@ router.post('/login', async (req, res) => {
         area: 0,
         confidence: 100,
         message: 'You have successfully logged in to EarthSlight.'
-      });
-      console.log(`[ALERT] Login alert sent to:`, user.email);
+      };
+      
+      // Generate hash for this login alert (per user)
+      const alertHash = `login_${user.email}`;
+      
+      // Check if login alert was recently sent (within 5 minutes cooldown)
+      const LOGIN_COOLDOWN = 5 * 60 * 1000; // 5 minutes
+      if (emailService.sentAlerts.has(alertHash)) {
+        const lastSentTime = emailService.sentAlerts.get(alertHash);
+        const timeSinceLastSent = Date.now() - lastSentTime;
+        
+        if (timeSinceLastSent < LOGIN_COOLDOWN) {
+          console.log(`[ALERT] Skipping duplicate login alert for ${user.email} (sent ${Math.floor(timeSinceLastSent / 1000)}s ago)`);
+          // Skip sending duplicate
+        } else {
+          // Cooldown expired, send alert
+          await emailService.sendAlertToUser(user, loginAlertData);
+          emailService.sentAlerts.set(alertHash, Date.now());
+          console.log(`[ALERT] Login alert sent to:`, user.email);
+        }
+      } else {
+        // First login alert for this user
+        await emailService.sendAlertToUser(user, loginAlertData);
+        emailService.sentAlerts.set(alertHash, Date.now());
+        console.log(`[ALERT] Login alert sent to:`, user.email);
+      }
     } catch (emailErr) {
       console.error('Failed to send login alert email:', emailErr);
     }

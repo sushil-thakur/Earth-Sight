@@ -3,82 +3,82 @@ import { Building2, MapPin, Home } from "lucide-react"
 const properties = [
   {
     title: "Luxury Villa in Kathmandu",
-    price: "NPR 3.5 Cr",
+    price: "$2,650,000",
     location: "Kathmandu",
     beds: 5,
     baths: 4,
     area: "4500 sq ft",
-    image: "/luxury-villa-exterior.png",
+    image: "/img/villa.jpg",
     tag: "Premium",
   },
   {
     title: "Modern Apartment",
-    price: "NPR 1.2 Cr",
+    price: "$900,000",
     location: "Lalitpur",
     beds: 3,
     baths: 2,
     area: "1800 sq ft",
-    image: "/modern-apartment-building.png",
+    image: "/img/modern.jpg",
     tag: "Hot Deal",
   },
   {
     title: "Lake View Property",
-    price: "NPR 2.8 Cr",
+    price: "$2,100,000",
     location: "Pokhara",
     beds: 4,
     baths: 3,
     area: "3200 sq ft",
-    image: "/lake-view-house.jpg",
+    image: "/img/pokhara.webp",
     tag: "Featured",
   },
   {
     title: "Heritage House",
-    price: "NPR 1.5 Cr",
+    price: "$1,150,000",
     location: "Bhaktapur",
     beds: 4,
     baths: 3,
     area: "2800 sq ft",
-    image: "/traditional-nepali-house.jpg",
+    image: "/img/herutage.jpeg",
     tag: "Exclusive",
   },
   {
     title: "Penthouse Suite",
-    price: "NPR 4.2 Cr",
+    price: "$3,200,000",
     location: "Kathmandu",
     beds: 4,
     baths: 4,
     area: "3800 sq ft",
-    image: "/luxury-penthouse-interior.png",
+    image: "/img/homesuit.webp",
     tag: "Premium",
   },
   {
     title: "Garden Villa",
-    price: "NPR 2.1 Cr",
+    price: "$1,600,000",
     location: "Chitwan",
     beds: 3,
     baths: 3,
     area: "3000 sq ft",
-    image: "/villa-with-garden.jpg",
+    image: "/img/chitwan.jpg",
     tag: "New",
   },
   {
     title: "City Center Flat",
-    price: "NPR 95 L",
+    price: "$725,000",
     location: "Biratnagar",
     beds: 2,
     baths: 2,
     area: "1200 sq ft",
-    image: "/modern-city-apartment.png",
+    image: "/img/citycenter.jpeg",
     tag: "Hot Deal",
   },
   {
     title: "Hill Station Retreat",
-    price: "NPR 1.8 Cr",
+    price: "$1,375,000",
     location: "Dharan",
     beds: 3,
     baths: 2,
     area: "2500 sq ft",
-    image: "/hill-station-house.jpg",
+    image: "/img/hill.webp",
     tag: "Featured",
   },
 ]
@@ -98,7 +98,7 @@ export function FeaturedProperties() {
         </div>
 
         {/* Auto-scrolling gallery container */}
-        <div className="relative h-[600px] overflow-hidden rounded-2xl bg-slate-800/30 border border-slate-700/30">
+        <div className="relative h-[650px] overflow-hidden rounded-2xl bg-slate-800/30 border border-slate-700/30">
           {/* Gradient overlays for fade effect */}
           <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-slate-900/90 to-transparent z-10 pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-slate-900/90 to-transparent z-10 pointer-events-none"></div>
@@ -110,9 +110,9 @@ export function FeaturedProperties() {
                 key={idx}
                 className="relative group/property backdrop-blur-xl bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700/30 hover:border-violet-500/50 transition-all cursor-pointer hover:scale-[1.02] shadow-lg hover:shadow-violet-500/20"
               >
-                <div className="flex gap-4 p-4">
+                <div className="flex gap-4 p-4 min-h-[180px]">
                   {/* Property Image */}
-                  <div className="relative w-32 h-32 flex-shrink-0 rounded-xl overflow-hidden">
+                  <div className="relative w-36 h-36 flex-shrink-0 rounded-xl overflow-hidden">
                     <img
                       src={property.image || "/placeholder.svg"}
                       alt={property.title}
@@ -124,25 +124,31 @@ export function FeaturedProperties() {
                   </div>
 
                   {/* Property Details */}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 flex flex-col">
                     <h4 className="text-base font-bold text-white mb-1 truncate">{property.title}</h4>
                     <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="w-3 h-3 text-violet-400" />
-                      <span className="text-xs text-slate-400">{property.location}</span>
+                      <MapPin className="w-3 h-3 text-violet-400 flex-shrink-0" />
+                      <span className="text-xs text-slate-400 truncate">{property.location}</span>
                     </div>
-                    <div className="text-lg font-bold text-violet-400 mb-2">{property.price}</div>
-                    <div className="flex items-center gap-3 text-xs text-slate-400">
-                      <div className="flex items-center gap-1">
-                        <Home className="w-3 h-3" />
-                        <span>{property.beds} Beds</span>
+                    <div className="text-xl font-bold text-violet-400 mb-3">{property.price}</div>
+                    <div className="grid grid-cols-3 gap-2 text-xs text-slate-400 mt-auto">
+                      <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-slate-900/50">
+                        <Home className="w-4 h-4 text-violet-400" />
+                        <span className="font-semibold">{property.beds}</span>
+                        <span className="text-[10px]">Beds</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <span>•</span>
-                        <span>{property.baths} Baths</span>
+                      <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-slate-900/50">
+                        <Building2 className="w-4 h-4 text-pink-400" />
+                        <span className="font-semibold">{property.baths}</span>
+                        <span className="text-[10px]">Baths</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <span>•</span>
-                        <span>{property.area}</span>
+                      <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-slate-900/50">
+                        <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/>
+                          <path d="M3 9h18M9 21V9" strokeWidth="2"/>
+                        </svg>
+                        <span className="font-semibold">{property.area.replace(' sq ft', '')}</span>
+                        <span className="text-[10px]">sq ft</span>
                       </div>
                     </div>
                   </div>
