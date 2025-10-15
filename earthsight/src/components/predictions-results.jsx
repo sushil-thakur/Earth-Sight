@@ -1,6 +1,69 @@
 import { Zap, Home, TrendingUp, BarChart3, Download } from "lucide-react"
+import { useState } from "react"
+import { pdfApi } from "../utils/api"
+import { useAuth } from "../contexts/AuthContext"
+import { showToast } from "./FuturisticToast"
 
-export function PredictionResults({ predictedPrice, forecastData, formatPrice }) {
+export function PredictionResults({ predictedPrice, forecastData, formatPrice, predictionData }) {
+  const [isDownloading, setIsDownloading] = useState(false)
+  const { user } = useAuth()
+
+  const handleDownloadReport = async () => {
+    try {
+      setIsDownloading(true)
+      
+      // Prepare report data matching backend expectations
+      const reportData = {
+        predictionData: {
+          prediction: {
+            currentPrice: predictedPrice,
+            confidence: predictionData?.confidence || 87,
+            modelType: predictionData?.modelType || 'XGBoost',
+            marketTrend: predictionData?.marketTrend || 'stable',
+            locationScore: predictionData?.locationScore || 75,
+            factors: predictionData?.factors || []
+          },
+          forecast: forecastData
+        },
+        userInput: {
+          location: predictionData?.location || null,
+          latitude: predictionData?.lat || predictionData?.latitude || null,
+          longitude: predictionData?.lng || predictionData?.longitude || null,
+          bedrooms: predictionData?.bedrooms || 3,
+          bathrooms: predictionData?.bathrooms || 2,
+          area: predictionData?.area || 2000,
+          floors: predictionData?.floors || 2,
+          age: predictionData?.age || 5
+        },
+        userInfo: {
+          email: user?.email || user?.name || 'Guest User',
+          name: user?.name || 'Guest'
+        },
+        timestamp: new Date().toISOString(),
+        reportType: 'real-estate-prediction'
+      }
+
+      console.log('Generating PDF report...', reportData)
+      
+      // Call backend to generate PDF
+      const response = await pdfApi.generateReport(reportData)
+      
+      if (response.success && response.filename) {
+        // Download the PDF
+        const downloadUrl = pdfApi.download(response.filename)
+        window.open(downloadUrl, '_blank')
+        showToast('📄 Report generated successfully!', 'success', 3000)
+      } else {
+        throw new Error('Failed to generate report')
+      }
+    } catch (error) {
+      console.error('Download error:', error)
+      showToast('❌ Failed to download report. Please try again.', 'error', 3000)
+    } finally {
+      setIsDownloading(false)
+    }
+  }
+
   return (
     <div className="mt-8 space-y-8">
       {/* Price Card with RGB border - Full Width */}
@@ -62,41 +125,83 @@ export function PredictionResults({ predictedPrice, forecastData, formatPrice })
             </h3>
           </div>
 
-          <div className="flex items-end justify-between gap-4 h-80">
-            {forecastData.map((item, idx) => {
-              const maxPrice = Math.max(...forecastData.map((d) => d.price))
-              const height = maxPrice > 0 ? (item.price / maxPrice) * 100 : 0
-              return (
-                <div key={idx} className="flex-1 flex flex-col items-center gap-4 group/bar">
-                  <div className="relative w-full bg-slate-800/50 rounded-t-xl overflow-hidden border border-slate-700/30 group-hover/bar:border-slate-600/50 transition-all flex-1 flex items-end">
-                    <div
-                      className="w-full rounded-t-xl bg-gradient-to-t from-indigo-500 via-cyan-500 to-violet-500 flex items-center justify-center transition-all duration-1000 shadow-lg shadow-indigo-500/30 relative"
-                      style={{ height: `${height}%`, transitionDelay: `${idx * 50}ms` }}
-                    >
-                      <span className="text-sm font-bold text-white absolute top-2 rotate-0">
-                        {(item.price / 10000000).toFixed(1)}Cr
-                      </span>
+          {forecastData && forecastData.length > 0 ? (
+            <>
+              <div className="grid grid-cols-10 gap-3 h-80 items-end">
+                {forecastData.map((item, idx) => {
+                  const maxPrice = Math.max(...forecastData.map((d) => d.price))
+                  const height = maxPrice > 0 ? (item.price / maxPrice) * 100 : 0
+                  
+                  // Debug log for first item
+                  if (idx === 0) {
+                    console.log('Chart data:', { item, maxPrice, height, forecastLength: forecastData.length })
+                  }
+                  
+                  return (
+                    <div key={idx} className="flex flex-col items-center gap-2 h-full group/bar relative">
+                      {/* Tooltip with Growth & Confidence */}
+                      <div className="absolute -top-20 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity bg-slate-800 border border-cyan-500/30 rounded-lg p-2 z-10 whitespace-nowrap">
+                        <p className="text-xs text-cyan-400 font-bold mb-1">Year {item.year}</p>
+                        <p className="text-xs text-slate-300">Growth: <span className="text-emerald-400 font-bold">{item.growth || 0}%</span></p>
+                        <p className="text-xs text-slate-300">Confidence: <span className="text-violet-400 font-bold">{item.confidence || 0}%</span></p>
+                      </div>
+                      
+                      {/* Bar container with fixed height */}
+                      <div className="relative w-full h-full flex flex-col justify-end">
+                        {/* The actual bar */}
+                        <div
+                          className="w-full rounded-t-xl bg-gradient-to-t from-indigo-500 via-cyan-500 to-violet-500 transition-all duration-1000 shadow-lg shadow-indigo-500/30 relative group-hover/bar:scale-105 border border-slate-700/30"
+                          style={{ 
+                            height: `${height}%`,
+                            minHeight: '20px',
+                            transitionDelay: `${idx * 50}ms` 
+                          }}
+                        >
+                          {/* Price label */}
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                            <span className="text-xs font-bold text-cyan-400 bg-slate-900/80 px-2 py-1 rounded">
+                              {item.price >= 1000000 
+                                ? `$${(item.price / 1000000).toFixed(2)}M`
+                                : `$${(item.price / 1000).toFixed(0)}K`
+                              }
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Year label */}
+                      <span className="text-xs text-slate-400 font-mono font-semibold mt-1">{item.year}</span>
                     </div>
-                  </div>
-                  <span className="text-sm text-slate-400 font-mono font-semibold">{item.year}</span>
-                </div>
-              )
-            })}
-          </div>
+                  )
+                })}
+              </div>
 
-          <div className="mt-8 pt-6 border-t border-slate-700/50">
-            <p className="text-sm text-slate-400 text-center font-medium">
-              Projected annual growth rate: <span className="text-cyan-400 font-bold">8%</span> • Powered by Advanced AI
-            </p>
-          </div>
+              <div className="mt-12 pt-6 border-t border-slate-700/50">
+                <p className="text-sm text-slate-400 text-center font-medium">
+                  Projected annual growth rate: <span className="text-cyan-400 font-bold">8%</span> • Powered by Advanced AI
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-80 text-slate-400">
+              <div className="text-center">
+                <BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-semibold mb-2">No Forecast Data Available</p>
+                <p className="text-sm">Forecast will appear after prediction</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Download Button - Full Width */}
-      <button className="w-full py-5 rounded-2xl backdrop-blur-xl bg-slate-800/50 border border-indigo-500/30 hover:bg-slate-800/70 hover:border-indigo-500/50 font-semibold text-lg transition-all hover:scale-[1.02] shadow-lg hover:shadow-indigo-500/20 group">
+      <button 
+        onClick={handleDownloadReport}
+        disabled={isDownloading}
+        className="w-full py-5 rounded-2xl backdrop-blur-xl bg-slate-800/50 border border-indigo-500/30 hover:bg-slate-800/70 hover:border-indigo-500/50 font-semibold text-lg transition-all hover:scale-[1.02] shadow-lg hover:shadow-indigo-500/20 group disabled:opacity-50 disabled:cursor-not-allowed"
+      >
         <div className="flex items-center justify-center gap-3">
-          <Download className="w-5 h-5 group-hover:animate-bounce" />
-          <span>Download Full Report</span>
+          <Download className={`w-5 h-5 ${isDownloading ? 'animate-bounce' : 'group-hover:animate-bounce'}`} />
+          <span>{isDownloading ? 'Generating Report...' : 'Download Full Report'}</span>
         </div>
       </button>
     </div>

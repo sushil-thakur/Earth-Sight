@@ -4,8 +4,20 @@ const aiModelService = require('../services/aiModelService');
 
 const router = express.Router();
 
-// AI Model prediction endpoint
-router.post('/', authenticateToken, async (req, res) => {
+// Optional authentication middleware - allows both authenticated and public access
+const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    // If auth header exists, validate it
+    return authenticateToken(req, res, next);
+  }
+  // If no auth header, allow public access
+  req.user = null;
+  next();
+};
+
+// AI Model prediction endpoint - Now works with OR without login!
+router.post('/', optionalAuth, async (req, res) => {
   try {
     const { floors, area, bedrooms, bathrooms, age } = req.body;
     let { location, lat, lng } = req.body;
@@ -55,7 +67,10 @@ router.post('/', authenticateToken, async (req, res) => {
         confidence: prediction.confidence,
         factors: prediction.factors,
         modelType: prediction.modelType,
-        processingTime: processingTime
+        processingTime: processingTime,
+        location: location || null,
+        lat: lat || null,
+        lng: lng || null
       },
       forecast: forecast,
       summary: {
@@ -114,7 +129,7 @@ function validatePredictionInput(data) {
 }
 
 // AI Model status endpoint
-router.get('/model-status', authenticateToken, async (req, res) => {
+router.get('/model-status', optionalAuth, async (req, res) => {
   try {
     const modelInfo = await aiModelService.getModelInfo();
     res.json({
@@ -128,7 +143,7 @@ router.get('/model-status', authenticateToken, async (req, res) => {
 });
 
 // Test AI model endpoint
-router.post('/test-model', authenticateToken, async (req, res) => {
+router.post('/test-model', optionalAuth, async (req, res) => {
   try {
     await aiModelService.testModelLoad();
     res.json({
@@ -142,7 +157,7 @@ router.post('/test-model', authenticateToken, async (req, res) => {
 });
 
 // Get prediction history for a user
-router.get('/history', authenticateToken, async (req, res) => {
+router.get('/history', optionalAuth, async (req, res) => {
   try {
     // In a real application, you would store predictions in a database
     // For now, return dummy history
@@ -177,7 +192,7 @@ router.get('/history', authenticateToken, async (req, res) => {
 });
 
 // Get market insights
-router.get('/insights', authenticateToken, async (req, res) => {
+router.get('/insights', optionalAuth, async (req, res) => {
   try {
     const { location } = req.query;
 

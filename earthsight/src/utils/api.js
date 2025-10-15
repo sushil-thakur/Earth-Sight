@@ -32,7 +32,8 @@ export const predictionApi = {
 }
 
 export const pdfApi = {
-  generateReport: (payload) => api.post('/pdf/report', payload, { headers: authHeaders() }).then(r => r.data),
+  // PDF generation works without authentication (public access)
+  generateReport: (payload) => api.post('/pdf/report', payload).then(r => r.data),
   analyze: (payload) => api.post('/pdf/analyze', payload, { headers: authHeaders() }).then(r => r.data),
   query: (payload) => api.post('/pdf/analyze/query', payload, { headers: authHeaders() }).then(r => r.data),
   download: (filename) => `${api.defaults.baseURL || ''}/pdf/download/${filename}`

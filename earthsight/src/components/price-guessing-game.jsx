@@ -112,13 +112,13 @@ export function PriceGuessingGame({
                       <div className="text-center p-3 rounded-lg bg-slate-800/50">
                         <p className="text-xs text-slate-400 mb-1">Your Guess</p>
                         <p className="text-lg font-bold text-white">
-                          NPR {(Number.parseFloat(userGuess) * 10000000).toLocaleString()}
+                          ${Number.parseFloat(userGuess).toLocaleString()}
                         </p>
                       </div>
                       <div className="text-center p-3 rounded-lg bg-slate-800/50">
                         <p className="text-xs text-slate-400 mb-1">Actual Price</p>
                         <p className="text-lg font-bold text-emerald-400">
-                          NPR {currentProperty.actualPrice.toLocaleString()}
+                          ${currentProperty.actualPrice.toLocaleString()}
                         </p>
                       </div>
                     </div>

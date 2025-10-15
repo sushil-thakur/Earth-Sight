@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { predictionApi, environmentApi, pdfApi } from "../utils/api"
-import api from "../utils/api"
 import { Brain, Sparkles } from "lucide-react"
 import { PropertyForm } from "../components/property-form"
 import { InteractiveMap } from "../components/interactive-map"
@@ -9,9 +8,9 @@ import { AIAssistant } from "../components/ai-assistant"
 import { PriceGuessingGame } from "../components/price-guessing-game"
 import { FeaturedProperties } from "../components/feature-propertie"
 import { PredictionResults } from "../components/predictions-results"
+import { showToast } from "../components/FuturisticToast"
 import { KeyFactors } from "../components/key-factors"
 import { LoadingAnimation } from "../components/loading-animation"
-import { DashboardHeader } from "../components/dashboard-header"
 import { DashboardFooter } from "../components/dashboard-footer"
 
 const locationData = {
@@ -20,12 +19,12 @@ const locationData = {
     priceChange: "+12.5%",
     investmentScore: 92,
     propertiesAnalyzed: 1247,
-    averagePrice: "NPR 85,00,000",
+    averagePrice: "$350,000",
     amenities: ["Shopping Malls", "Schools", "Hospitals", "Parks"],
     recentListings: [
-      { type: "3BHK Apartment", price: "NPR 1.2 Cr", area: "1800 sq ft" },
-      { type: "Villa", price: "NPR 3.5 Cr", area: "4500 sq ft" },
-      { type: "2BHK Flat", price: "NPR 85 L", area: "1200 sq ft" },
+      { type: "3BHK Apartment", price: "$420,000", area: "1800 sq ft" },
+      { type: "Villa", price: "$750,000", area: "4500 sq ft" },
+      { type: "2BHK Flat", price: "$280,000", area: "1200 sq ft" },
     ],
   },
   Lalitpur: {
@@ -33,12 +32,12 @@ const locationData = {
     priceChange: "+8.3%",
     investmentScore: 88,
     propertiesAnalyzed: 892,
-    averagePrice: "NPR 78,00,000",
+    averagePrice: "$320,000",
     amenities: ["Cafes", "Universities", "Hospitals", "Gardens"],
     recentListings: [
-      { type: "Penthouse", price: "NPR 2.8 Cr", area: "3200 sq ft" },
-      { type: "Studio", price: "NPR 45 L", area: "650 sq ft" },
-      { type: "4BHK House", price: "NPR 1.9 Cr", area: "2800 sq ft" },
+      { type: "Penthouse", price: "$580,000", area: "3200 sq ft" },
+      { type: "Studio", price: "$180,000", area: "650 sq ft" },
+      { type: "4BHK House", price: "$520,000", area: "2800 sq ft" },
     ],
   },
   Pokhara: {
@@ -46,12 +45,12 @@ const locationData = {
     priceChange: "+15.2%",
     investmentScore: 85,
     propertiesAnalyzed: 654,
-    averagePrice: "NPR 62,00,000",
+    averagePrice: "$280,000",
     amenities: ["Lake View", "Resorts", "Adventure Sports", "Nature"],
     recentListings: [
-      { type: "Lake House", price: "NPR 2.1 Cr", area: "3500 sq ft" },
-      { type: "Cottage", price: "NPR 95 L", area: "1500 sq ft" },
-      { type: "Resort Villa", price: "NPR 3.2 Cr", area: "5000 sq ft" },
+      { type: "Lake House", price: "$480,000", area: "3500 sq ft" },
+      { type: "Cottage", price: "$320,000", area: "1500 sq ft" },
+      { type: "Resort Villa", price: "$650,000", area: "5000 sq ft" },
     ],
   },
 }
@@ -126,9 +125,6 @@ export default function EarthSightDashboard() {
     pinColor: '#ff7a18'
   })
 
-  const [snackbar, setSnackbar] = useState({ open: false, message: '' })
-  const [generatingReport, setGeneratingReport] = useState(false)
-
   const [messages, setMessages] = useState([
     { role: 'assistant', content: "Hello — upload a PDF or ask a question." },
   ])
@@ -139,6 +135,7 @@ export default function EarthSightDashboard() {
   const [showResults, setShowResults] = useState(false)
   const [predictedPrice, setPredictedPrice] = useState(0)
   const [forecastData, setForecastData] = useState([])
+  const [predictionData, setPredictionData] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [availableLocations, setAvailableLocations] = useState([])
 
@@ -161,7 +158,7 @@ export default function EarthSightDashboard() {
   const submitGuess = () => {
     if (!userGuess || !currentProperty) return
 
-    const guess = Number.parseFloat(userGuess) * 10000000
+    const guess = Number.parseFloat(userGuess)
     const actual = currentProperty.actualPrice
     const difference = Math.abs(guess - actual)
     const percentageOff = (difference / actual) * 100
@@ -238,8 +235,7 @@ export default function EarthSightDashboard() {
   }
 
   const handlePinConfirm = ({ position, color }) => {
-    setSnackbar({ open: true, message: 'Location confirmed' })
-    setTimeout(() => setSnackbar({ open: false, message: '' }), 2500)
+    showToast('📍 Location confirmed successfully!', 'success', 2500)
     // Persist the confirmed location into form state so the map remains controlled
     try {
       if (position && position.lat != null && position.lon != null) {
@@ -251,103 +247,96 @@ export default function EarthSightDashboard() {
 
 
   const calculatePrediction = () => {
-    if (!formData.location || !formData.area) {
-      alert("Please fill in at least location and area")
+    // Validate required fields
+    if (!formData.area) {
+      showToast("⚠️ Please fill in the property area", "warning", 3000)
+      return
+    }
+
+    // Check if we have location OR coordinates
+    if (!formData.location && (!formData.latitude || !formData.longitude)) {
+      showToast("📍 Please select a location on the map or enter location name", "warning", 3000)
       return
     }
 
     setIsLoading(true)
     setShowResults(false)
 
+    // Prepare payload exactly as backend expects
     const payload = {
       floors: Number(formData.floors) || 1,
       area: Number(formData.area) || 1000,
       bedrooms: Number(formData.bedrooms) || 2,
       bathrooms: Number(formData.bathrooms) || 1,
       age: Number(formData.age) || 0,
-      location: formData.location,
+      location: formData.location || null,
+      lat: formData.latitude ? Number(formData.latitude) : null,
+      lng: formData.longitude ? Number(formData.longitude) : null
     }
+
+    console.log('Sending prediction request:', payload)
 
     predictionApi
       .predict(payload)
       .then((resp) => {
-        try {
-          if (resp && resp.prediction && resp.prediction.currentPrice) {
-            setPredictedPrice(resp.prediction.currentPrice)
-          }
-          if (resp && resp.forecast && Array.isArray(resp.forecast)) {
-            setForecastData(resp.forecast.map((f) => ({ year: f.year, price: f.price })))
+        console.log('Prediction response:', resp)
+        
+        if (resp && resp.success && resp.prediction) {
+          // Store full prediction data with form inputs for PDF generation
+          setPredictionData({
+            ...resp.prediction,
+            ...payload  // Include form data for PDF report
+          })
+          
+          // Set predicted price from backend
+          setPredictedPrice(resp.prediction.currentPrice || 0)
+          
+          // Set forecast data from backend
+          let forecastLength = 0
+          if (resp.forecast && Array.isArray(resp.forecast) && resp.forecast.length > 0) {
+            const forecast = resp.forecast.map((f) => ({ 
+              year: f.year, 
+              price: f.price || 0,
+              growth: f.growth || 0,
+              confidence: f.confidence || 0
+            }))
+            forecastLength = forecast.length
+            console.log('Forecast data set:', forecast)
+            setForecastData(forecast)
           } else {
-            const currentYear = new Date().getFullYear()
-            const chartData = Array.from({ length: 10 }, (_, i) => {
-              const year = currentYear + i
-              const growthRate = 1.08
-              const price = predictedPrice * Math.pow(growthRate, i)
-              return { year, price: Math.round(price) }
-            })
-            setForecastData(chartData)
+            console.warn('No forecast data in response')
+            setForecastData([])
           }
+          
+          // Update location data with backend summary if available
+          if (resp.summary && formData.location && locationData[formData.location]) {
+            locationData[formData.location] = {
+              ...locationData[formData.location],
+              propertiesAnalyzed: resp.summary.totalProperties || locationData[formData.location].propertiesAnalyzed,
+              averagePrice: formatPrice(resp.summary.averagePrice || resp.prediction.currentPrice),
+              marketTrend: resp.summary.marketTrend || locationData[formData.location].trend,
+              investmentScore: resp.summary.locationScore || locationData[formData.location].investmentScore
+            }
+          }
+          
+          console.log('Setting showResults to true')
+          console.log('Predicted price:', resp.prediction.currentPrice)
+          console.log('Forecast length:', forecastLength)
           setShowResults(true)
-        } catch (e) {
+          showToast('✨ Prediction generated successfully!', 'success', 3000)
+        } else {
+          console.error('Invalid response format:', resp)
+          showToast('❌ Failed to get prediction. Please try again.', 'error', 3000)
           setPredictedPrice(0)
-          setShowResults(true)
         }
       })
       .catch((err) => {
-        console.error("Prediction API error", err)
+        console.error("Prediction API error:", err)
+        showToast(`❌ ${err.response?.data?.error || 'Prediction failed. Please check your inputs.'}`, 'error', 3000)
         setPredictedPrice(0)
-        setShowResults(true)
+        setShowResults(false)
       })
       .finally(() => setIsLoading(false))
-  }
-
-  const handleDownloadReport = async () => {
-    // Create a payload with prediction data (best-effort) and the current form data
-    setGeneratingReport(true)
-    try {
-      const predictionData = {
-        prediction: { currentPrice: predictedPrice || 0, confidence: 0, factors: [] },
-        summary: forecastData && forecastData.length ? { averagePrice: forecastData[0].price } : {},
-        forecast: forecastData || []
-      }
-
-      // Ensure lat/lng keys exist for the backend template
-      const userInput = { ...formData }
-      if (!userInput.lat && (userInput.latitude || userInput.longitude)) {
-        userInput.lat = userInput.latitude || ''
-        userInput.lng = userInput.longitude || ''
-      }
-
-      const token = (typeof window !== 'undefined') ? (localStorage.getItem('token') || localStorage.getItem('authToken')) : null
-
-      const resp = await api.post('/pdf/report', { predictionData, userInput }, { responseType: 'blob', headers: Object.assign({ 'Accept': 'application/pdf' }, token ? { Authorization: `Bearer ${token}` } : {}) })
-
-      const url = window.URL.createObjectURL(new Blob([resp.data]))
-      const link = document.createElement('a')
-      link.href = url
-
-      const contentDisposition = resp.headers && resp.headers['content-disposition']
-      let filename = `earthsight-report-${Date.now()}.pdf`
-      if (contentDisposition) {
-        const match = contentDisposition.match(/filename="?([^";]+)"?/) 
-        if (match) filename = match[1]
-      }
-
-      link.setAttribute('download', filename)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-      window.URL.revokeObjectURL(url)
-
-      setSnackbar({ open: true, message: 'Report downloaded' })
-      setTimeout(() => setSnackbar({ open: false, message: '' }), 2500)
-    } catch (err) {
-      console.error('Report generation error:', err)
-      setSnackbar({ open: true, message: 'Failed to generate report' })
-      setTimeout(() => setSnackbar({ open: false, message: '' }), 2500)
-    } finally {
-      setGeneratingReport(false)
-    }
   }
 
   const handleSend = async () => {
@@ -493,9 +482,9 @@ export default function EarthSightDashboard() {
   }
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-NP", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "NPR",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price)
@@ -524,24 +513,15 @@ export default function EarthSightDashboard() {
 
       <LoadingAnimation isLoading={isLoading} />
 
-      <DashboardHeader />
-
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-10 relative z-10">
+      <main className="container mx-auto px-6 py-32 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
           {/* Left Column - Property Form & Map */}
           <div className="space-y-8">
             <PropertyForm formData={formData} availableLocations={availableLocations} onFormChange={handleFormChange} />
 
-            <InteractiveMap
-              selectedLocation={formData.location}
-              onLocationSelect={handleMapLocationSelect}
+            <InteractiveMap 
               onCoordinateSelect={handleCoordinateSelect}
-              availableLocations={availableLocations}
-              controlledPosition={formData.latitude && formData.longitude ? { lat: Number(formData.latitude), lon: Number(formData.longitude) } : null}
-              controlledColor={formData.pinColor}
-              onUpdatePin={handleUpdatePinFromForm}
-              onPinConfirm={handlePinConfirm}
             />
 
             <MarketSummary location={formData.location} locationData={currentLocationData} />
@@ -587,32 +567,26 @@ export default function EarthSightDashboard() {
               <Sparkles className="w-5 h-5" />
             </div>
           </button>
-          <div className="mt-4">
-            <button
-              onClick={handleDownloadReport}
-              disabled={generatingReport}
-              className="relative w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 font-semibold text-lg shadow-md text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {generatingReport ? 'Generating Report...' : 'Download Report'}
-            </button>
-          </div>
         </div>
 
-        {showResults && (
-          <PredictionResults predictedPrice={predictedPrice} forecastData={forecastData} formatPrice={formatPrice} />
+        {showResults && predictedPrice > 0 && (
+          <div>
+            <div className="text-white text-center py-4 bg-green-500/20 rounded-lg mb-4">
+              ✅ Results Ready! Price: {formatPrice(predictedPrice)} | Forecast items: {forecastData.length}
+            </div>
+            <PredictionResults 
+              predictionData={predictionData}
+              predictedPrice={predictedPrice} 
+              forecastData={forecastData} 
+              formatPrice={formatPrice} 
+            />
+          </div>
         )}
 
         <KeyFactors />
       </main>
 
       <DashboardFooter />
-
-      {/* Snackbar */}
-      {snackbar.open && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-          <div className="bg-emerald-600 text-white px-4 py-2 rounded-md shadow-lg">{snackbar.message}</div>
-        </div>
-      )}
 
       {/* Inline Styles for Animations */}
       <style>{`

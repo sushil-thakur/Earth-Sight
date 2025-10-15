@@ -13,10 +13,10 @@ const router = express.Router();
 // functionality. All previous Gemini/Grok fallback logic has been removed. Set
 // OPENROUTER_API_KEY (or OPENROUTER_KEY) and optionally OPENROUTER_URL in .env.
 
-// Generate PDF report
-router.post('/report', authenticateToken, async (req, res) => {
+// Generate PDF report - No authentication required
+router.post('/report', async (req, res) => {
   try {
-    const { predictionData, userInput } = req.body;
+    const { predictionData, userInput, userInfo } = req.body;
 
     if (!predictionData || !userInput) {
       return res.status(400).json({ 
@@ -24,8 +24,9 @@ router.post('/report', authenticateToken, async (req, res) => {
       });
     }
 
-    // Generate PDF
-    const pdfBuffer = await generatePDFReport(predictionData, userInput, req.user);
+    // Generate PDF (user can be from auth or from request body)
+    const userData = req.user || userInfo || { email: 'Guest User', name: 'Guest' };
+    const pdfBuffer = await generatePDFReport(predictionData, userInput, userData);
 
     // Check if client wants blob response or file download
     const wantsBlobResponse = req.headers.accept && req.headers.accept.includes('application/pdf');
@@ -50,7 +51,8 @@ router.post('/report', authenticateToken, async (req, res) => {
       }
 
       // Save PDF to file
-      const filename = `report_${Date.now()}_${req.user._id}.pdf`;
+      const userId = req.user?._id || 'guest';
+      const filename = `report_${Date.now()}_${userId}.pdf`;
       const filepath = path.join(uploadsDir, filename);
       await fs.writeFile(filepath, pdfBuffer);
 
@@ -141,7 +143,7 @@ function generateHTMLReport(predictionData, userInput, user) {
     '<body>' +
         '<div class="container">' +
             '<div class="header">' +
-                '<div class="logo">🌍 EarthSight</div>' +
+                '<div class="logo">🌍 EarthSlight</div>' +
                 '<div class="title">Real Estate Prediction Report</div>' +
                 '<div class="subtitle">AI-Powered Property Valuation & Market Analysis</div>' +
             '</div>' +
@@ -150,7 +152,8 @@ function generateHTMLReport(predictionData, userInput, user) {
                 '<div class="section-title">📋 Report Information</div>' +
                 '<div class="grid">' +
                     '<div class="info-item">' +
-                        '' +
+                        '<div class="info-label">Generated For:</div>' +
+                        '<div class="info-value">{{user.name}}</div>' +
                     '</div>' +
                     '<div class="info-item">' +
                         '<div class="info-label">Report Date:</div>' +
@@ -161,7 +164,8 @@ function generateHTMLReport(predictionData, userInput, user) {
                          '<div class="info-value">{{user.email}}</div>' +
                     '</div>' +
                     '<div class="info-item">' +
-                        '' +
+                        '<div class="info-label">Report Type:</div>' +
+                        '<div class="info-value">Real Estate Prediction</div>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -169,14 +173,20 @@ function generateHTMLReport(predictionData, userInput, user) {
             '<div class="section">' +
                 '<div class="section-title">🏠 Property Details</div>' +
                 '<div class="grid">' +
-          '<div class="info-item">' +
-            '<div class="info-label">Location:</div>' +
-            '<div class="info-value">{{userInput.location}}</div>' +
-          '</div>' +
-          '<div class="info-item">' +
-            '<div class="info-label">Coordinates (lat, lon):</div>' +
-            '<div class="info-value">{{userInput.lat}} , {{userInput.lng}}</div>' +
-          '</div>' +
+                    '<div class="info-item">' +
+                        '<div class="info-label">Location:</div>' +
+                        '<div class="info-value">' +
+                            '{{#if userInput.location}}' +
+                                '{{userInput.location}}' +
+                            '{{else}}' +
+                                '{{#if userInput.latitude}}' +
+                                    'Coordinates: {{userInput.latitude}}, {{userInput.longitude}}' +
+                                '{{else}}' +
+                                    'Not specified' +
+                                '{{/if}}' +
+                            '{{/if}}' +
+                        '</div>' +
+                    '</div>' +
                     '<div class="info-item">' +
                         '<div class="info-label">Area (sq ft):</div>' +
                         '<div class="info-value">{{userInput.area}}</div>' +
@@ -193,14 +203,10 @@ function generateHTMLReport(predictionData, userInput, user) {
                         '<div class="info-label">Floors:</div>' +
                         '<div class="info-value">{{userInput.floors}}</div>' +
                     '</div>' +
-          '<div class="info-item">' +
-            '<div class="info-label">Age (years):</div>' +
-            '<div class="info-value">{{userInput.age}}</div>' +
-          '</div>' +
-          '<div class="info-item">' +
-            '<div class="info-label">Pin Color:</div>' +
-            '<div class="info-value">{{userInput.pinColor}}</div>' +
-          '</div>' +
+                    '<div class="info-item">' +
+                        '<div class="info-label">Age (years):</div>' +
+                        '<div class="info-value">{{userInput.age}}</div>' +
+                    '</div>' +
                 '</div>' +
             '</div>' +
 
@@ -214,19 +220,19 @@ function generateHTMLReport(predictionData, userInput, user) {
                 '<div class="grid">' +
                     '<div class="info-item">' +
                         '<div class="info-label">Market Trend:</div>' +
-                        '<div class="info-value">{{predictionData.summary.marketTrend}}</div>' +
+                        '<div class="info-value">{{predictionData.prediction.marketTrend}}</div>' +
                     '</div>' +
                     '<div class="info-item">' +
                         '<div class="info-label">Location Score:</div>' +
-                        '<div class="info-value">{{predictionData.summary.locationScore}}/100</div>' +
+                        '<div class="info-value">{{predictionData.prediction.locationScore}}/100</div>' +
                     '</div>' +
                     '<div class="info-item">' +
-                        '<div class="info-label">Total Properties Analyzed:</div>' +
-                        '<div class="info-value">{{predictionData.summary.totalProperties}}</div>' +
+                        '<div class="info-label">Model Type:</div>' +
+                        '<div class="info-value">{{predictionData.prediction.modelType}}</div>' +
                     '</div>' +
                     '<div class="info-item">' +
-                        '<div class="info-label">Average Market Price:</div>' +
-                        '<div class="info-value">${{formatNumber predictionData.summary.averagePrice}}</div>' +
+                        '<div class="info-label">Confidence Level:</div>' +
+                        '<div class="info-value">{{predictionData.prediction.confidence}}%</div>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -257,6 +263,7 @@ function generateHTMLReport(predictionData, userInput, user) {
 
             '<div class="section">' +
                 '<div class="section-title">🔍 Key Factors</div>' +
+                '{{#if predictionData.prediction.factors}}' +
                 '<div class="grid">' +
                     '{{#each predictionData.prediction.factors}}' +
                     '<div class="info-item">' +
@@ -265,6 +272,9 @@ function generateHTMLReport(predictionData, userInput, user) {
                     '</div>' +
                     '{{/each}}' +
                 '</div>' +
+                '{{else}}' +
+                '<p style="color: #666; text-align: center; padding: 20px;">Key factors data will be displayed here based on the property analysis.</p>' +
+                '{{/if}}' +
             '</div>' +
 
             '<div class="footer">' +
@@ -305,8 +315,8 @@ function generateHTMLReport(predictionData, userInput, user) {
   return html;
 }
 
-// Download PDF file
-router.get('/download/:filename', authenticateToken, async (req, res) => {
+// Download PDF file - Public access (no authentication required)
+router.get('/download/:filename', async (req, res) => {
   try {
     const { filename } = req.params;
     const filepath = path.join(__dirname, '../uploads', filename);

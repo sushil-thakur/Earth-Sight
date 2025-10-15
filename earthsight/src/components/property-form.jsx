@@ -79,12 +79,12 @@ export function PropertyForm({ formData, availableLocations, onFormChange, onUpd
           </div>
 
           {[
-            { field: "area", label: "Area (sq ft)", placeholder: "e.g., 1500" },
-            { field: "bedrooms", label: "Bedrooms", placeholder: "e.g., 3" },
-            { field: "bathrooms", label: "Bathrooms", placeholder: "e.g., 2" },
-            { field: "floors", label: "Floors", placeholder: "e.g., 2" },
-            { field: "age", label: "Age (years)", placeholder: "e.g., 5" },
-          ].map(({ field, label, placeholder }) => (
+            { field: "area", label: "Area (sq ft)", placeholder: "e.g., 1500", max: 10000, min: 1 },
+            { field: "bedrooms", label: "Bedrooms", placeholder: "e.g., 3", max: 100, min: 0 },
+            { field: "bathrooms", label: "Bathrooms", placeholder: "e.g., 2", max: 100, min: 0 },
+            { field: "floors", label: "Floors", placeholder: "e.g., 2", max: 100, min: 1 },
+            { field: "age", label: "Age (years)", placeholder: "e.g., 5", max: 200, min: 0 },
+          ].map(({ field, label, placeholder, max, min }) => (
             <div key={field}>
               <label className="block text-sm font-semibold mb-2 text-indigo-300">{label}</label>
               <input
@@ -92,6 +92,8 @@ export function PropertyForm({ formData, availableLocations, onFormChange, onUpd
                 placeholder={placeholder}
                 value={formData[field]}
                 onChange={(e) => onFormChange(field, e.target.value)}
+                min={min}
+                max={max}
                 className="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-indigo-500/30 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-white placeholder:text-slate-500"
               />
             </div>

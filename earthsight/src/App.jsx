@@ -4,17 +4,18 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Deforestation from './pages/Deforestation'
 import RealEstate from './pages/RealEstate'
-import ProtectedRoute from './components/ProtectedRoute'
+import { ToastContainer } from './components/FuturisticToast'
 
 
 const App = () => {
   return (
    <main className='relative min-h-screen w-screen overflow-x-hidden'>
     <Navbar />
+    <ToastContainer />
     <Routes>
   <Route path="/" element={<Home/>} />
-  <Route path="/deforestation" element={<ProtectedRoute><Deforestation/></ProtectedRoute>} />
-  <Route path="/real-estate" element={<ProtectedRoute><RealEstate/></ProtectedRoute>} />
+  <Route path="/deforestation" element={<Deforestation/>} />
+  <Route path="/real-estate" element={<RealEstate/>} />
     </Routes>
    </main>
   )
