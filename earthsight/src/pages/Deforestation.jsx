@@ -661,6 +661,7 @@ export default function Dashboard() {
           </button>
 
           <div className="mb-12">
+            {/* //earthsigh */}
             {!sidebarCollapsed && (
               <h1 className="text-2xl font-bold rgb-text-animate">
                 EARTHSIGHT
