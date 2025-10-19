@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { FaDiscord, FaTwitter, FaYoutube, FaFacebook } from "react-icons/fa";
 import { FootLinks } from "../constants";
 
@@ -35,12 +36,12 @@ const Footer = () => {
           <ul className="flex flex-col gap-2 text-sm">
             {FootLinks.map((foot, idx) => (
               <li key={idx}>
-                <a
-                  href={foot.link}
+                <Link
+                  to={foot.link}
                   className="hover:text-emerald-400 transition-colors duration-300"
                 >
                   {foot.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

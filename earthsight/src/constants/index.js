@@ -1,43 +1,35 @@
-export const NavData = [
-  { name: "Home", link: "/", protected: false },
-  { name: "Deforestation", link: "/deforestation", protected: true },
-  { name: "Real State", link: "/real-estate", protected: true },
-  { name: "About", link: "about", protected: false },
-  { name: "Contact", link: "/contact", protected: false },
+export const FootLinks = [
+  { name: "Home", link: "/" },
+  { name: "Deforestation Monitor", link: "/deforestation" },
+  { name: "Real Estate", link: "/real-estate" },
+  { name: "About Us", link: "/about" },
+  { name: "Contact", link: "/contact" },
 ];
 
 export const Members = [
   {
     name: "Sushil Thakur",
-    role: "AI/ML & Backend Developer",
-    img: "/images/members/sushil.jpg",
+    role: "Full Stack Developer",
+    img: "/img/team/member1.jpg",
   },
   {
-    name: "Sujan Budha Magar",
+    name: "Samriddhi Sharma",
+    role: "AI/ML Engineer",
+    img: "/img/team/member2.jpg",
+  },
+  {
+    name: "Kali Linux",
+    role: "Backend Developer",
+    img: "/img/team/member3.jpg",
+  },
+  {
+    name: "Team Member 4",
+    role: "Data Scientist",
+    img: "/img/team/member4.jpg",
+  },
+  {
+    name: "Team Member 5",
     role: "Frontend Developer",
-    img: "/images/members/sujan.jpg",
+    img: "/img/team/member5.jpg",
   },
-  {
-    name: "Shirish Sthapit",
-    role: "Frontend Developer",
-    img: "/images/members/shirish.jpg",
-  },
-  {
-    name: "Akash Shakya",
-    role: "Backend & Testing Engineer",
-    img: "/images/members/akash.jpg",
-  },
-  {
-    name: "Laxman Saud",
-    role: "UI/UX Designer (Figma)",
-    img: "/images/members/laxman.jpg",
-  },
-];
-
-export const FootLinks = [
-  { name: "Home", link: "/", protected: false },
-  { name: "Deforestation", link: "/deforestation", protected: true },
-  { name: "Real State", link: "/real-estate", protected: true },
-  { name: "About", link: "About", protected: false },
-  { name: "Contact", link: "/contact", protected: true },
 ];

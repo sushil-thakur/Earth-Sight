@@ -5,12 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
 
 import Button from "./Button";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuthModal } from "../contexts/AuthModalContext";
-import { useAuth } from "../contexts/AuthContext";
-import { showToast } from "./FuturisticToast";
-import { NavData } from "../constants";
-import { IoMenu } from "react-icons/io5";
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuthModal } from '../contexts/AuthModalContext';
+import { useAuth } from '../contexts/AuthContext';
+import { showToast } from './FuturisticToast';
 
 const navItems = ["Home", "Deforestation", "Real Estate", "About", "Contact"];
 
@@ -26,8 +24,8 @@ const NavBar = () => {
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   // modal control for login/register
-  const { open } = useAuthModal();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { open } = useAuthModal()
+  const { user, logout, isAuthenticated } = useAuth()
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Toggle audio and visual indicator
@@ -52,12 +50,12 @@ const NavBar = () => {
   const confirmLogout = () => {
     setShowLogoutModal(false);
     logout();
-    showToast("👋 Logged out successfully!", "success", 2500);
+    showToast('👋 Logged out successfully!', 'success', 2500);
   };
 
   const cancelLogout = () => {
     setShowLogoutModal(false);
-    showToast("❌ Logout cancelled", "info", 2000);
+    showToast('❌ Logout cancelled', 'info', 2000);
   };
 
   useEffect(() => {
@@ -89,7 +87,7 @@ const NavBar = () => {
   return (
     <div
       ref={navContainerRef}
-      className="fixed inset-x-0 top-4 z-50 h-16 border-none transition-all duration-700"
+      className="fixed inset-x-0 top-4 z-50 h-16 border-none transition-all duration-700 sm:inset-x-6"
     >
       <header className="absolute top-1/2 w-full -translate-y-1/2">
         <nav className="flex size-full items-center justify-between p-4">
@@ -108,31 +106,45 @@ const NavBar = () => {
           {/* Navigation Links and Audio Button */}
           <div className="flex h-full items-center">
             <div className="hidden md:block">
-              {NavData.map(({ name, link, protected: isProtected }, index) => (
-                <Link
-                  key={index}
-                  to={link}
-                  onClick={(e) => {
-                    if (isProtected) {
-                      const token = localStorage.getItem("token");
-                      if (!token) {
-                        e.preventDefault();
-                        open("login");
-                      }
+              {navItems.map((item, index) => {
+                const protectedPages = ['Deforestation', 'Real Estate']
+                const isProtected = protectedPages.includes(item)
+
+                const handleClick = (e) => {
+                  if (isProtected) {
+                    const token = localStorage.getItem('token')
+                    if (!token) {
+                      e.preventDefault()
+                      open('login')
+                      return
                     }
-                  }}
-                  className="nav-hover-btn"
-                >
-                  {name}
-                </Link>
-              ))}
-            </div>
-            <div className="md:hidden block">
-              <IoMenu
-                size={20}
-                className="text-white"
-                onClick={() => setIsOpen(true)}
-              />
+                  }
+                }
+
+                if (item === 'Deforestation') {
+                  return <Link key={index} to="/deforestation" onClick={handleClick} className="nav-hover-btn">{item}</Link>
+                }
+
+                if (item === 'Home') {
+                  return <Link key={index} to="/" className="nav-hover-btn">{item}</Link>
+                }
+
+                if (item === 'Real Estate') {
+                  return <Link key={index} to="/real-estate" onClick={handleClick} className="nav-hover-btn">{item}</Link>
+                }
+
+                if (item === 'About') {
+                  return <Link key={index} to="/about" className="nav-hover-btn">{item}</Link>
+                }
+
+                if (item === 'Contact') {
+                  return <Link key={index} to="/contact" className="nav-hover-btn">{item}</Link>
+                }
+
+                return (
+                  <a key={index} href={`#${item.toLowerCase()}`} className="nav-hover-btn">{item}</a>
+                )
+              })}
             </div>
 
             {/* User Info - Only show when authenticated */}
@@ -140,9 +152,7 @@ const NavBar = () => {
               <div className="ml-6 flex items-center gap-3">
                 {/* User Name */}
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30">
-                  <span className="text-xs text-indigo-400 font-medium">
-                    {user?.name || user?.email}
-                  </span>
+                  <span className="text-xs text-indigo-400 font-medium">{user?.name || user?.email}</span>
                 </div>
 
                 {/* Logout Button */}
@@ -158,7 +168,7 @@ const NavBar = () => {
             {/* Login Button - Show when NOT authenticated */}
             {!isAuthenticated && (
               <button
-                onClick={() => open("login")}
+                onClick={() => open('login')}
                 className="ml-6 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 transition-all text-sm text-blue-400 font-medium"
               >
                 Login
@@ -197,25 +207,15 @@ const NavBar = () => {
           <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-2xl max-w-md w-full border border-violet-500/30 animate-scaleIn overflow-hidden">
             {/* Animated border glow */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-500 to-violet-600 opacity-50 blur-xl animate-pulse" />
-
+            
             {/* Content */}
             <div className="relative p-8">
               {/* Icon with animation */}
               <div className="flex justify-center mb-6">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-500/50 animate-bounce">
-                    <svg
-                      className="w-10 h-10 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                      />
+                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
                   </div>
                   {/* Pulsing rings */}

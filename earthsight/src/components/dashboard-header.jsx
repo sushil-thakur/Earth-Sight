@@ -17,8 +17,8 @@ export function DashboardHeader() {
 
       const now = new Date().getTime()
       const elapsed = now - parseInt(loginTime)
-      const fiveMinutes = 5 * 60 * 1000
-      const remaining = fiveMinutes - elapsed
+      const tenMinutes = 10 * 60 * 1000
+      const remaining = tenMinutes - elapsed
 
       if (remaining <= 0) {
         setTimeLeft('Expired')

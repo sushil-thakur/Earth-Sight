@@ -1,80 +1,61 @@
-import React, { useState } from "react";
-import { useAuthModal } from "../contexts/AuthModalContext";
-import { useAuth } from "../contexts/AuthContext";
-import { showToast } from "./FuturisticToast";
+import React, { useState } from 'react'
+import { useAuthModal } from '../contexts/AuthModalContext'
+import { useAuth } from '../contexts/AuthContext'
+import { showToast } from './FuturisticToast'
 
 const AuthModal = () => {
-  const { isOpen, mode, close, setMode } = useAuthModal();
-  const { login, register } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    emailNotifications: true,
-  });
-  const [error, setError] = useState(null);
+  const { isOpen, mode, close, setMode } = useAuthModal()
+  const { login, register } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', emailNotifications: true })
+  const [error, setError] = useState(null)
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
-  const isSignUp = mode === "register";
+  const isSignUp = mode === 'register'
 
   const onChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
+    const { name, value, type, checked } = e.target
+    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+  }
 
   const submit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
     try {
-      if (mode === "login") {
-        if (!form.email || !form.password)
-          throw new Error("Email and password are required");
-        const res = await login(form.email, form.password);
-        if (!res || res.success === false)
-          throw new Error(res?.error || "Login failed");
-        showToast("🎉 Welcome back!", "success", 2500);
+      if (mode === 'login') {
+        if (!form.email || !form.password) throw new Error('Email and password are required')
+        const res = await login(form.email, form.password)
+        if (!res || res.success === false) throw new Error(res?.error || 'Login failed')
+        showToast('🎉 Welcome back!', 'success', 2500)
       } else {
-        if (!form.name || !form.email || !form.password)
-          throw new Error("Name, email and password are required");
-        if (form.password !== form.confirmPassword)
-          throw new Error("Passwords do not match");
-        if (form.password.length < 6)
-          throw new Error("Password must be at least 6 characters");
-        const { confirmPassword, ...registerData } = form;
-        const res = await register(registerData);
-        if (!res || res.success === false)
-          throw new Error(res?.error || "Registration failed");
-        showToast("🎊 Account created successfully!", "success", 2500);
+        if (!form.name || !form.email || !form.password) throw new Error('Name, email and password are required')
+        if (form.password !== form.confirmPassword) throw new Error('Passwords do not match')
+        if (form.password.length < 6) throw new Error('Password must be at least 6 characters')
+        const { confirmPassword, ...registerData } = form
+        const res = await register(registerData)
+        if (!res || res.success === false) throw new Error(res?.error || 'Registration failed')
+        showToast('🎊 Account created successfully!', 'success', 2500)
       }
       // success
-      close();
+      close()
     } catch (err) {
       // Prefer backend error message when available (axios)
-      const serverMsg =
-        err?.response?.data?.error || err?.response?.data?.message;
-      const errorMsg = serverMsg || err.message || "Failed";
-      setError(errorMsg);
-      showToast(`❌ ${errorMsg}`, "error", 3000);
+      const serverMsg = err?.response?.data?.error || err?.response?.data?.message
+      const errorMsg = serverMsg || err.message || 'Failed'
+      setError(errorMsg)
+      showToast(`❌ ${errorMsg}`, 'error', 3000)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 z-50 animate-fadeIn">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={close}
-      />
-
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={close} />
+      
       {/* Modal Container */}
       <div className="relative w-full max-w-4xl h-[600px] bg-white rounded-3xl shadow-2xl overflow-hidden animate-scaleIn">
         {/* Close Button */}
@@ -82,28 +63,14 @@ const AuthModal = () => {
           onClick={close}
           className="absolute top-4 right-4 z-30 w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
         >
-          <svg
-            className="w-6 h-6 text-gray-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
+          <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
         {/* Logo */}
         <div className="absolute top-8 left-8 z-20 flex items-center gap-3">
-          <img
-            src="/img/logo.png"
-            alt="Earthsight"
-            className="w-10 h-10 object-contain"
-          />
+          <img src="/img/logo.png" alt="Earthsight" className="w-10 h-10 object-contain" />
           <span className="text-2xl font-bold text-gray-800">earthsight</span>
         </div>
 
@@ -126,7 +93,7 @@ const AuthModal = () => {
                   Enter your personal details and start your journey with us
                 </p>
                 <button
-                  onClick={() => setMode("login")}
+                  onClick={() => setMode('login')}
                   className="px-12 py-3 border-2 border-white rounded-full font-semibold hover:bg-white hover:text-teal-500 transition-all duration-300"
                 >
                   SIGN IN
@@ -139,7 +106,7 @@ const AuthModal = () => {
                   To keep connected with us please login with your personal info
                 </p>
                 <button
-                  onClick={() => setMode("register")}
+                  onClick={() => setMode('register')}
                   className="px-12 py-3 border-2 border-white rounded-full font-semibold hover:bg-white hover:text-teal-500 transition-all duration-300"
                 >
                   SIGN UP
@@ -156,9 +123,7 @@ const AuthModal = () => {
           }`}
         >
           <div className="w-full max-w-sm">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
-              Sign in to Account
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Sign in to Account</h2>
             <p className="text-gray-500 mb-8">Use your email account</p>
 
             {error && !isSignUp && (
@@ -169,18 +134,8 @@ const AuthModal = () => {
 
             <form onSubmit={submit} className="space-y-4">
               <div className="relative">
-                <svg
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-                  />
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                 </svg>
                 <input
                   type="email"
@@ -193,18 +148,8 @@ const AuthModal = () => {
               </div>
 
               <div className="relative">
-                <svg
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 <input
                   type="password"
@@ -227,7 +172,7 @@ const AuthModal = () => {
                     <span>SIGNING IN...</span>
                   </div>
                 ) : (
-                  "SIGN IN"
+                  'SIGN IN'
                 )}
               </button>
             </form>
@@ -241,12 +186,8 @@ const AuthModal = () => {
           }`}
         >
           <div className="w-full max-w-sm">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
-              Create Account
-            </h2>
-            <p className="text-gray-500 mb-8">
-              Use your email for registration
-            </p>
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
+            <p className="text-gray-500 mb-8">Use your email for registration</p>
 
             {error && isSignUp && (
               <div className="mb-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-600 text-sm animate-shake">
@@ -256,18 +197,8 @@ const AuthModal = () => {
 
             <form onSubmit={submit} className="space-y-4">
               <div className="relative">
-                <svg
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 <input
                   type="text"
@@ -280,18 +211,8 @@ const AuthModal = () => {
               </div>
 
               <div className="relative">
-                <svg
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-                  />
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                 </svg>
                 <input
                   type="email"
@@ -304,18 +225,8 @@ const AuthModal = () => {
               </div>
 
               <div className="relative">
-                <svg
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 <input
                   type="password"
@@ -328,18 +239,8 @@ const AuthModal = () => {
               </div>
 
               <div className="relative">
-                <svg
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
                 <input
                   type="password"
@@ -359,9 +260,7 @@ const AuthModal = () => {
                   onChange={onChange}
                   className="w-4 h-4 rounded border-gray-300 text-teal-500 focus:ring-teal-500"
                 />
-                <span className="text-gray-600">
-                  Receive environmental alerts via email
-                </span>
+                <span className="text-gray-600">Receive environmental alerts via email</span>
               </label>
 
               <button
@@ -375,7 +274,7 @@ const AuthModal = () => {
                     <span>SIGNING UP...</span>
                   </div>
                 ) : (
-                  "SIGN UP"
+                  'SIGN UP'
                 )}
               </button>
             </form>
@@ -383,7 +282,7 @@ const AuthModal = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AuthModal;
+export default AuthModal

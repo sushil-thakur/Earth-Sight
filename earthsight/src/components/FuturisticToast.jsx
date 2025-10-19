@@ -66,29 +66,21 @@ export function FuturisticToast({ message, type = 'info', duration = 3000, onClo
 
   return (
     <div
-      className={`fixed top-6 right-6 z-[9999] transition-all duration-300 transform ${
+      className={`transition-all duration-300 transform ${
         isVisible && !isLeaving 
-          ? 'translate-x-0 opacity-100 scale-100' 
-          : 'translate-x-full opacity-0 scale-95'
+          ? 'opacity-100 scale-100' 
+          : 'opacity-0 scale-90'
       }`}
-      style={{
-        animation: isVisible && !isLeaving ? 'toast-slide-in 0.3s ease-out' : ''
-      }}
     >
-      {/* Animated background glow */}
-      <div className={`absolute -inset-[2px] bg-gradient-to-r ${styles.gradient} rounded-2xl blur-md animate-pulse ${styles.glow}`}></div>
+      {/* Subtle background glow */}
+      <div className={`absolute -inset-[1px] bg-gradient-to-r ${styles.gradient} rounded-xl blur-sm opacity-30`}></div>
       
       {/* Main toast container */}
-      <div className={`relative backdrop-blur-xl bg-slate-900/95 border ${styles.border} rounded-2xl p-4 pr-12 min-w-[300px] max-w-md shadow-2xl`}>
-        {/* Animated border shine */}
-        <div className="absolute inset-0 rounded-2xl overflow-hidden">
-          <div className={`absolute inset-0 bg-gradient-to-r ${styles.gradient} opacity-20 animate-shimmer`}></div>
-        </div>
-
+      <div className={`relative backdrop-blur-md bg-slate-900/90 border ${styles.border} rounded-xl p-4 pr-12 min-w-[320px] max-w-md shadow-xl`}>
         {/* Content */}
-        <div className="relative flex items-start gap-4">
-          {/* Animated icon */}
-          <div className={`flex-shrink-0 ${styles.text} animate-bounce-slow`}>
+        <div className="relative flex items-start gap-3">
+          {/* Icon */}
+          <div className={`flex-shrink-0 ${styles.text}`}>
             {styles.icon}
           </div>
 
@@ -109,7 +101,7 @@ export function FuturisticToast({ message, type = 'info', duration = 3000, onClo
         </div>
 
         {/* Progress bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-800/50 rounded-b-2xl overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-800/50 rounded-b-xl overflow-hidden">
           <div
             className={`h-full bg-gradient-to-r ${styles.gradient}`}
             style={{
@@ -120,49 +112,12 @@ export function FuturisticToast({ message, type = 'info', duration = 3000, onClo
       </div>
 
       <style jsx>{`
-        @keyframes toast-slide-in {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
         @keyframes toast-progress {
           from {
             width: 100%;
           }
           to {
             width: 0%;
-          }
-        }
-
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-
-        .animate-shimmer {
-          animation: shimmer 3s infinite;
-        }
-
-        .animate-bounce-slow {
-          animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-5px);
           }
         }
       `}</style>
