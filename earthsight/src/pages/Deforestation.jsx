@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import CesiumMap from '../components/CesiumMap';
 import { showToast } from '../components/FuturisticToast';
+import { getEnvironmentNews } from '../services/newsService';
 
 // Lucide Icons as SVG components
 const Wallet = () => (
@@ -221,6 +222,9 @@ export default function Dashboard() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all'); // Filter state: 'all', 'deforestation', 'marine', 'fire', 'mining'
+  const [allNews, setAllNews] = useState([]);
+  const [newsLoading, setNewsLoading] = useState(true);
+  const [newsError, setNewsError] = useState(null);
   
   // Get user initials from user name
   const getUserInitials = () => {
@@ -264,22 +268,41 @@ export default function Dashboard() {
     ? allEnvironmentalPoints 
     : allEnvironmentalPoints.filter(point => point.type === activeFilter);
   
+  // Fetch environment news on component mount
+  useEffect(() => {
+    const fetchNews = async () => {
+      setNewsLoading(true);
+      setNewsError(null);
+      
+      try {
+        const result = await getEnvironmentNews({
+          language: 'en'
+        });
+        
+        if (result.success && result.data) {
+          setAllNews(result.data);
+          showToast('📰 Environment news loaded successfully!', 'success', 2000);
+        } else {
+          setNewsError(result.error || 'Failed to load news');
+          showToast('⚠️ Could not load news', 'warning', 2000);
+        }
+      } catch (error) {
+        console.error('News fetch error:', error);
+        setNewsError('Failed to fetch news');
+        showToast('❌ Error loading news', 'error', 2000);
+      } finally {
+        setNewsLoading(false);
+      }
+    };
+    
+    fetchNews();
+  }, []);
+
   const stats = [
     { id: "total", icon: Wallet, label: "Total Amount", value: "$187,001" },
     { id: "deposit", icon: TrendingUp, label: "Amount Deposit", value: "$21,345" },
     { id: "spent", icon: CreditCard, label: "Amount Spent", value: "$7,321" },
     { id: "expected", icon: DollarSign, label: "Expected Amount", value: "$81,987" }
-  ];
-  
-  const allNews = [
-    { id: 1, title: "Amazon Rainforest Deforestation Reaches Record Low", description: "New conservation efforts show promising results.", date: "2 hours ago", category: "Conservation", image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=400&h=300&fit=crop" },
-    { id: 2, title: "Ocean Cleanup Project Removes 100 Tons of Plastic", description: "Revolutionary technology clears Pacific Ocean.", date: "5 hours ago", category: "Marine", image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop" },
-    { id: 3, title: "Wildfire Prevention AI System Deployed", description: "AI-powered early warning system prevents fires.", date: "1 day ago", category: "Technology", image: "https://images.unsplash.com/photo-1592422746858-450d8e3c9e8e?w=400&h=300&fit=crop" },
-    { id: 4, title: "Sustainable Mining Practices Adopted Globally", description: "Mining companies commit to zero-emission by 2030.", date: "1 day ago", category: "Industry", image: "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=400&h=300&fit=crop" },
-    { id: 5, title: "Coral Reef Restoration Shows 80% Success Rate", description: "Breakthrough in coral regeneration techniques.", date: "2 days ago", category: "Marine", image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=400&h=300&fit=crop" },
-    { id: 6, title: "Reforestation Initiative Plants 1 Million Trees", description: "Community project exceeds restoration goals.", date: "3 days ago", category: "Conservation", image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&h=300&fit=crop" },
-    { id: 7, title: "Wildlife Population Increases in Protected Areas", description: "Endangered species numbers grow significantly.", date: "3 days ago", category: "Wildlife", image: "https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=400&h=300&fit=crop" },
-    { id: 8, title: "Green Energy Powers Remote Mining Operations", description: "Solar and wind reduce carbon footprint.", date: "4 days ago", category: "Energy", image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=300&fit=crop" }
   ];
   
   const navItems = [
@@ -623,42 +646,80 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto pr-2 custom-scrollbar">
-                      {allNews.slice(0, newsCount).map((news, index) => (
-                        <div
-                          key={news.id}
-                          className="group relative overflow-hidden rounded-xl border-2 rgb-border-animate bg-slate-900 hover:bg-slate-800/80 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blue-500/20 card-click-effect"
-                          style={{ animationDelay: `${index * 50}ms` }}
-                        >
-                          <div className="aspect-video overflow-hidden">
-                            <img
-                              src={news.image || "/api/placeholder/400/300"}
-                              alt={news.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
-                          </div>
-                          <div className="p-3">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                {news.category}
-                              </span>
-                            </div>
-                            <h4 className="font-bold text-sm text-white mb-1 line-clamp-2 group-hover:text-blue-400 transition-colors">
-                              {news.title}
-                            </h4>
-                            <p className="text-xs text-slate-400 line-clamp-2 mb-2">{news.description}</p>
-                            <span className="text-xs text-slate-500">{news.date}</span>
-                          </div>
-                          <div className="absolute inset-0 shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      {newsLoading ? (
+                        // Loading state
+                        <div className="flex flex-col items-center justify-center py-8 space-y-3">
+                          <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                          <p className="text-slate-400 text-sm">Loading environment news...</p>
                         </div>
-                      ))}
+                      ) : newsError ? (
+                        // Error state
+                        <div className="flex flex-col items-center justify-center py-8 space-y-3">
+                          <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+                            <span className="text-3xl">⚠️</span>
+                          </div>
+                          <p className="text-red-400 text-sm text-center">{newsError}</p>
+                          <button
+                            onClick={() => window.location.reload()}
+                            className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs transition-all"
+                          >
+                            Retry
+                          </button>
+                        </div>
+                      ) : allNews.length === 0 ? (
+                        // No news state
+                        <div className="flex flex-col items-center justify-center py-8 space-y-3">
+                          <Newspaper />
+                          <p className="text-slate-400 text-sm text-center">No environment news available</p>
+                        </div>
+                      ) : (
+                        // News list
+                        allNews.slice(0, newsCount).map((news, index) => (
+                          <a
+                            key={news.id}
+                            href={news.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group relative overflow-hidden rounded-xl border-2 rgb-border-animate bg-slate-900 hover:bg-slate-800/80 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blue-500/20 card-click-effect block"
+                            style={{ animationDelay: `${index * 50}ms` }}
+                          >
+                            <div className="aspect-video overflow-hidden">
+                              <img
+                                src={news.image || "/api/placeholder/400/300"}
+                                alt={news.title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                onError={(e) => {
+                                  e.target.src = 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=400&h=300&fit=crop'
+                                }}
+                              />
+                            </div>
+                            <div className="p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                  {news.category}
+                                </span>
+                                {news.source && (
+                                  <span className="text-xs text-slate-500">• {news.source}</span>
+                                )}
+                              </div>
+                              <h4 className="font-bold text-sm text-white mb-1 line-clamp-2 group-hover:text-blue-400 transition-colors">
+                                {news.title}
+                              </h4>
+                              <p className="text-xs text-slate-400 line-clamp-2 mb-2">{news.description}</p>
+                              <span className="text-xs text-slate-500">{news.date}</span>
+                            </div>
+                            <div className="absolute inset-0 shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          </a>
+                        ))
+                      )}
                     </div>
-                    {newsCount < allNews.length && (
+                    {!newsLoading && !newsError && allNews.length > 0 && newsCount < allNews.length && (
                       <div className="flex justify-center mt-4">
                         <button
                           onClick={() => setNewsCount(prev => Math.min(prev + 4, allNews.length))}
                           className="w-full px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 transition-all duration-300 font-medium hover:scale-105 card-click-effect"
                         >
-                          Load More
+                          Load More ({allNews.length - newsCount} more)
                         </button>
                       </div>
                     )}

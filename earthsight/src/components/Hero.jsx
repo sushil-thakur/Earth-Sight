@@ -17,7 +17,7 @@ const Hero = () => {
   const handleVideoLoad = () => {
     setLoadedVideos((prev) => prev + 1);
   };
-  const upcomingVideoIndex = (currentIndex % totalVideos) + 1;
+  const upcomingVideoIndex = currentIndex >= totalVideos ? 1 : currentIndex + 1;
   const handleMiniVdClick = () => {
     setHasClicked(true);
     setCurrentIndex(upcomingVideoIndex);
@@ -124,9 +124,7 @@ const Hero = () => {
             onLoadedData={handleVideoLoad}
           />
           <video
-            src={getVideoSrc(
-              currentIndex === totalVideos - 1 ? 1 : currentIndex
-            )}
+            src={getVideoSrc(currentIndex)}
             autoPlay
             loop
             muted

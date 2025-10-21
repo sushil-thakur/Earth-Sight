@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
 import { ArrowRightLeft, TrendingUp, DollarSign, Loader2 } from "lucide-react"
 
-const API_KEY = "5beb978b21bacefd4e894873"
-const API_URL = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest`
+const API_KEY = import.meta.env.VITE_EXCHANGE_RATE_API_KEY
+const API_BASE_URL = import.meta.env.VITE_EXCHANGE_RATE_API_URL || 'https://v6.exchangerate-api.com/v6'
+const API_URL = `${API_BASE_URL}/${API_KEY}/latest`
 
 // Popular currencies for quick selection
 const popularCurrencies = [

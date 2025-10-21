@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-const ATTOM_API_KEY = '13d55335ffb952fbd52d5c11c178457a'
-const ATTOM_BASE_URL = 'https://api.gateway.attomdata.com/propertyapi/v1.0.0'
+const ATTOM_API_KEY = import.meta.env.VITE_ATTOM_API_KEY
+const ATTOM_BASE_URL = import.meta.env.VITE_ATTOM_BASE_URL || 'https://api.gateway.attomdata.com/propertyapi/v1.0.0'
 
 // Create axios instance with default config
 const attomClient = axios.create({

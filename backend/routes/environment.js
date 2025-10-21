@@ -29,18 +29,18 @@ const generateDummyData = () => {
     features: []
   };
 
-  // Generate random coordinates around the world
+  // Generate random coordinates around the world with real environmental hotspots
   const locations = [
-    { lat: 27.7172, lng: 85.324, name: 'Kathmandu, Nepal' },
-    { lat: 40.7128, lng: -74.0060, name: 'New York, USA' },
-    { lat: 51.5074, lng: -0.1278, name: 'London, UK' },
-    { lat: 35.6762, lng: 139.6503, name: 'Tokyo, Japan' },
-    { lat: -33.8688, lng: 151.2093, name: 'Sydney, Australia' },
-    { lat: 55.7558, lng: 37.6176, name: 'Moscow, Russia' },
-    { lat: -23.5505, lng: -46.6333, name: 'São Paulo, Brazil' },
-    { lat: 28.6139, lng: 77.2090, name: 'New Delhi, India' },
-    { lat: 39.9042, lng: 116.4074, name: 'Beijing, China' },
-    { lat: -26.2041, lng: 28.0473, name: 'Johannesburg, South Africa' }
+    { lat: -12.6097, lng: -69.1897, name: 'Madre de Dios, Peru (illegal gold mining & deforestation)' },
+    { lat: -3.2040, lng: -52.2070, name: 'Pará / Altamira, Brazil (Amazon deforestation hotspots)' },
+    { lat: -4.0533, lng: 137.1160, name: 'Grasberg / Mimika, Papua, Indonesia (mine disaster & mining impacts)' },
+    { lat: 62.0355, lng: 129.6755, name: 'Sakha (Yakutsk), Russia (boreal forest wildfire activity)' },
+    { lat: 50.2333, lng: -121.4333, name: 'Lytton area, British Columbia, Canada (recent wildfires)' },
+    { lat: -19.6499, lng: 134.1910, name: 'Barkly / Tennant Creek, Northern Territory, Australia (bushfire/heat risks)' },
+    { lat: -2.2096, lng: 113.9165, name: 'Central Kalimantan (Palangka Raya), Indonesia (peatland deforestation & fire risk)' },
+    { lat: 1.0461, lng: 29.6472, name: 'Mambasa / Ituri, DRC (forest loss / logging pressure)' },
+    { lat: 5.6948, lng: -76.6541, name: 'Atrato River / Quibdó, Colombia (mercury contamination from gold mining)' },
+    { lat: 26.8467, lng: 80.9462, name: 'Uttar Pradesh region, India (seasonal agricultural & forest fires)' }
   ];
 
   locations.forEach((location, index) => {
