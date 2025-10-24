@@ -8,28 +8,28 @@ export const FootLinks = [
 
 export const Members = [
   {
-    name: "Sushil Thakur",
-    role: "Full Stack Developer",
-    img: "/img/team/member1.jpg",
+    name: "Sushil Kr Thakur",
+    role: "Backend and AI/ML",
+    img: "/img/member3.png",
   },
   {
-    name: "Samriddhi Sharma",
-    role: "AI/ML Engineer",
-    img: "/img/team/member2.jpg",
-  },
-  {
-    name: "Kali Linux",
-    role: "Backend Developer",
-    img: "/img/team/member3.jpg",
-  },
-  {
-    name: "Team Member 4",
-    role: "Data Scientist",
-    img: "/img/team/member4.jpg",
-  },
-  {
-    name: "Team Member 5",
+    name: "Sujan Budh Magar",
     role: "Frontend Developer",
-    img: "/img/team/member5.jpg",
+    img: "/img/member1.png",
+  },
+  {
+    name: "Akash Shakya",
+    role: "Backend and QA",
+    img: "/img/member2.jpeg",
+  },
+  {
+    name: "Shirsh Sthapit",
+    role: "Frontend Developer",
+    img: "/img/member3.png",
+  },
+  {
+    name: "Laxman Saud",
+    role: "UI/UX",
+    img: "/img/member1.png",
   },
 ];

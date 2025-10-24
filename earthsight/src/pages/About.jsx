@@ -204,10 +204,14 @@ const About = () => {
                 <SwiperSlide key={idx}>
                   <div className="h-[350px] w-full bg-white flex flex-col items-center justify-center gap-3 rounded-xl border border-[#1e1b4b]">
                     <img
-                      src={member.img}
-                      alt="No Member Image"
-                      className="h-[250px] w-[250px] rounded-full  object-cover"
-                    />
+                          src={member.img}
+                          alt={member.name}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/img/member3.png";
+                          }}
+                          className="h-[250px] w-[250px] rounded-full  object-cover"
+                        />
                     <div className="flex flex-col items-center gap-1">
                       <h2 className="text-lg font-bold">{member.name}</h2>
                       <h3 className="text-base font-semibold">{member.role}</h3>

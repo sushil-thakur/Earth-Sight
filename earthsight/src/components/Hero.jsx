@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Button from "./Button";
+import { useAuthModal } from '../contexts/AuthModalContext'
 import { TiLocation, TiLocationArrow } from "react-icons/ti";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -71,6 +72,7 @@ const Hero = () => {
   });
 
   const getVideoSrc = (index) => `videos/hero-${index}.mp4`;
+  const { open } = useAuthModal()
   return (
     <div className="relative h-dvh w-screen overflow-x-hidden">
       {isLoading && (
@@ -150,6 +152,7 @@ const Hero = () => {
               title="Explore More"
               leftIcon={<TiLocationArrow />}
               containerClass="bg-yellow-300 flex-center gap-1"
+              onClick={() => open('login')}
             />
           </div>
         </div>

@@ -340,10 +340,16 @@ class EmailService {
     ];
 
     const locations = [
-      { name: 'Kathmandu, Nepal', lat: 27.7172, lng: 85.324 },
-      { name: 'Chitwan National Park, Nepal', lat: 27.5291, lng: 84.3542 },
-      { name: 'Langtang National Park, Nepal', lat: 28.2096, lng: 85.5418 },
-      { name: 'Sagarmatha National Park, Nepal', lat: 27.9881, lng: 86.9250 }
+      { lat: -12.6097, lng: -69.1897, name: 'Madre de Dios, Peru (illegal gold mining & deforestation)' },
+      { lat: -3.2040, lng: -52.2070, name: 'Pará / Altamira, Brazil (Amazon deforestation hotspots)' },
+      { lat: -4.0533, lng: 137.1160, name: 'Grasberg / Mimika, Papua, Indonesia (mine disaster & mining impacts)' },
+      { lat: 62.0355, lng: 129.6755, name: 'Sakha (Yakutsk), Russia (boreal forest wildfire activity)' },
+      { lat: 50.2333, lng: -121.4333, name: 'Lytton area, British Columbia, Canada (recent wildfires)' },
+      { lat: -19.6499, lng: 134.1910, name: 'Barkly / Tennant Creek, Northern Territory, Australia (bushfire/heat risks)' },
+      { lat: -2.2096, lng: 113.9165, name: 'Central Kalimantan (Palangka Raya), Indonesia (peatland deforestation & fire risk)' },
+      { lat: 1.0461, lng: 29.6472, name: 'Mambasa / Ituri, DRC (forest loss / logging pressure)' },
+      { lat: 5.6948, lng: -76.6541, name: 'Atrato River / Quibdó, Colombia (mercury contamination from gold mining)' },
+      { lat: 26.8467, lng: 80.9462, name: 'Uttar Pradesh region, India (seasonal agricultural & forest fires)' }
     ];
 
     const randomRisk = riskTypes[Math.floor(Math.random() * riskTypes.length)];
@@ -512,6 +518,7 @@ Environmental Risk Monitoring & Real Estate Prediction
         <table style="width: 100%; border-collapse: collapse;">
           <tr><td style="padding: 5px 0; font-weight: bold;">Location:</td><td style="padding: 5px 0;">${data.location}</td></tr>
           <tr><td style="padding: 5px 0; font-weight: bold;">Coordinates:</td><td style="padding: 5px 0;">Lat: ${(typeof lat === 'number' && !isNaN(lat)) ? lat.toFixed(4) : '0.0000'}, Lon: ${(typeof lng === 'number' && !isNaN(lng)) ? lng.toFixed(4) : '0.0000'}</td></tr>
+          <tr><td style="padding: 5px 0; font-weight: bold;">Map:</td><td style="padding: 5px 0;"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}" target="_blank" rel="noopener noreferrer">Open in Google Maps</a></td></tr>
           <tr><td style="padding: 5px 0; font-weight: bold;">Severity:</td><td style="padding: 5px 0; color: ${severityColor}; font-weight: bold;">${data.severity}</td></tr>
           <tr><td style="padding: 5px 0; font-weight: bold;">Area Affected:</td><td style="padding: 5px 0;">${data.area} hectares</td></tr>
           <tr><td style="padding: 5px 0; font-weight: bold;">Confidence:</td><td style="padding: 5px 0;">${data.confidence}%</td></tr>
@@ -543,6 +550,7 @@ Details:
 - Type: ${data.type.charAt(0).toUpperCase() + data.type.slice(1)}
 - Location: ${data.location}
 - Coordinates: Lat: ${(typeof lat === 'number' && !isNaN(lat)) ? lat.toFixed(4) : '0.0000'}, Lon: ${(typeof lng === 'number' && !isNaN(lng)) ? lng.toFixed(4) : '0.0000'}
+- Map: https://www.google.com/maps/search/?api=1&query=${lat},${lng}
 - Severity: ${data.severity}
 - Area Affected: ${data.area} hectares
 - Confidence: ${data.confidence}%

@@ -144,6 +144,42 @@ const ChevronRight = () => (
   </svg>
 );
 
+// Topic specific icons (converted to React components)
+const TreeIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z" />
+    <path d="M7 16v6" />
+    <path d="M13 19v3" />
+    <path d="M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5" />
+  </svg>
+)
+
+const FlameIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4" />
+  </svg>
+)
+
+const PickIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <path d="m14 13-8.381 8.38a1 1 0 0 1-3.001-3L11 9.999" />
+    <path d="M15.973 4.027A13 13 0 0 0 5.902 2.373c-1.398.342-1.092 2.158.277 2.601a19.9 19.9 0 0 1 5.822 3.024" />
+    <path d="M16.001 11.999a19.9 19.9 0 0 1 3.024 5.824c.444 1.369 2.26 1.676 2.603.278A13 13 0 0 0 20 8.069" />
+    <path d="M18.352 3.352a1.205 1.205 0 0 0-1.704 0l-5.296 5.296a1.205 1.205 0 0 0 0 1.704l2.296 2.296a1.205 1.205 0 0 0 1.704 0l5.296-5.296a1.205 1.205 0 0 0 0-1.704z" />
+  </svg>
+)
+
+const FishIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z" />
+    <path d="M18 12v.5" />
+    <path d="M16 17.93a9.77 9.77 0 0 1 0-11.86" />
+    <path d="M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33" />
+    <path d="M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4" />
+    <path d="m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98" />
+  </svg>
+)
+
 function FloatingOrbs() {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -307,10 +343,10 @@ export default function Dashboard() {
   
   const navItems = [
     { icon: Home, label: "Show All", filter: "all" },
-    { icon: ArrowLeftRight, label: "Deforestation", filter: "deforestation" },
-    { icon: BarChart3, label: "Marine Life", filter: "marine" },
-    { icon: PiggyBank, label: "Forest Fire", filter: "fire" },
-    { icon: FileText, label: "Mining", filter: "mining" },
+    { icon: TreeIcon, label: "Deforestation", filter: "deforestation" },
+    { icon: FishIcon, label: "Marine Life", filter: "marine" },
+    { icon: FlameIcon, label: "Forest Fire", filter: "fire" },
+    { icon: PickIcon, label: "Mining", filter: "mining" },
   ];
   
   return (
