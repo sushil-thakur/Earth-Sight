@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaDiscord, FaTwitter, FaYoutube, FaFacebook } from "react-icons/fa";
 import { FootLinks } from "../constants";
@@ -10,6 +11,33 @@ const socialLinks = [
 ];
 
 const Footer = () => {
+  const [subscribeResult, setSubscribeResult] = useState("");
+
+  const handleSubscribe = async (event) => {
+    event.preventDefault();
+    setSubscribeResult("Subscribing...");
+    
+    const formData = new FormData(event.target);
+    formData.append("access_key", "03403155-f57b-4cc2-8f1e-f3e2dbcb4b0a");
+    formData.append("subject", "New Newsletter Subscription");
+
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      setSubscribeResult("Subscribed! ✓");
+      event.target.reset();
+      setTimeout(() => setSubscribeResult(""), 3000);
+    } else {
+      setSubscribeResult("Error!");
+      setTimeout(() => setSubscribeResult(""), 3000);
+    }
+  };
+
   return (
     <footer className="w-full text-black pt-10 pb-6">
       {/* Divider */}
@@ -64,10 +92,12 @@ const Footer = () => {
           <h3 className="text-lg font-semibold mb-3 text-emerald-400">
             Stay Updated
           </h3>
-          <form className="flex">
+          <form onSubmit={handleSubscribe} className="flex">
             <input
               type="email"
+              name="email"
               placeholder="Your email"
+              required
               className="px-3 py-2 text-sm rounded-l-md focus:outline-none w-full"
             />
             <button
@@ -77,6 +107,11 @@ const Footer = () => {
               Subscribe
             </button>
           </form>
+          {subscribeResult && (
+            <p className={`text-sm mt-2 ${subscribeResult.includes('✓') ? 'text-emerald-400' : subscribeResult.includes('Error') ? 'text-red-400' : 'text-blue-400'}`}>
+              {subscribeResult}
+            </p>
+          )}
           <p className="text-sm mt-3">
             Get our latest insights and updates delivered to your inbox.
           </p>

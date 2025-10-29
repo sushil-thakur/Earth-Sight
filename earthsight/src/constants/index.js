@@ -23,13 +23,13 @@ export const Members = [
     img: "/img/member2.jpeg",
   },
   {
-    name: "Shirsh Sthapit",
+    name: "Shirish Sthapit",
     role: "Frontend Developer",
-    img: "/img/member3.png",
+    img: "/img/member4.png",
   },
   {
     name: "Laxman Saud",
     role: "UI/UX",
-    img: "/img/member1.png",
+    img: "/img/member5.png",
   },
 ];

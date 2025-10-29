@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   FaEnvelope,
   FaPhoneAlt,
@@ -9,11 +10,35 @@ import {
 import Footer from "../components/Footer";
 
 export default function ContactUs() {
+  const [result, setResult] = useState("");
+
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    setResult("Sending....");
+    const formData = new FormData(event.target);
+    formData.append("access_key", "03403155-f57b-4cc2-8f1e-f3e2dbcb4b0a");
+
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      setResult("Message sent successfully!");
+      event.target.reset();
+    } else {
+      console.log("Error", data);
+      setResult(data.message || "Something went wrong!");
+    }
+  };
+
   return (
     <section className="text-emerald-400">
       <div className="h-[600px] w-full relative">
         <video
-          src="/videos/hero-1.mp4"
+          src="/videos/hero-3.mp4"
           loop
           playsInline
           autoPlay
@@ -121,7 +146,7 @@ export default function ContactUs() {
           </div>
 
           {/* Contact Form */}
-          <form className="bg-white border border-green-100 shadow-md rounded-2xl p-8 space-y-6">
+          <form onSubmit={onSubmit} className="bg-white border border-green-100 shadow-md rounded-2xl p-8 space-y-6">
             <h3 className="text-2xl font-semibold text-emerald-700 mb-4">
               Send Us a Message
             </h3>
@@ -131,7 +156,9 @@ export default function ContactUs() {
               </label>
               <input
                 type="text"
+                name="name"
                 placeholder="Enter your name"
+                required
                 className="w-full mt-2 border border-gray-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-emerald-300 outline-none"
               />
             </div>
@@ -139,7 +166,9 @@ export default function ContactUs() {
               <label className="block text-gray-700 font-medium">Email</label>
               <input
                 type="email"
+                name="email"
                 placeholder="Enter your email"
+                required
                 className="w-full mt-2 border border-gray-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-emerald-300 outline-none"
               />
             </div>
@@ -147,7 +176,9 @@ export default function ContactUs() {
               <label className="block text-gray-700 font-medium">Subject</label>
               <input
                 type="text"
+                name="subject"
                 placeholder="Subject of your message"
+                required
                 className="w-full mt-2 border border-gray-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-emerald-300 outline-none"
               />
             </div>
@@ -155,7 +186,9 @@ export default function ContactUs() {
               <label className="block text-gray-700 font-medium">Message</label>
               <textarea
                 rows="5"
+                name="message"
                 placeholder="Write your message here..."
+                required
                 className="w-full mt-2 border border-gray-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-emerald-300 outline-none"
               ></textarea>
             </div>
@@ -165,6 +198,11 @@ export default function ContactUs() {
             >
               Send Message
             </button>
+            {result && (
+              <p className={`text-center font-medium ${result.includes('successfully') ? 'text-emerald-600' : result.includes('Sending') ? 'text-blue-600' : 'text-red-600'}`}>
+                {result}
+              </p>
+            )}
           </form>
         </div>
 
