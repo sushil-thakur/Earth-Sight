@@ -138,6 +138,19 @@ const Trash = () => (
   </svg>
 );
 
+const Zap = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </svg>
+);
+
+const Leaf = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+  </svg>
+);
+
 const ChevronRight = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m9 18 6-6-6-6"/>
@@ -261,6 +274,8 @@ export default function Dashboard() {
   const [allNews, setAllNews] = useState([]);
   const [newsLoading, setNewsLoading] = useState(true);
   const [newsError, setNewsError] = useState(null);
+  const [carbonData, setCarbonData] = useState(null);
+  const [carbonLoading, setCarbonLoading] = useState(true);
   
   // Get user initials from user name
   const getUserInitials = () => {
@@ -334,11 +349,53 @@ export default function Dashboard() {
     fetchNews();
   }, []);
 
+  // Fetch global carbon intensity data via backend proxy
+  useEffect(() => {
+    const fetchCarbonData = async () => {
+      setCarbonLoading(true);
+      
+      try {
+        // Fetch global average carbon intensity
+        const response = await fetch('http://localhost:5000/api/environment/carbon-intensity/global');
+        
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            setCarbonData(result.data);
+            console.log('✅ Global carbon intensity data loaded:', result.data);
+            showToast('🌍 Global energy data updated!', 'success', 2000);
+          } else {
+            console.error('❌ Failed to fetch carbon data:', result.error);
+          }
+        } else {
+          console.error('❌ HTTP error fetching carbon data:', response.status);
+        }
+      } catch (error) {
+        console.error('❌ Error fetching carbon data:', error);
+        showToast('⚠️ Could not load energy data', 'warning', 2000);
+      } finally {
+        setCarbonLoading(false);
+      }
+    };
+    
+    fetchCarbonData();
+    
+    // Refresh every 30 minutes
+    const interval = setInterval(fetchCarbonData, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const stats = [
-    { id: "total", icon: Wallet, label: "Total Amount", value: "$187,001" },
-    { id: "deposit", icon: TrendingUp, label: "Amount Deposit", value: "$21,345" },
-    { id: "spent", icon: CreditCard, label: "Amount Spent", value: "$7,321" },
-    { id: "expected", icon: DollarSign, label: "Expected Amount", value: "$81,987" }
+    { 
+      id: "energy", 
+      icon: Zap, 
+      label: carbonLoading ? "Loading Energy Data..." : "Global Carbon Intensity", 
+      value: carbonLoading ? "..." : (carbonData ? carbonData.emissions.value : "N/A"), 
+      unit: carbonLoading ? "" : (carbonData ? carbonData.emissions.unit : ""),
+      subtitle: carbonLoading ? "" : (carbonData ? `Last updated: ${new Date(carbonData.emissions.dateLocal).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}` : ""),
+      renewable: carbonLoading ? null : (carbonData?.renewable_percentage || null),
+      isLive: !carbonLoading && carbonData && !carbonData.emissions.outdated
+    }
   ];
   
   const navItems = [
@@ -632,27 +689,84 @@ export default function Dashboard() {
           <div className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <div className="lg:col-span-3 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="w-full">
                   {stats.map((stat, index) => (
                     <div
                       key={stat.id}
-                      className="relative overflow-hidden rounded-xl border-2 rgb-border-animate bg-slate-900/50 backdrop-blur-sm transition-all duration-500 cursor-pointer group hover:shadow-lg hover:shadow-blue-500/20 hover:-translate-y-1 card-click-effect float-animate rgb-gradient-bg"
+                      className="relative overflow-hidden rounded-2xl border-2 border-green-500/50 bg-gradient-to-br from-green-900/30 via-slate-900/50 to-emerald-900/30 backdrop-blur-sm transition-all duration-500 cursor-pointer group hover:-translate-y-1 hover:shadow-2xl hover:shadow-green-500/40 float-animate"
                       style={{ animationDelay: `${index * 100}ms` }}
                       onMouseEnter={() => setHoveredCard(stat.id)}
                       onMouseLeave={() => setHoveredCard(null)}
                     >
-                      <div className="p-6 relative z-10">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="p-3 bg-blue-500/10 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
-                            <stat.icon />
+                      {/* Energy card special background effect */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-emerald-500/10 opacity-50" />
+                      
+                      <div className="p-8 relative z-10">
+                        <div className="flex items-start justify-between mb-6">
+                          <div className="flex items-center gap-4">
+                            <div className="p-4 bg-green-500/20 border-2 border-green-400/30 rounded-2xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                              <stat.icon style={{ width: '32px', height: '32px' }} />
+                            </div>
+                            <div>
+                              <p className="text-base text-green-300 font-semibold mb-1">{stat.label}</p>
+                              <div className="flex items-center gap-2">
+                                {stat.isLive && (
+                                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/30 border border-green-400/50 rounded-full animate-pulse">
+                                    <div className="w-2 h-2 bg-green-400 rounded-full animate-ping absolute" />
+                                    <div className="w-2 h-2 bg-green-400 rounded-full" />
+                                    <span className="text-xs font-bold text-green-300 ml-1">LIVE</span>
+                                  </div>
+                                )}
+                                {!carbonLoading && (
+                                  <span className="text-2xl">🌍</span>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div className="space-y-1">
-                          <p className="text-sm text-slate-400">{stat.label}</p>
-                          <p className="text-2xl font-bold text-white">{stat.value}</p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Left side - Main value */}
+                          <div className="space-y-2">
+                            <div className="flex items-baseline gap-3">
+                              <p className="text-6xl font-bold text-green-400 leading-none">{stat.value}</p>
+                            </div>
+                            <p className="text-sm text-green-500/80 font-medium">{stat.unit}</p>
+                            {stat.subtitle && (
+                              <p className="text-xs text-green-400/70 flex items-center gap-1.5 pt-3">
+                                <Zap style={{ width: '12px', height: '12px' }} />
+                                {stat.subtitle}
+                              </p>
+                            )}
+                          </div>
+                          
+                          {/* Right side - Renewable energy */}
+                          {stat.renewable !== null && stat.renewable !== undefined && (
+                            <div className="flex flex-col justify-center space-y-4 bg-slate-900/30 rounded-xl p-6 border border-green-500/20">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-6 h-6 text-green-400"><Leaf /></div>
+                                  <span className="text-sm text-green-300/80 font-medium">Renewable Energy</span>
+                                </div>
+                              </div>
+                              <div className="space-y-3">
+                                <div className="flex items-baseline gap-2">
+                                  <span className="text-5xl font-bold text-green-300">{stat.renewable}</span>
+                                  <span className="text-2xl font-semibold text-green-400/80">%</span>
+                                </div>
+                                {/* Progress bar */}
+                                <div className="w-full h-3 bg-slate-800/50 rounded-full overflow-hidden shadow-inner">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-green-500 via-emerald-400 to-green-500 transition-all duration-1000 ease-out shadow-lg"
+                                    style={{ width: `${stat.renewable}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div className="absolute inset-0 shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-green-500/10 to-emerald-500/10" />
                     </div>
                   ))}
                 </div>

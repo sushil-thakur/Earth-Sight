@@ -96,8 +96,8 @@ function validatePredictionInput(data) {
     return { isValid: false, error: 'Floors must be between 1 and 50' };
   }
 
-  if (area < 100 || area > 10000) {
-    return { isValid: false, error: 'Area must be between 100 and 10000 sq ft' };
+  if (area < 100 || area > 100000) {
+    return { isValid: false, error: 'Area must be between 100 and 100000 sq ft' };
   }
 
   if (bedrooms < 1 || bedrooms > 10) {
