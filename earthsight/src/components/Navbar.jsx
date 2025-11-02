@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
 
 import Button from "./Button";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthModal } from '../contexts/AuthModalContext';
 import { useAuth } from '../contexts/AuthContext';
 import { showToast } from './FuturisticToast';
@@ -27,6 +27,7 @@ const NavBar = () => {
   const { open } = useAuthModal()
   const { user, logout, isAuthenticated } = useAuth()
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const location = useLocation(); // Get current route
 
   // Toggle audio and visual indicator
   const toggleAudioIndicator = () => {
@@ -110,6 +111,21 @@ const NavBar = () => {
                 const protectedPages = ['Deforestation', 'Real Estate']
                 const isProtected = protectedPages.includes(item)
 
+                // Determine the route path for each item
+                let itemPath = '/';
+                if (item === 'Deforestation') itemPath = '/deforestation';
+                if (item === 'Real Estate') itemPath = '/real-estate';
+                if (item === 'About') itemPath = '/about';
+                if (item === 'Contact') itemPath = '/contact';
+
+                // Check if current route matches this nav item
+                const isActive = location.pathname === itemPath;
+                
+                // Debug log
+                if (isActive) {
+                  console.log(`Active page: ${item}, pathname: ${location.pathname}`);
+                }
+
                 const handleClick = (e) => {
                   if (isProtected) {
                     const token = localStorage.getItem('token')
@@ -121,28 +137,32 @@ const NavBar = () => {
                   }
                 }
 
+                // Active link class - bright green text for active page
+                const activeStyle = isActive ? { color: '#4ade80', fontWeight: 'bold' } : {};
+                const linkClass = "nav-hover-btn";
+
                 if (item === 'Deforestation') {
-                  return <Link key={index} to="/deforestation" onClick={handleClick} className="nav-hover-btn">{item}</Link>
+                  return <Link key={index} to="/deforestation" onClick={handleClick} className={linkClass} style={activeStyle}>{item}</Link>
                 }
 
                 if (item === 'Home') {
-                  return <Link key={index} to="/" className="nav-hover-btn">{item}</Link>
+                  return <Link key={index} to="/" className={linkClass} style={activeStyle}>{item}</Link>
                 }
 
                 if (item === 'Real Estate') {
-                  return <Link key={index} to="/real-estate" onClick={handleClick} className="nav-hover-btn">{item}</Link>
+                  return <Link key={index} to="/real-estate" onClick={handleClick} className={linkClass} style={activeStyle}>{item}</Link>
                 }
 
                 if (item === 'About') {
-                  return <Link key={index} to="/about" className="nav-hover-btn">{item}</Link>
+                  return <Link key={index} to="/about" className={linkClass} style={activeStyle}>{item}</Link>
                 }
 
                 if (item === 'Contact') {
-                  return <Link key={index} to="/contact" className="nav-hover-btn">{item}</Link>
+                  return <Link key={index} to="/contact" className={linkClass} style={activeStyle}>{item}</Link>
                 }
 
                 return (
-                  <a key={index} href={`#${item.toLowerCase()}`} className="nav-hover-btn">{item}</a>
+                  <a key={index} href={`#${item.toLowerCase()}`} className={linkClass} style={activeStyle}>{item}</a>
                 )
               })}
             </div>
