@@ -324,27 +324,27 @@ export function MarketSummary({ location, locationData }) {
 
   return (
     <div className="relative group">
-      <div className="absolute -inset-[1px] rounded-3xl animate-rgb-border opacity-75 group-hover:opacity-100 transition-opacity"></div>
-      <div className="relative backdrop-blur-2xl bg-slate-900/90 rounded-3xl p-8 shadow-2xl">
+      <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div className="relative backdrop-blur-xl bg-white/95 rounded-3xl p-8 shadow-xl border border-emerald-100">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-cyan-500/20">
-              <TrendingUp className="w-6 h-6 text-cyan-400" />
+            <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg">
+              <TrendingUp className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
               {displayValues.locationName} Market
             </h3>
             <button
               onClick={() => setShowDocumentation(true)}
-              className="p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 hover:border-blue-500/50 transition-all group"
+              className="p-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 transition-all group"
               title="View Market Summary Documentation"
             >
-              <Info className="w-5 h-5 text-blue-400 group-hover:text-blue-300" />
+              <Info className="w-5 h-5 text-emerald-600 group-hover:text-emerald-700" />
             </button>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30">
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm font-bold text-emerald-400">{displayValues.priceChange}</span>
+            <TrendingUp className="w-4 h-4 text-emerald-600" />
+            <span className="text-sm font-bold text-emerald-600">{displayValues.priceChange}</span>
           </div>
         </div>
 

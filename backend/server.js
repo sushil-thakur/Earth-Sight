@@ -27,27 +27,34 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-// Configure CORS to echo back allowed origin (useful for multiple dev ports)
-// Allow any localhost origin during development (ports like 5173, 5174, etc.)
+// Configure CORS for both development and production
 const envOrigin = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(s => s.trim()) : []
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like curl or server-to-server)
+    // Allow requests with no origin (like curl, mobile apps, or server-to-server)
     if (!origin) return callback(null, true)
 
-    // Allow explicit env-configured origins
-    if (envOrigin.includes(origin)) return callback(null, true)
+    // Allow explicit env-configured origins (production URLs)
+    if (envOrigin.length > 0 && envOrigin.includes(origin)) return callback(null, true)
 
-    // Allow any localhost origin (http://localhost:xxxx)
-    try {
-      const url = new URL(origin)
-      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return callback(null, true)
-    } catch (err) {
-      // ignore URL parse errors
+    // In development: Allow any localhost origin
+    if (process.env.NODE_ENV !== 'production') {
+      try {
+        const url = new URL(origin)
+        if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return callback(null, true)
+      } catch (err) {
+        // ignore URL parse errors
+      }
     }
 
-    return callback(new Error('CORS policy: Origin not allowed'))
+    // In production: strict origin checking
+    if (process.env.NODE_ENV === 'production') {
+      console.warn(`CORS: Blocked origin ${origin}`)
+      return callback(new Error('CORS policy: Origin not allowed'))
+    }
+
+    return callback(null, true) // Allow in development by default
   },
   credentials: true
 }));

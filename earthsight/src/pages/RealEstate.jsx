@@ -491,31 +491,31 @@ export default function EarthSightDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-white relative overflow-hidden">
-      {/* Animated Background Grid */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-slate-800 relative overflow-hidden">
+      {/* Subtle Pattern Overlay */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-30">
         <div
           className="absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px)",
-            backgroundSize: "50px 50px",
+              "radial-gradient(circle at 2px 2px, rgba(16, 185, 129, 0.15) 1px, transparent 0)",
+            backgroundSize: "40px 40px",
           }}
         ></div>
       </div>
 
-      {/* Floating Orbs */}
+      {/* Soft Accent Shapes */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/30 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl animate-float-delayed"></div>
-        <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-violet-500/30 rounded-full blur-3xl animate-float-slow"></div>
+        <div className="absolute top-20 right-10 w-72 h-72 bg-emerald-200/40 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-10 w-96 h-96 bg-teal-200/40 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-cyan-200/30 rounded-full blur-3xl"></div>
       </div>
 
       <LoadingAnimation isLoading={isLoading} />
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-32 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
+      <main className="container mx-auto px-8 py-32 relative z-10 max-w-[1400px]">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
           {/* Left Column - Property Form & Map */}
           <div className="space-y-8">
             <PropertyForm formData={formData} availableLocations={availableLocations} onFormChange={handleFormChange} />
@@ -558,7 +558,7 @@ export default function EarthSightDashboard() {
           <button
             onClick={calculatePrediction}
             disabled={isLoading}
-            className="relative w-full py-5 rounded-2xl bg-gradient-to-r from-indigo-500 via-cyan-500 to-violet-500 hover:from-indigo-600 hover:via-cyan-600 hover:to-violet-600 font-bold text-lg shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden"
+            className="relative w-full py-5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white font-bold text-lg shadow-2xl shadow-emerald-500/50 hover:shadow-emerald-500/70 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
             <div className="flex items-center justify-center gap-3 relative z-10">

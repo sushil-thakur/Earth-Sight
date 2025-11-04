@@ -253,20 +253,20 @@ export function InteractiveMap({ onCoordinateSelect }) {
 
   return (
     <div className="relative group">
-      <div className="absolute -inset-[1px] rounded-3xl animate-rgb-border opacity-75 group-hover:opacity-100 transition-opacity"></div>
-      <div className="relative backdrop-blur-2xl bg-slate-900/90 rounded-3xl p-6 shadow-2xl">
+      <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div className="relative backdrop-blur-xl bg-white/95 rounded-3xl p-6 shadow-xl border border-emerald-100">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-xl bg-cyan-500/20">
-            <MapPin className="w-6 h-6 text-cyan-400" />
+          <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg">
+            <MapPin className="w-6 h-6 text-white" />
           </div>
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
             Select Location
           </h3>
         </div>
 
         {/* Map Container */}
-        <div className="relative bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50 min-h-[420px]">
+        <div className="relative bg-emerald-50/30 rounded-2xl p-4 border border-emerald-200 min-h-[420px]">
           <div 
             ref={cesiumContainerRef} 
             className="w-full h-[420px] rounded-lg overflow-hidden" 
@@ -274,10 +274,10 @@ export function InteractiveMap({ onCoordinateSelect }) {
 
           {/* Loading Overlay */}
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 rounded-2xl">
+            <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-2xl backdrop-blur-sm">
               <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mb-4"></div>
-                <div className="text-cyan-400 text-lg font-semibold">Loading Globe...</div>
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mb-4"></div>
+                <div className="text-emerald-600 text-lg font-semibold">Loading Globe...</div>
                 <div className="text-slate-400 text-sm mt-2">Initializing 3D Earth view</div>
               </div>
             </div>
@@ -285,13 +285,13 @@ export function InteractiveMap({ onCoordinateSelect }) {
 
           {/* Error Message */}
           {error && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/90 rounded-2xl">
+            <div className="absolute inset-0 flex items-center justify-center bg-white/95 backdrop-blur-sm rounded-2xl">
               <div className="text-center p-6 max-w-md">
-                <div className="text-red-400 text-lg font-semibold mb-2">Failed to load map</div>
-                <div className="text-slate-400 text-sm mb-4">{error}</div>
+                <div className="text-red-600 text-lg font-semibold mb-2">Failed to load map</div>
+                <div className="text-slate-600 text-sm mb-4">{error}</div>
                 <button 
                   onClick={() => window.location.reload()} 
-                  className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600"
+                  className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600"
                 >
                   Reload Page
                 </button>
@@ -301,12 +301,12 @@ export function InteractiveMap({ onCoordinateSelect }) {
 
           {/* Selected Coordinates Display */}
           {selectedCoords && !isLoading && (
-            <div className="absolute bottom-8 left-8 bg-slate-900/95 backdrop-blur-sm text-white px-4 py-3 rounded-lg shadow-2xl border border-cyan-500/30">
-              <div className="font-semibold text-cyan-400 mb-1">Selected Location</div>
-              <div className="text-xs text-slate-300 font-mono">
+            <div className="absolute bottom-8 left-8 bg-white/95 backdrop-blur-sm px-4 py-3 rounded-lg shadow-xl border border-emerald-200">
+              <div className="font-semibold text-emerald-600 mb-1">Selected Location</div>
+              <div className="text-xs text-slate-700 font-mono">
                 Lat: {selectedCoords.lat.toFixed(6)}
               </div>
-              <div className="text-xs text-slate-300 font-mono">
+              <div className="text-xs text-slate-700 font-mono">
                 Lon: {selectedCoords.lon.toFixed(6)}
               </div>
             </div>
@@ -314,10 +314,10 @@ export function InteractiveMap({ onCoordinateSelect }) {
 
           {/* Instructions */}
           {!isLoading && !error && !selectedCoords && (
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-slate-900/90 backdrop-blur-sm text-white px-6 py-3 rounded-lg shadow-xl border border-cyan-500/30">
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white/95 backdrop-blur-sm px-6 py-3 rounded-lg shadow-xl border border-emerald-200">
               <div className="text-sm text-center">
-                <span className="text-cyan-400 font-semibold">Click anywhere</span>
-                <span className="text-slate-300"> on the globe to select a location</span>
+                <span className="text-emerald-600 font-semibold">Click anywhere</span>
+                <span className="text-slate-700"> on the globe to select a location</span>
               </div>
             </div>
           )}

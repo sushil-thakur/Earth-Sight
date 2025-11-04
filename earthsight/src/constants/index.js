@@ -15,7 +15,7 @@ export const Members = [
   {
     name: "Sujan Budh Magar",
     role: "Frontend Developer",
-    img: "/img/member1.png",
+    img: "/img/member5.jpeg",
   },
   {
     name: "Akash Shakya",
@@ -30,6 +30,6 @@ export const Members = [
   {
     name: "Laxman Saud",
     role: "UI/UX",
-    img: "/img/member5.png",
+    img: "/img/member1.jpeg",
   },
 ];

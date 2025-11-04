@@ -544,10 +544,26 @@ export default function Dashboard() {
         }
       `}</style>
       
-      <div className="flex min-h-screen text-white relative overflow-hidden">
-        <FloatingOrbs />
+      <div className="flex min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-slate-800 relative overflow-hidden">
+        {/* Subtle Pattern Overlay */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 2px 2px, rgba(16, 185, 129, 0.15) 1px, transparent 0)",
+              backgroundSize: "40px 40px",
+            }}
+          ></div>
+        </div>
+
+        {/* Soft Accent Shapes */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 right-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 left-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl"></div>
+        </div>
         
-        <aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} border-r-2 rgb-border-animate bg-slate-900/30 backdrop-blur-xl p-6 flex flex-col transition-all duration-300 z-10 fixed left-0 top-0 h-screen`}>
+        <aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} border-r-2 border-emerald-200 bg-white/90 backdrop-blur-xl p-6 flex flex-col transition-all duration-300 z-10 fixed left-0 top-0 h-screen shadow-lg`}>
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="absolute -right-3 top-8 z-20 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform duration-300"
@@ -574,8 +590,8 @@ export default function Dashboard() {
                 onClick={() => setActiveFilter(item.filter)}
                 className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3 rounded-xl transition-all duration-300 group icon-spin-hover card-click-effect ${
                   activeFilter === item.filter
-                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800 hover:shadow-lg hover:shadow-blue-500/10'
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50 hover:shadow-md'
                 }`}
                 title={sidebarCollapsed ? item.label : ''}
               >
@@ -585,10 +601,10 @@ export default function Dashboard() {
             ))}
           </nav>
           
-          <div className="pt-6 border-t border-slate-800/50">
+          <div className="pt-6 border-t border-emerald-200">
             <button 
               onClick={handleLogout}
-              className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 group card-click-effect`}
+              className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3 rounded-xl text-slate-600 hover:text-red-600 hover:bg-red-50 transition-all duration-300 group card-click-effect`}
             >
               <LogOut />
               {!sidebarCollapsed && <span className="font-medium">Logout</span>}
@@ -597,11 +613,11 @@ export default function Dashboard() {
         </aside>
         
         <main className={`flex-1 overflow-y-auto relative z-10 ${sidebarCollapsed ? 'ml-20' : 'ml-64'} transition-all duration-300`}>
-          <header className="sticky top-0 z-10 border-b-2 rgb-border-animate bg-slate-950/80 backdrop-blur-xl">
+          <header className="sticky top-0 z-10 border-b-2 border-emerald-200 bg-white/90 backdrop-blur-xl shadow-sm">
             <div className="flex items-center justify-between p-6">
               <div>
-                <h2 className="text-3xl font-bold text-white rgb-text-animate">Dashboard</h2>
-                <p className="text-sm text-slate-400 mt-1">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Dashboard</h2>
+                <p className="text-sm text-slate-600 mt-1">
                   {activeFilter === 'all' ? 'Showing all environmental data' : 
                    activeFilter === 'deforestation' ? 'Filtering: Deforestation zones' :
                    activeFilter === 'marine' ? 'Filtering: Marine ecosystems' :

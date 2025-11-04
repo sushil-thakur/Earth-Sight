@@ -1,11 +1,11 @@
 export function PropertyForm({ formData, availableLocations, onFormChange, onUpdatePin }) {
   return (
     <div className="relative group">
-      <div className="absolute -inset-[1px] rounded-3xl animate-rgb-border opacity-75 group-hover:opacity-100 transition-opacity"></div>
-      <div className="relative backdrop-blur-2xl bg-slate-900/90 rounded-3xl p-8 shadow-2xl">
+      <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div className="relative backdrop-blur-xl bg-white/95 rounded-3xl p-8 shadow-xl border border-emerald-100">
         <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 rounded-xl bg-indigo-500/20">
-            <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -14,48 +14,50 @@ export function PropertyForm({ formData, availableLocations, onFormChange, onUpd
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
             Property Details
           </h2>
         </div>
 
         <div className="space-y-5">
                 {/* Latitude / Longitude fields (optional, populated from map clicks) */}
-                <div>
-                  <label className="block text-sm font-semibold mb-2 text-indigo-300">Latitude</label>
-                  <input
-                    type="number"
-                    step="0.000001"
-                    placeholder="Click on map or type latitude"
-                    value={formData.latitude || ''}
-                    onChange={(e) => onFormChange('latitude', e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl bg-slate-800/30 border border-indigo-500/20 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none text-white placeholder:text-slate-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-2 text-indigo-300">Longitude</label>
-                  <input
-                    type="number"
-                    step="0.000001"
-                    placeholder="Click on map or type longitude"
-                    value={formData.longitude || ''}
-                    onChange={(e) => onFormChange('longitude', e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl bg-slate-800/30 border border-indigo-500/20 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none text-white placeholder:text-slate-500"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-emerald-700">Latitude</label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      placeholder="Click on map or type latitude"
+                      value={formData.latitude || ''}
+                      onChange={(e) => onFormChange('latitude', e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-slate-800 placeholder:text-slate-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-emerald-700">Longitude</label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      placeholder="Click on map or type longitude"
+                      value={formData.longitude || ''}
+                      onChange={(e) => onFormChange('longitude', e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-slate-800 placeholder:text-slate-400"
+                    />
+                  </div>
                 </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-2 text-indigo-300">Location</label>
+            <label className="block text-sm font-semibold mb-2 text-emerald-700">Location (Optional)</label>
             <select
               value={formData.location}
               onChange={(e) => onFormChange("location", e.target.value)}
-              className="max-w-sm w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-indigo-500/30 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-white"
+              className="max-w-sm w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800"
               style={{ minWidth: 220 }}
             >
-              <option value="">Select location</option>
+              <option value="">Select location (Optional)</option>
               {availableLocations.length ? (
                 availableLocations.map((loc, idx) => (
-                  <option key={loc.id || loc.name || idx} value={loc.name} className="bg-slate-900">
+                  <option key={loc.id || loc.name || idx} value={loc.name} className="bg-white">
                     {loc.name}
                   </option>
                 ))
@@ -73,7 +75,7 @@ export function PropertyForm({ formData, availableLocations, onFormChange, onUpd
             { field: "age", label: "Age (years)", placeholder: "e.g., 5", max: 200, min: 0 },
           ].map(({ field, label, placeholder, max, min }) => (
             <div key={field}>
-              <label className="block text-sm font-semibold mb-2 text-indigo-300">{label}</label>
+              <label className="block text-sm font-semibold mb-2 text-emerald-700">{label}</label>
               <input
                 type="number"
                 placeholder={placeholder}
@@ -81,7 +83,7 @@ export function PropertyForm({ formData, availableLocations, onFormChange, onUpd
                 onChange={(e) => onFormChange(field, e.target.value)}
                 min={min}
                 max={max}
-                className="w-full px-4 py-3.5 rounded-xl bg-slate-800/50 border border-indigo-500/30 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-white placeholder:text-slate-500"
+                className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800 placeholder:text-slate-400"
               />
             </div>
           ))}

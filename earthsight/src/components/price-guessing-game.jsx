@@ -79,33 +79,33 @@ export function CurrencyConverter() {
 
   return (
     <div className="relative group">
-      <div className="absolute -inset-[1px] rounded-3xl animate-rgb-border opacity-75 group-hover:opacity-100 transition-opacity"></div>
-      <div className="relative backdrop-blur-2xl bg-slate-900/90 rounded-3xl p-8 shadow-2xl">
+      <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div className="relative backdrop-blur-xl bg-white/95 rounded-3xl p-8 shadow-xl border border-emerald-100">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-xl bg-emerald-500/20">
-            <DollarSign className="w-6 h-6 text-emerald-400" />
+          <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg">
+            <DollarSign className="w-6 h-6 text-white" />
           </div>
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
             Currency Converter
           </h3>
         </div>
 
         <div className="space-y-6">
           {/* From Currency Section */}
-          <div className="relative rounded-2xl border border-slate-700/50 bg-slate-800/30 p-6">
-            <label className="block text-xs font-semibold text-slate-400 mb-3 uppercase tracking-wider">From</label>
+          <div className="relative rounded-2xl border border-emerald-200 bg-emerald-50/30 p-6">
+            <label className="block text-xs font-semibold text-emerald-700 mb-3 uppercase tracking-wider">From</label>
             <div className="space-y-3">
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full px-4 py-4 rounded-xl bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-3xl font-bold text-white placeholder:text-slate-600"
+                className="w-full px-4 py-4 rounded-xl bg-white border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-3xl font-bold text-slate-800 placeholder:text-slate-400"
               />
               <select
                 value={fromCurrency}
                 onChange={(e) => setFromCurrency(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-white font-semibold cursor-pointer"
+                className="w-full px-4 py-3 rounded-xl bg-white border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800 font-semibold cursor-pointer"
               >
                 {popularCurrencies.map((curr) => (
                   <option key={curr.code} value={curr.code}>
@@ -127,10 +127,10 @@ export function CurrencyConverter() {
           </div>
 
           {/* To Currency Section */}
-          <div className="relative rounded-2xl border border-slate-700/50 bg-slate-800/30 p-6">
-            <label className="block text-xs font-semibold text-slate-400 mb-3 uppercase tracking-wider">To</label>
+          <div className="relative rounded-2xl border border-emerald-200 bg-emerald-50/30 p-6">
+            <label className="block text-xs font-semibold text-emerald-700 mb-3 uppercase tracking-wider">To</label>
             <div className="space-y-3">
-              <div className="w-full px-4 py-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-3xl font-bold text-emerald-400 min-h-[60px] flex items-center">
+              <div className="w-full px-4 py-4 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 border border-emerald-300 text-3xl font-bold text-emerald-600 min-h-[60px] flex items-center">
                 {loading ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="w-6 h-6 animate-spin" />
@@ -143,7 +143,7 @@ export function CurrencyConverter() {
               <select
                 value={toCurrency}
                 onChange={(e) => setToCurrency(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-white font-semibold cursor-pointer"
+                className="w-full px-4 py-3 rounded-xl bg-white border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800 font-semibold cursor-pointer"
               >
                 {popularCurrencies.map((curr) => (
                   <option key={curr.code} value={curr.code}>
@@ -156,16 +156,16 @@ export function CurrencyConverter() {
 
           {/* Exchange Rate Info */}
           {exchangeRate && !loading && (
-            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 border border-emerald-500/30">
+            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 border border-emerald-200">
               <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-emerald-400" />
-                <span className="text-sm font-semibold text-emerald-400">Exchange Rate</span>
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                <span className="text-sm font-semibold text-emerald-700">Exchange Rate</span>
               </div>
-              <p className="text-white font-bold text-lg">
+              <p className="text-slate-800 font-bold text-lg">
                 1 {fromCurrency} = {allCurrencies[toCurrency]?.toFixed(4)} {toCurrency}
               </p>
               {lastUpdated && (
-                <p className="text-xs text-slate-400 mt-2">Last updated: {lastUpdated}</p>
+                <p className="text-xs text-slate-600 mt-2">Last updated: {lastUpdated}</p>
               )}
             </div>
           )}
