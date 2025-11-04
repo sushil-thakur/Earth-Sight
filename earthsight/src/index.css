@@ -115,11 +115,41 @@ body {
   }
 
   .nav-hover-btn {
-    @apply relative ms-10 font-general text-xs uppercase text-blue-50 after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:w-full after:origin-bottom-right after:scale-x-0 after:bg-neutral-800 after:transition-transform after:duration-300 after:ease-out hover:after:origin-bottom-left hover:after:scale-x-100 dark:after:bg-white cursor-pointer;
+    @apply relative ms-10 font-general text-xs uppercase text-black after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:w-full after:origin-bottom-right after:scale-x-0 after:bg-neutral-800 after:transition-transform after:duration-300 after:ease-out hover:after:origin-bottom-left hover:after:scale-x-100 dark:after:bg-white cursor-pointer transition-colors duration-300;
   }
 
   .floating-nav {
     @apply bg-black rounded-lg border;
+  }
+
+  .floating-nav .nav-hover-btn {
+    @apply text-white;
+  }
+
+  /* User info and buttons - default black text */
+  .nav-user-text {
+    @apply text-black transition-colors duration-300;
+  }
+
+  .nav-logout-btn {
+    @apply text-black transition-colors duration-300;
+  }
+
+  .nav-login-btn {
+    @apply text-black transition-colors duration-300;
+  }
+
+  /* When floating nav is active, change to appropriate colors */
+  .floating-nav .nav-user-text {
+    @apply text-indigo-400;
+  }
+
+  .floating-nav .nav-logout-btn {
+    @apply text-red-400;
+  }
+
+  .floating-nav .nav-login-btn {
+    @apply text-blue-400;
   }
 
   .absolute-center {

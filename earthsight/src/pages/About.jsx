@@ -60,7 +60,7 @@ const About = () => {
     <div className="text-emerald-400">
       <div className="h-[600px] w-full relative">
         <video
-          src="/videos/hero-1.mp4"
+          src="/videos/hero-4.mp4"
           loop
           playsInline
           autoPlay

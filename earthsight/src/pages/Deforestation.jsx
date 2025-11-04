@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import CesiumMap from '../components/CesiumMap';
 import { showToast } from '../components/FuturisticToast';
@@ -264,12 +265,12 @@ function FloatingOrbs() {
 // EnvironmentMap was moved to src/components/EnvironmentMap.jsx and is imported above
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { logout, user } = useAuth();
   const [hoveredCard, setHoveredCard] = useState(null);
   const [newsCount, setNewsCount] = useState(4);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all'); // Filter state: 'all', 'deforestation', 'marine', 'fire', 'mining'
   const [allNews, setAllNews] = useState([]);
   const [newsLoading, setNewsLoading] = useState(true);
@@ -292,9 +293,10 @@ export default function Dashboard() {
   };
 
   const confirmLogout = () => {
+    console.log('🔓 Logout confirmed in Deforestation page');
     setShowLogoutModal(false);
-    logout();
     showToast('👋 Logged out successfully!', 'success', 2500);
+    logout(); // AuthContext handles navigation
   };
 
   const cancelLogout = () => {
@@ -544,7 +546,7 @@ export default function Dashboard() {
         }
       `}</style>
       
-      <div className="flex min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-slate-800 relative overflow-hidden">
+      <div className="flex min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-slate-900 relative overflow-hidden">
         {/* Subtle Pattern Overlay */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20">
           <div
@@ -591,7 +593,7 @@ export default function Dashboard() {
                 className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3 rounded-xl transition-all duration-300 group icon-spin-hover card-click-effect ${
                   activeFilter === item.filter
                     ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50 hover:shadow-md'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-emerald-50 hover:shadow-md'
                 }`}
                 title={sidebarCollapsed ? item.label : ''}
               >
@@ -601,13 +603,56 @@ export default function Dashboard() {
             ))}
           </nav>
           
-          <div className="pt-6 border-t border-emerald-200">
+          {/* User Avatar Section at Bottom */}
+          <div className="pt-6 mt-auto border-t-2 border-emerald-200 space-y-3">
+            {/* User Avatar with Info */}
+            <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2`}>
+              {!sidebarCollapsed && (
+                <>
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 border-2 border-emerald-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                    {getUserInitials()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{user?.name || 'User'}</p>
+                    <p className="text-xs text-slate-600 truncate">{user?.email || ''}</p>
+                  </div>
+                </>
+              )}
+              {sidebarCollapsed && (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 border-2 border-emerald-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                  {getUserInitials()}
+                </div>
+              )}
+            </div>
+
+            {/* Settings Button */}
+            {!sidebarCollapsed && (
+              <button 
+                onClick={() => {
+                  setTimeout(() => {
+                    showToast('⚙️ Settings coming soon!', 'info', 2000);
+                  }, 100);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-300 group cursor-pointer"
+                type="button"
+              >
+                <Settings />
+                <span className="font-medium text-sm">Settings</span>
+              </button>
+            )}
+
+            {/* Logout Button */}
             <button 
-              onClick={handleLogout}
-              className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3 rounded-xl text-slate-600 hover:text-red-600 hover:bg-red-50 transition-all duration-300 group card-click-effect`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleLogout();
+              }}
+              className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-4 py-2.5 rounded-xl text-slate-700 hover:text-red-600 hover:bg-red-50 transition-all duration-300 group cursor-pointer`}
+              type="button"
             >
               <LogOut />
-              {!sidebarCollapsed && <span className="font-medium">Logout</span>}
+              {!sidebarCollapsed && <span className="font-medium text-sm">Logout</span>}
             </button>
           </div>
         </aside>
@@ -617,87 +662,13 @@ export default function Dashboard() {
             <div className="flex items-center justify-between p-6">
               <div>
                 <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Dashboard</h2>
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="text-sm text-slate-700 mt-1 font-medium">
                   {activeFilter === 'all' ? 'Showing all environmental data' : 
                    activeFilter === 'deforestation' ? 'Filtering: Deforestation zones' :
                    activeFilter === 'marine' ? 'Filtering: Marine ecosystems' :
                    activeFilter === 'fire' ? 'Filtering: Forest fires' :
                    activeFilter === 'mining' ? 'Filtering: Mining operations' : 'Your Personal Dashboard'}
                 </p>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                {/* User Avatar with Dropdown */}
-                <div className="relative">
-                  <div 
-                    onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="w-10 h-10 rounded-full border-2 rgb-border-animate hover:border-blue-500 transition-colors cursor-pointer overflow-hidden bg-blue-500/10 flex items-center justify-center card-click-effect"
-                  >
-                    <span className="text-sm font-semibold text-blue-500">{getUserInitials()}</span>
-                  </div>
-
-                  {/* Dropdown Menu */}
-                  {showUserMenu && (
-                    <>
-                      {/* Backdrop to close menu */}
-                      <div 
-                        className="fixed inset-0 z-40" 
-                        onClick={() => setShowUserMenu(false)}
-                      />
-                      
-                      {/* Menu */}
-                      <div className="absolute right-0 mt-2 w-56 bg-slate-900 border-2 rgb-border-animate rounded-xl shadow-2xl shadow-blue-500/20 overflow-hidden z-50 animate-fadeIn">
-                        {/* User Info */}
-                        <div className="px-4 py-3 border-b border-slate-800">
-                          <p className="text-sm font-semibold text-white">{user?.name || 'User'}</p>
-                          <p className="text-xs text-slate-400 truncate">{user?.email || 'user@example.com'}</p>
-                        </div>
-
-                        {/* Menu Items */}
-                        <div className="py-2">
-                          <button
-                            onClick={() => {
-                              setShowUserMenu(false);
-                              showToast('⚙️ Settings coming soon!', 'info', 2000);
-                            }}
-                            className="w-full px-4 py-2.5 text-left text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-3"
-                          >
-                            <Settings />
-                            <span>Settings</span>
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              setShowUserMenu(false);
-                              // Show confirmation for account deletion
-                              if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-                                showToast('🗑️ Account deletion feature coming soon!', 'warning', 3000);
-                              }
-                            }}
-                            className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors flex items-center gap-3"
-                          >
-                            <Trash />
-                            <span>Delete Account</span>
-                          </button>
-                        </div>
-
-                        {/* Logout */}
-                        <div className="border-t border-slate-800 py-2">
-                          <button
-                            onClick={() => {
-                              setShowUserMenu(false);
-                              handleLogout();
-                            }}
-                            className="w-full px-4 py-2.5 text-left text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-3"
-                          >
-                            <LogOut />
-                            <span>Logout</span>
-                          </button>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
               </div>
             </div>
           </header>
@@ -709,28 +680,27 @@ export default function Dashboard() {
                   {stats.map((stat, index) => (
                     <div
                       key={stat.id}
-                      className="relative overflow-hidden rounded-2xl border-2 border-green-500/50 bg-gradient-to-br from-green-900/30 via-slate-900/50 to-emerald-900/30 backdrop-blur-sm transition-all duration-500 cursor-pointer group hover:-translate-y-1 hover:shadow-2xl hover:shadow-green-500/40 float-animate"
-                      style={{ animationDelay: `${index * 100}ms` }}
+                      className="relative overflow-hidden rounded-2xl border-2 border-emerald-300 bg-gradient-to-br from-white via-emerald-50 to-teal-50 backdrop-blur-sm transition-all duration-500 cursor-pointer group hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/40"
                       onMouseEnter={() => setHoveredCard(stat.id)}
                       onMouseLeave={() => setHoveredCard(null)}
                     >
                       {/* Energy card special background effect */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-emerald-500/10 opacity-50" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/30 via-transparent to-teal-100/30 opacity-50" />
                       
                       <div className="p-8 relative z-10">
                         <div className="flex items-start justify-between mb-6">
                           <div className="flex items-center gap-4">
-                            <div className="p-4 bg-green-500/20 border-2 border-green-400/30 rounded-2xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
-                              <stat.icon style={{ width: '32px', height: '32px' }} />
+                            <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-500 border-2 border-emerald-400 rounded-2xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
+                              <stat.icon style={{ width: '32px', height: '32px', color: 'white' }} />
                             </div>
                             <div>
-                              <p className="text-base text-green-300 font-semibold mb-1">{stat.label}</p>
+                              <p className="text-base text-slate-900 font-bold mb-1 uppercase tracking-wide">{stat.label}</p>
                               <div className="flex items-center gap-2">
                                 {stat.isLive && (
-                                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/30 border border-green-400/50 rounded-full animate-pulse">
-                                    <div className="w-2 h-2 bg-green-400 rounded-full animate-ping absolute" />
-                                    <div className="w-2 h-2 bg-green-400 rounded-full" />
-                                    <span className="text-xs font-bold text-green-300 ml-1">LIVE</span>
+                                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/20 border-2 border-emerald-500 rounded-full animate-pulse">
+                                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping absolute" />
+                                    <div className="w-2 h-2 bg-emerald-500 rounded-full" />
+                                    <span className="text-xs font-bold text-emerald-700 ml-1">LIVE</span>
                                   </div>
                                 )}
                                 {!carbonLoading && (
@@ -745,11 +715,11 @@ export default function Dashboard() {
                           {/* Left side - Main value */}
                           <div className="space-y-2">
                             <div className="flex items-baseline gap-3">
-                              <p className="text-6xl font-bold text-green-400 leading-none">{stat.value}</p>
+                              <p className="text-6xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent leading-none">{stat.value}</p>
                             </div>
-                            <p className="text-sm text-green-500/80 font-medium">{stat.unit}</p>
+                            <p className="text-sm text-slate-700 font-bold uppercase tracking-wide">{stat.unit}</p>
                             {stat.subtitle && (
-                              <p className="text-xs text-green-400/70 flex items-center gap-1.5 pt-3">
+                              <p className="text-xs text-slate-600 font-semibold flex items-center gap-1.5 pt-3">
                                 <Zap style={{ width: '12px', height: '12px' }} />
                                 {stat.subtitle}
                               </p>
@@ -758,22 +728,22 @@ export default function Dashboard() {
                           
                           {/* Right side - Renewable energy */}
                           {stat.renewable !== null && stat.renewable !== undefined && (
-                            <div className="flex flex-col justify-center space-y-4 bg-slate-900/30 rounded-xl p-6 border border-green-500/20">
+                            <div className="flex flex-col justify-center space-y-4 bg-white/60 rounded-xl p-6 border-2 border-emerald-200 shadow-md">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <div className="w-6 h-6 text-green-400"><Leaf /></div>
-                                  <span className="text-sm text-green-300/80 font-medium">Renewable Energy</span>
+                                  <div className="w-6 h-6 text-emerald-600"><Leaf /></div>
+                                  <span className="text-sm text-slate-800 font-bold uppercase tracking-wide">Renewable Energy</span>
                                 </div>
                               </div>
                               <div className="space-y-3">
                                 <div className="flex items-baseline gap-2">
-                                  <span className="text-5xl font-bold text-green-300">{stat.renewable}</span>
-                                  <span className="text-2xl font-semibold text-green-400/80">%</span>
+                                  <span className="text-5xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{stat.renewable}</span>
+                                  <span className="text-2xl font-semibold text-slate-700">%</span>
                                 </div>
                                 {/* Progress bar */}
-                                <div className="w-full h-3 bg-slate-800/50 rounded-full overflow-hidden shadow-inner">
+                                <div className="w-full h-4 bg-emerald-200/50 rounded-full overflow-hidden shadow-inner border border-emerald-300">
                                   <div 
-                                    className="h-full bg-gradient-to-r from-green-500 via-emerald-400 to-green-500 transition-all duration-1000 ease-out shadow-lg"
+                                    className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 transition-all duration-1000 ease-out shadow-lg"
                                     style={{ width: `${stat.renewable}%` }}
                                   />
                                 </div>
@@ -782,17 +752,17 @@ export default function Dashboard() {
                           )}
                         </div>
                       </div>
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-green-500/10 to-emerald-500/10" />
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-emerald-200/20 to-teal-200/20" />
                     </div>
                   ))}
                 </div>
                 
-                <div className="rounded-xl border-2 rgb-border-animate bg-slate-900/50 backdrop-blur-sm overflow-hidden">
+                <div className="rounded-xl border-2 border-emerald-300 bg-white/95 backdrop-blur-sm overflow-hidden shadow-xl">
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-6">
                       <div>
-                        <h3 className="text-xl font-bold text-white rgb-text-animate">Environmental Monitoring</h3>
-                        <p className="text-sm text-slate-400 mt-1">Real-time global tracking</p>
+                        <h3 className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Environmental Monitoring</h3>
+                        <p className="text-sm text-slate-700 mt-1 font-semibold">Real-time global tracking</p>
                       </div>
                     </div>
                     <CesiumMap
@@ -803,31 +773,31 @@ export default function Dashboard() {
               </div>
               
               <div className="lg:col-span-1">
-                <div className="rounded-xl border-2 rgb-border-animate bg-slate-900/50 backdrop-blur-sm overflow-hidden sticky top-24">
+                <div className="rounded-xl border-2 border-emerald-300 bg-white/95 backdrop-blur-sm overflow-hidden sticky top-24 shadow-xl">
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="text-lg font-bold text-white rgb-text-animate">Latest News</h3>
-                        <p className="text-xs text-slate-400 mt-1">Environmental updates</p>
+                        <h3 className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Latest News</h3>
+                        <p className="text-xs text-slate-700 mt-1 font-semibold">Environmental updates</p>
                       </div>
                     </div>
                     <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto pr-2 custom-scrollbar">
                       {newsLoading ? (
                         // Loading state
                         <div className="flex flex-col items-center justify-center py-8 space-y-3">
-                          <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
-                          <p className="text-slate-400 text-sm">Loading environment news...</p>
+                          <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
+                          <p className="text-slate-700 text-sm font-semibold">Loading environment news...</p>
                         </div>
                       ) : newsError ? (
                         // Error state
                         <div className="flex flex-col items-center justify-center py-8 space-y-3">
-                          <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+                          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
                             <span className="text-3xl">⚠️</span>
                           </div>
-                          <p className="text-red-400 text-sm text-center">{newsError}</p>
+                          <p className="text-red-600 text-sm text-center font-semibold">{newsError}</p>
                           <button
                             onClick={() => window.location.reload()}
-                            className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs transition-all"
+                            className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition-all shadow-md"
                           >
                             Retry
                           </button>
@@ -835,8 +805,8 @@ export default function Dashboard() {
                       ) : allNews.length === 0 ? (
                         // No news state
                         <div className="flex flex-col items-center justify-center py-8 space-y-3">
-                          <Newspaper />
-                          <p className="text-slate-400 text-sm text-center">No environment news available</p>
+                          <Newspaper className="text-emerald-600" />
+                          <p className="text-slate-700 text-sm text-center font-semibold">No environment news available</p>
                         </div>
                       ) : (
                         // News list
@@ -846,7 +816,7 @@ export default function Dashboard() {
                             href={news.link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group relative overflow-hidden rounded-xl border-2 rgb-border-animate bg-slate-900 hover:bg-slate-800/80 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blue-500/20 card-click-effect block"
+                            className="group relative overflow-hidden rounded-xl border-2 border-emerald-200 bg-white hover:bg-emerald-50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-emerald-500/20 card-click-effect block"
                             style={{ animationDelay: `${index * 50}ms` }}
                           >
                             <div className="aspect-video overflow-hidden">
@@ -861,20 +831,20 @@ export default function Dashboard() {
                             </div>
                             <div className="p-3">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white border border-emerald-600 shadow-sm">
                                   {news.category}
                                 </span>
                                 {news.source && (
-                                  <span className="text-xs text-slate-500">• {news.source}</span>
+                                  <span className="text-xs text-slate-600 font-semibold">• {news.source}</span>
                                 )}
                               </div>
-                              <h4 className="font-bold text-sm text-white mb-1 line-clamp-2 group-hover:text-blue-400 transition-colors">
+                              <h4 className="font-bold text-sm text-slate-900 mb-1 line-clamp-2 group-hover:text-emerald-600 transition-colors">
                                 {news.title}
                               </h4>
-                              <p className="text-xs text-slate-400 line-clamp-2 mb-2">{news.description}</p>
-                              <span className="text-xs text-slate-500">{news.date}</span>
+                              <p className="text-xs text-slate-700 line-clamp-2 mb-2 font-medium">{news.description}</p>
+                              <span className="text-xs text-slate-600 font-semibold">{news.date}</span>
                             </div>
-                            <div className="absolute inset-0 shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           </a>
                         ))
                       )}
@@ -883,7 +853,7 @@ export default function Dashboard() {
                       <div className="flex justify-center mt-4">
                         <button
                           onClick={() => setNewsCount(prev => Math.min(prev + 4, allNews.length))}
-                          className="w-full px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 transition-all duration-300 font-medium hover:scale-105 card-click-effect"
+                          className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/30 transition-all duration-300 font-bold hover:scale-105 card-click-effect"
                         >
                           Load More ({allNews.length - newsCount} more)
                         </button>
@@ -899,27 +869,54 @@ export default function Dashboard() {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>
-          <div className="relative bg-slate-900 rounded-xl shadow-2xl max-w-md w-full border border-slate-700 overflow-hidden animate-scaleIn">
-            {/* Content */}
-            <div className="p-6">
-              {/* Icon */}
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm animate-fadeIn" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full border-2 border-emerald-300 animate-scaleIn" style={{ overflow: 'visible' }}>
+            {/* Close Button */}
+            <button
+              onClick={cancelLogout}
+              className="absolute -top-4 -right-4 z-[10000] w-12 h-12 bg-white hover:bg-red-50 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl border-3 border-emerald-400 hover:border-red-500"
+              style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}
+            >
+              <svg className="w-6 h-6 text-slate-800 hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Header Section with Gradient Background */}
+            <div className="relative h-32 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center rounded-t-2xl">
+              {/* Decorative Pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 left-0 w-full h-full" 
+                     style={{
+                       backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 50%, white 1px, transparent 1px)',
+                       backgroundSize: '30px 30px'
+                     }}>
                 </div>
               </div>
+              
+              {/* Logo */}
+              <div className="relative z-10 flex flex-col items-center">
+                <img 
+                  src="/img/logo.png" 
+                  alt="Earth Sight Logo" 
+                  className="h-16 w-16 object-contain drop-shadow-lg"
+                />
+                <h1 className="text-white font-bold text-xl mt-2 drop-shadow-md">
+                  Earth Sight
+                </h1>
+              </div>
+            </div>
 
+            {/* Content */}
+            <div className="p-8">
               {/* Title */}
-              <h2 className="text-xl font-semibold text-center mb-2 text-white">
+              <h2 className="text-2xl font-bold text-center mb-2 text-slate-800 mt-4">
                 Confirm Logout
               </h2>
 
               {/* Message */}
-              <p className="text-slate-400 text-center mb-6 text-sm">
-                Are you sure you want to logout?
+              <p className="text-slate-600 text-center mb-6">
+                Are you sure you want to logout from your account?
               </p>
 
               {/* Buttons */}
@@ -927,7 +924,7 @@ export default function Dashboard() {
                 {/* Cancel Button */}
                 <button
                   onClick={cancelLogout}
-                  className="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium border border-slate-700 hover:border-slate-600 transition-colors"
+                  className="flex-1 px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold border-2 border-slate-300 hover:border-slate-400 transition-all shadow-md"
                 >
                   Cancel
                 </button>
@@ -935,7 +932,7 @@ export default function Dashboard() {
                 {/* Confirm Button */}
                 <button
                   onClick={confirmLogout}
-                  className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors"
+                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold transition-all shadow-lg hover:shadow-xl"
                 >
                   Logout
                 </button>

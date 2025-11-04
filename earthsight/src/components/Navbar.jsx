@@ -28,6 +28,15 @@ const NavBar = () => {
   const { user, logout, isAuthenticated } = useAuth()
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const location = useLocation(); // Get current route
+  const navigate = useNavigate(); // Add navigation hook
+
+  // Debug logging for auth state
+  useEffect(() => {
+    console.log('🔍 Navbar Auth State:', { 
+      isAuthenticated, 
+      user: user ? { name: user.name, email: user.email } : null 
+    })
+  }, [isAuthenticated, user])
 
   // Toggle audio and visual indicator
   const toggleAudioIndicator = () => {
@@ -49,9 +58,10 @@ const NavBar = () => {
   };
 
   const confirmLogout = () => {
+    console.log('🔓 Logout confirmed in Navbar');
     setShowLogoutModal(false);
-    logout();
     showToast('👋 Logged out successfully!', 'success', 2500);
+    logout(); // AuthContext handles navigation
   };
 
   const cancelLogout = () => {
@@ -94,13 +104,19 @@ const NavBar = () => {
         <nav className="flex size-full items-center justify-between p-4">
           {/* Logo and Product button */}
           <div className="flex items-center gap-7">
-            <img src="/img/logo.png" alt="logo" className="w-10" />
+            <img 
+              src="/img/logo.png" 
+              alt="logo" 
+              className="w-10 cursor-pointer hover:scale-110 transition-transform" 
+              onClick={() => navigate('/')}
+            />
 
             <Button
               id="product-button"
               title="Earth-Sight"
               rightIcon={<TiLocationArrow />}
               containerClass="bg-blue-50 md:flex hidden items-center justify-center gap-1"
+              onClick={() => navigate('/')}
             />
           </div>
 
@@ -127,13 +143,31 @@ const NavBar = () => {
                 }
 
                 const handleClick = (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  // Check if protected and user is not authenticated
                   if (isProtected) {
                     const token = localStorage.getItem('token')
                     if (!token) {
-                      e.preventDefault()
+                      console.log(`🔒 Protected page ${item} - redirecting to login`);
                       open('login')
                       return
                     }
+                  }
+                  
+                  // Navigate based on item
+                  console.log(`🧭 Navigating to: ${item}`);
+                  if (item === 'Home') {
+                    navigate('/');
+                  } else if (item === 'Deforestation') {
+                    navigate('/deforestation');
+                  } else if (item === 'Real Estate') {
+                    navigate('/real-estate');
+                  } else if (item === 'About') {
+                    navigate('/about');
+                  } else if (item === 'Contact') {
+                    navigate('/contact');
                   }
                 }
 
@@ -141,28 +175,18 @@ const NavBar = () => {
                 const activeStyle = isActive ? { color: '#4ade80', fontWeight: 'bold' } : {};
                 const linkClass = "nav-hover-btn";
 
-                if (item === 'Deforestation') {
-                  return <Link key={index} to="/deforestation" onClick={handleClick} className={linkClass} style={activeStyle}>{item}</Link>
-                }
-
-                if (item === 'Home') {
-                  return <Link key={index} to="/" className={linkClass} style={activeStyle}>{item}</Link>
-                }
-
-                if (item === 'Real Estate') {
-                  return <Link key={index} to="/real-estate" onClick={handleClick} className={linkClass} style={activeStyle}>{item}</Link>
-                }
-
-                if (item === 'About') {
-                  return <Link key={index} to="/about" className={linkClass} style={activeStyle}>{item}</Link>
-                }
-
-                if (item === 'Contact') {
-                  return <Link key={index} to="/contact" className={linkClass} style={activeStyle}>{item}</Link>
-                }
-
+                // Return unified anchor tag with onClick handler
                 return (
-                  <a key={index} href={`#${item.toLowerCase()}`} className={linkClass} style={activeStyle}>{item}</a>
+                  <a 
+                    key={index} 
+                    onClick={handleClick} 
+                    className={linkClass} 
+                    style={{...activeStyle, cursor: 'pointer'}}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    {item}
+                  </a>
                 )
               })}
             </div>
@@ -171,14 +195,14 @@ const NavBar = () => {
             {isAuthenticated && (
               <div className="ml-6 flex items-center gap-3">
                 {/* User Name */}
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30">
-                  <span className="text-xs text-indigo-400 font-medium">{user?.name || user?.email}</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 nav-user-info">
+                  <span className="text-xs font-medium nav-user-text">{user?.name || user?.email}</span>
                 </div>
 
                 {/* Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-all text-xs text-red-400 font-medium"
+                  className="px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-all text-xs font-medium nav-logout-btn"
                 >
                   Logout
                 </button>
@@ -189,7 +213,7 @@ const NavBar = () => {
             {!isAuthenticated && (
               <button
                 onClick={() => open('login')}
-                className="ml-6 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 transition-all text-sm text-blue-400 font-medium"
+                className="ml-6 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 transition-all text-sm font-medium nav-login-btn"
               >
                 Login
               </button>
@@ -221,45 +245,64 @@ const NavBar = () => {
         </nav>
       </header>
 
-      {/* Futuristic Logout Confirmation Modal */}
+      {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-2xl max-w-md w-full border border-violet-500/30 animate-scaleIn overflow-hidden">
-            {/* Animated border glow */}
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-500 to-violet-600 opacity-50 blur-xl animate-pulse" />
-            
-            {/* Content */}
-            <div className="relative p-8">
-              {/* Icon with animation */}
-              <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-500/50 animate-bounce">
-                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                  </div>
-                  {/* Pulsing rings */}
-                  <div className="absolute inset-0 rounded-full border-4 border-violet-500/30 animate-ping" />
-                  <div className="absolute inset-0 rounded-full border-2 border-fuchsia-500/20 animate-pulse" />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm animate-fadeIn" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full border-2 border-emerald-300 animate-scaleIn" style={{ overflow: 'visible' }}>
+            {/* Close Button */}
+            <button
+              onClick={cancelLogout}
+              className="absolute -top-4 -right-4 z-[10000] w-12 h-12 bg-white hover:bg-red-50 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl border-3 border-emerald-400 hover:border-red-500"
+              style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}
+            >
+              <svg className="w-6 h-6 text-slate-800 hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Header Section with Gradient Background */}
+            <div className="relative h-32 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center rounded-t-2xl">
+              {/* Decorative Pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 left-0 w-full h-full" 
+                     style={{
+                       backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 50%, white 1px, transparent 1px)',
+                       backgroundSize: '30px 30px'
+                     }}>
                 </div>
               </div>
+              
+              {/* Logo */}
+              <div className="relative z-10 flex flex-col items-center">
+                <img 
+                  src="/img/logo.png" 
+                  alt="Earth Sight Logo" 
+                  className="h-16 w-16 object-contain drop-shadow-lg"
+                />
+                <h1 className="text-white font-bold text-xl mt-2 drop-shadow-md">
+                  Earth Sight
+                </h1>
+              </div>
+            </div>
 
+            {/* Content */}
+            <div className="p-8">
               {/* Title */}
-              <h2 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-violet-400 via-fuchsia-400 to-violet-400 bg-clip-text text-transparent animate-shimmer">
+              <h2 className="text-2xl font-bold text-center mb-2 text-slate-800 mt-4">
                 Confirm Logout
               </h2>
 
               {/* Message */}
-              <p className="text-slate-300 text-center mb-8 text-lg">
-                Are you sure you want to logout?
+              <p className="text-slate-600 text-center mb-6">
+                Are you sure you want to logout from your account?
               </p>
 
               {/* Buttons */}
-              <div className="flex gap-4">
+              <div className="flex gap-3">
                 {/* Cancel Button */}
                 <button
                   onClick={cancelLogout}
-                  className="flex-1 px-6 py-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-600/50 hover:border-slate-500 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-slate-500/30 active:scale-95"
+                  className="flex-1 px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold border-2 border-slate-300 hover:border-slate-400 transition-all shadow-md"
                 >
                   Cancel
                 </button>
@@ -267,18 +310,12 @@ const NavBar = () => {
                 {/* Confirm Button */}
                 <button
                   onClick={confirmLogout}
-                  className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-semibold shadow-lg shadow-violet-500/50 hover:shadow-violet-500/70 transition-all duration-300 hover:scale-105 active:scale-95 relative overflow-hidden group"
+                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold transition-all shadow-lg hover:shadow-xl"
                 >
-                  <span className="relative z-10">OK</span>
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+                  Logout
                 </button>
               </div>
             </div>
-
-            {/* Decorative elements */}
-            <div className="absolute top-0 left-0 w-20 h-20 bg-violet-500/10 rounded-full blur-2xl" />
-            <div className="absolute bottom-0 right-0 w-32 h-32 bg-fuchsia-500/10 rounded-full blur-3xl" />
           </div>
         </div>
       )}

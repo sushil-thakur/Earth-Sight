@@ -20,39 +20,13 @@ export function PropertyForm({ formData, availableLocations, onFormChange, onUpd
         </div>
 
         <div className="space-y-5">
-                {/* Latitude / Longitude fields (optional, populated from map clicks) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold mb-2 text-emerald-700">Latitude</label>
-                    <input
-                      type="number"
-                      step="0.000001"
-                      placeholder="Click on map or type latitude"
-                      value={formData.latitude || ''}
-                      onChange={(e) => onFormChange('latitude', e.target.value)}
-                      className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-slate-800 placeholder:text-slate-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold mb-2 text-emerald-700">Longitude</label>
-                    <input
-                      type="number"
-                      step="0.000001"
-                      placeholder="Click on map or type longitude"
-                      value={formData.longitude || ''}
-                      onChange={(e) => onFormChange('longitude', e.target.value)}
-                      className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-slate-800 placeholder:text-slate-400"
-                    />
-                  </div>
-                </div>
-
+          {/* Location - Full Width */}
           <div>
-            <label className="block text-sm font-semibold mb-2 text-emerald-700">Location (Optional)</label>
+            <label className="block text-sm font-bold mb-2 text-slate-800 uppercase tracking-wide">Location (Optional)</label>
             <select
               value={formData.location}
               onChange={(e) => onFormChange("location", e.target.value)}
-              className="max-w-sm w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800"
-              style={{ minWidth: 220 }}
+              className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border-2 border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800 font-medium"
             >
               <option value="">Select location (Optional)</option>
               {availableLocations.length ? (
@@ -67,26 +41,115 @@ export function PropertyForm({ formData, availableLocations, onFormChange, onUpd
             </select>
           </div>
 
-          {[
-            { field: "area", label: "Area (sq ft)", placeholder: "e.g., 1500", max: 10000, min: 1 },
-            { field: "bedrooms", label: "Bedrooms", placeholder: "e.g., 3", max: 100, min: 0 },
-            { field: "bathrooms", label: "Bathrooms", placeholder: "e.g., 2", max: 100, min: 0 },
-            { field: "floors", label: "Floors", placeholder: "e.g., 2", max: 100, min: 1 },
-            { field: "age", label: "Age (years)", placeholder: "e.g., 5", max: 200, min: 0 },
-          ].map(({ field, label, placeholder, max, min }) => (
-            <div key={field}>
-              <label className="block text-sm font-semibold mb-2 text-emerald-700">{label}</label>
+          {/* Latitude / Longitude - 2 Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold mb-2 text-slate-800 uppercase tracking-wide">
+                Latitude <span className="text-xs text-slate-500 normal-case">(Click map or enter)</span>
+              </label>
               <input
                 type="number"
-                placeholder={placeholder}
-                value={formData[field]}
-                onChange={(e) => onFormChange(field, e.target.value)}
-                min={min}
-                max={max}
-                className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800 placeholder:text-slate-400"
+                step="0.000001"
+                placeholder="e.g., 41.2565"
+                value={formData.latitude || ''}
+                onChange={(e) => onFormChange('latitude', e.target.value)}
+                className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border-2 border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-slate-800 placeholder:text-slate-500 font-medium"
               />
             </div>
-          ))}
+            <div>
+              <label className="block text-sm font-bold mb-2 text-slate-800 uppercase tracking-wide">
+                Longitude <span className="text-xs text-slate-500 normal-case">(Click map or enter)</span>
+              </label>
+              <input
+                type="number"
+                step="0.000001"
+                placeholder="e.g., -105.5442"
+                value={formData.longitude || ''}
+                onChange={(e) => onFormChange('longitude', e.target.value)}
+                className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border-2 border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-slate-800 placeholder:text-slate-500 font-medium"
+              />
+            </div>
+          </div>
+
+          {/* Area & Bedrooms - 2 Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold mb-2 text-slate-800 uppercase tracking-wide">
+                Area (sq ft) <span className="text-xs text-emerald-600 normal-case">(500 - 10,000)</span>
+              </label>
+              <input
+                type="number"
+                placeholder="e.g., 1,500"
+                value={formData.area}
+                onChange={(e) => onFormChange('area', e.target.value)}
+                min={500}
+                max={10000}
+                className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border-2 border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800 placeholder:text-slate-500 font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-2 text-slate-800 uppercase tracking-wide">
+                Bedrooms <span className="text-xs text-emerald-600 normal-case">(1 - 10)</span>
+              </label>
+              <input
+                type="number"
+                placeholder="e.g., 3"
+                value={formData.bedrooms}
+                onChange={(e) => onFormChange('bedrooms', e.target.value)}
+                min={1}
+                max={10}
+                className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border-2 border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800 placeholder:text-slate-500 font-medium"
+              />
+            </div>
+          </div>
+
+          {/* Bathrooms & Floors - 2 Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold mb-2 text-slate-800 uppercase tracking-wide">
+                Bathrooms <span className="text-xs text-emerald-600 normal-case">(1 - 8)</span>
+              </label>
+              <input
+                type="number"
+                placeholder="e.g., 2"
+                value={formData.bathrooms}
+                onChange={(e) => onFormChange('bathrooms', e.target.value)}
+                min={1}
+                max={8}
+                className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border-2 border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800 placeholder:text-slate-500 font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-2 text-slate-800 uppercase tracking-wide">
+                Floors <span className="text-xs text-emerald-600 normal-case">(1 - 50)</span>
+              </label>
+              <input
+                type="number"
+                placeholder="e.g., 2"
+                value={formData.floors}
+                onChange={(e) => onFormChange('floors', e.target.value)}
+                min={1}
+                max={5}
+                className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border-2 border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800 placeholder:text-slate-500 font-medium"
+              />
+            </div>
+          </div>
+
+          {/* Age - Full Width */}
+          <div>
+            <label className="block text-sm font-bold mb-2 text-slate-800 uppercase tracking-wide">
+              Property Age (years) <span className="text-xs text-emerald-600 normal-case">(0 - 100)</span>
+            </label>
+            <input
+              type="number"
+              placeholder="e.g., 5 (New construction = 0)"
+              value={formData.age}
+              onChange={(e) => onFormChange('age', e.target.value)}
+              min={0}
+              max={100}
+              className="w-full px-4 py-3.5 rounded-xl bg-emerald-50/50 border-2 border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-slate-800 placeholder:text-slate-500 font-medium"
+            />
+          </div>
         </div>
       </div>
     </div>

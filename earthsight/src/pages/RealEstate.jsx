@@ -6,7 +6,7 @@ import { InteractiveMap } from "../components/interactive-map"
 import { MarketSummary } from "../components/market-summary"
 import { AIAssistant } from "../components/ai-assistant"
 import { PriceGuessingGame } from "../components/price-guessing-game"
-import { FeaturedProperties } from "../components/feature-propertie"
+// import { FeaturedProperties } from "../components/feature-propertie"
 import { PredictionResults } from "../components/predictions-results"
 import { showToast } from "../components/FuturisticToast"
 import { KeyFactors } from "../components/key-factors"
@@ -491,7 +491,7 @@ export default function EarthSightDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-slate-800 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-slate-900 relative overflow-hidden">
       {/* Subtle Pattern Overlay */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-30">
         <div
@@ -550,7 +550,7 @@ export default function EarthSightDashboard() {
               onStartNewRound={startNewRound}
             />
 
-            <FeaturedProperties />
+            {/* <FeaturedProperties /> */}
           </div>
         </div>
 

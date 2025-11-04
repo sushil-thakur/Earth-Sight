@@ -350,7 +350,7 @@ export function MarketSummary({ location, locationData }) {
 
         {/* Postal Code Input - Always show for searching new areas */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-slate-300 mb-2">
+          <label className="block text-sm font-bold text-slate-800 mb-2">
             {hasAttomData ? "Search Another Area" : "Enter Postal Code for Real Market Data"}
           </label>
           <div className="flex gap-2">
@@ -360,13 +360,13 @@ export function MarketSummary({ location, locationData }) {
               onChange={(e) => setPostalCode(e.target.value)}
               placeholder="e.g., 82009"
               maxLength={5}
-              className="flex-1 px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+              className="flex-1 px-4 py-3 rounded-xl bg-emerald-50 border-2 border-emerald-300 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium"
               onKeyPress={(e) => e.key === 'Enter' && fetchMarketData()}
             />
             <button
               onClick={fetchMarketData}
               disabled={isLoading}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -394,9 +394,9 @@ export function MarketSummary({ location, locationData }) {
         {/* Show default message if no ATTOM data */}
         {!hasAttomData && (
           <div className="text-center py-12">
-            <MapPin className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400 font-medium">Enter a postal code to view real market data</p>
-            <p className="text-slate-500 text-sm mt-2">Powered by ATTOM Data API</p>
+            <MapPin className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
+            <p className="text-slate-700 font-semibold">Enter a postal code to view real market data</p>
+            <p className="text-slate-600 text-sm mt-2">Powered by ATTOM Data API</p>
           </div>
         )}
 
@@ -406,38 +406,38 @@ export function MarketSummary({ location, locationData }) {
             {/* Market Stats Grid */}
             <div className="grid grid-cols-2 gap-4 mb-6">
               {[
-                { icon: TrendingUp, label: "Trend", value: displayValues.trend, color: "indigo" },
-                { icon: Star, label: "Score", value: `${Math.round(displayValues.investmentScore)}/100`, color: "cyan" },
+                { icon: TrendingUp, label: "Trend", value: displayValues.trend, color: "emerald" },
+                { icon: Star, label: "Score", value: `${Math.round(displayValues.investmentScore)}/100`, color: "teal" },
                 {
                   icon: BarChart3,
                   label: "Properties",
                   value: displayValues.propertiesAnalyzed.toLocaleString(),
-                  color: "violet",
+                  color: "cyan",
                 },
-                { icon: DollarSign, label: "Avg Price", value: displayValues.averagePrice, color: "blue" },
+                { icon: DollarSign, label: "Avg Price", value: displayValues.averagePrice, color: "emerald" },
               ].map(({ icon: Icon, label, value }, idx) => (
                 <div key={idx} className="relative group/card">
-                  <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-indigo-500/50 to-cyan-500/50 opacity-0 group-hover/card:opacity-100 transition-opacity blur-sm"></div>
-                  <div className="relative backdrop-blur-xl bg-slate-800/50 rounded-xl p-5 border border-slate-700/50 hover:border-slate-600/50 transition-all">
-                    <div className="inline-flex p-2.5 rounded-lg bg-indigo-500/20 mb-3 shadow-lg">
-                      <Icon className="w-5 h-5 text-indigo-400" />
+                  <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-emerald-400 to-teal-400 opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
+                  <div className="relative backdrop-blur-xl bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 hover:border-emerald-300 transition-all shadow-md">
+                    <div className="inline-flex p-2.5 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 mb-3 shadow-lg">
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
-                    <p className="text-xs text-slate-400 mb-1 font-medium">{label}</p>
-                    <p className="text-lg font-bold text-white">{value}</p>
+                    <p className="text-xs text-slate-700 mb-1 font-bold uppercase tracking-wide">{label}</p>
+                    <p className="text-2xl font-bold text-slate-900">{value}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Investment Score Meter */}
-            <div className="mb-6 p-5 rounded-xl bg-slate-800/30 border border-slate-700/30">
+            <div className="mb-6 p-5 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 shadow-md">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-slate-300">Investment Score</span>
-                <span className="text-2xl font-bold text-cyan-400">{displayValues.investmentScore}/100</span>
+                <span className="text-sm font-bold text-slate-800 uppercase tracking-wide">Investment Score</span>
+                <span className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{displayValues.investmentScore}/100</span>
               </div>
-              <div className="relative w-full bg-slate-700/50 rounded-full h-3 overflow-hidden">
+              <div className="relative w-full bg-emerald-200/50 rounded-full h-4 overflow-hidden border border-emerald-300">
                 <div
-                  className="h-3 rounded-full bg-gradient-to-r from-indigo-500 via-cyan-500 to-emerald-500 transition-all duration-1000 shadow-lg shadow-cyan-500/50"
+                  className="h-4 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 transition-all duration-1000 shadow-lg"
                   style={{ width: `${displayValues.investmentScore}%` }}
                 />
               </div>
@@ -446,8 +446,8 @@ export function MarketSummary({ location, locationData }) {
             {/* Amenities */}
             {displayValues.amenities && displayValues.amenities.length > 0 && (
               <div className="mb-6">
-                <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-indigo-400" />
+                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 uppercase tracking-wide">
+                  <Building2 className="w-4 h-4 text-emerald-600" />
                   Key Amenities & POIs
                 </h4>
                 <div className="grid grid-cols-2 gap-2">
@@ -457,10 +457,10 @@ export function MarketSummary({ location, locationData }) {
                     return (
                       <div
                         key={idx}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-700/30 hover:border-indigo-500/30 transition-all"
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border-2 border-emerald-200 hover:border-emerald-400 transition-all shadow-sm"
                       >
-                        <Icon className="w-4 h-4 text-indigo-400" />
-                        <span className="text-xs text-slate-300 font-medium">{amenity}</span>
+                        <Icon className="w-4 h-4 text-emerald-600" />
+                        <span className="text-sm text-slate-800 font-semibold">{amenity}</span>
                       </div>
                     )
                   })}
@@ -471,26 +471,26 @@ export function MarketSummary({ location, locationData }) {
             {/* Recent Listings */}
             {displayValues.recentListings && displayValues.recentListings.length > 0 && (
               <div>
-                <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                  <Home className="w-4 h-4 text-cyan-400" />
+                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 uppercase tracking-wide">
+                  <Home className="w-4 h-4 text-teal-600" />
                   Recent Listings
                 </h4>
                 <div className="space-y-3">
                   {displayValues.recentListings.map((listing, idx) => (
                     <div
                       key={idx}
-                      className="relative group/listing p-4 rounded-xl bg-slate-800/50 border border-slate-700/30 hover:border-cyan-500/30 transition-all cursor-pointer"
+                      className="relative group/listing p-4 rounded-xl bg-white border-2 border-emerald-200 hover:border-emerald-400 transition-all cursor-pointer shadow-sm"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-white">{listing.type}</span>
-                        <span className="text-sm font-bold text-cyan-400">{listing.price}</span>
+                        <span className="text-sm font-bold text-slate-800">{listing.type}</span>
+                        <span className="text-sm font-bold text-emerald-600">{listing.price}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <div className="flex items-center gap-2 text-xs text-slate-700 font-medium">
                         <Home className="w-3 h-3" />
                         <span>{listing.area}</span>
                       </div>
                       {listing.address && (
-                        <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                        <div className="flex items-center gap-2 text-xs text-slate-600 mt-1">
                           <MapPin className="w-3 h-3" />
                           <span>{listing.address}</span>
                         </div>
@@ -503,29 +503,29 @@ export function MarketSummary({ location, locationData }) {
 
             {/* Data Download Section */}
             {hasAttomData && attomData && (
-              <div className="mt-6 pt-6 border-t border-slate-700/50">
-                <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                  <FileJson className="w-4 h-4 text-emerald-400" />
+              <div className="mt-6 pt-6 border-t-2 border-emerald-200">
+                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 uppercase tracking-wide">
+                  <FileJson className="w-4 h-4 text-emerald-600" />
                   Download API Data
                 </h4>
                 
                 {/* Data Summary Cards */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="p-3 rounded-lg bg-slate-800/30 border border-slate-700/30">
-                    <div className="text-xs text-slate-400 mb-1">Properties Data</div>
-                    <div className="text-sm font-bold text-white">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 shadow-sm">
+                    <div className="text-xs text-slate-700 mb-1 font-bold uppercase tracking-wide">Properties Data</div>
+                    <div className="text-lg font-bold text-slate-900">
                       {attomData.data?.properties?.length || 0} properties
                     </div>
                   </div>
-                  <div className="p-3 rounded-lg bg-slate-800/30 border border-slate-700/30">
-                    <div className="text-xs text-slate-400 mb-1">Area Data</div>
-                    <div className="text-sm font-bold text-white">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 shadow-sm">
+                    <div className="text-xs text-slate-700 mb-1 font-bold uppercase tracking-wide">Area Data</div>
+                    <div className="text-lg font-bold text-slate-900">
                       {attomData.metadata?.hasAreaData ? 'Available' : 'N/A'}
                     </div>
                   </div>
-                  <div className="p-3 rounded-lg bg-slate-800/30 border border-slate-700/30">
-                    <div className="text-xs text-slate-400 mb-1">Community Data</div>
-                    <div className="text-sm font-bold text-white">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 shadow-sm">
+                    <div className="text-xs text-slate-700 mb-1 font-bold uppercase tracking-wide">Community Data</div>
+                    <div className="text-lg font-bold text-slate-900">
                       {attomData.metadata?.hasCommunityData ? 'Available' : 'N/A'}
                     </div>
                   </div>

@@ -81,7 +81,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('🔐 Attempting login for:', email)
       const res = await axios.post('/api/auth/login', { email, password })
+      console.log('✅ Login response:', res.data)
+      
       if (res.data?.token) {
         const token = res.data.token
         const loginTime = new Date().getTime().toString()
@@ -91,13 +94,17 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('loginTime', loginTime)
         
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        setUser(res.data.user)
         
-        console.log('Login successful - session will expire in 10 minutes')
+        // IMPORTANT: Set user state
+        const userData = res.data.user
+        setUser(userData)
+        
+        console.log('✅ User state updated:', userData)
+        console.log('✅ Login successful - session will expire in 10 minutes')
       }
       return { success: true, data: res.data }
     } catch (err) {
-      console.error('Login error', err.response?.data || err.message)
+      console.error('❌ Login error:', err.response?.data || err.message)
       return { success: false, error: err.response?.data?.error || err.message }
     }
   }
@@ -126,14 +133,17 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = () => {
-    console.log('Logging out user...')
+    console.log('👋 Logging out user...')
     delete axios.defaults.headers.common['Authorization']
     localStorage.removeItem('token')
     localStorage.removeItem('loginTime')
     setUser(null)
+    console.log('✅ User logged out, state cleared')
     
-    // Redirect to home page
-    window.location.href = '/'
+    // Redirect to home page after a brief delay to show toast
+    setTimeout(() => {
+      window.location.href = '/'
+    }, 100)
   }
 
   const updateProfile = async (updates) => {
