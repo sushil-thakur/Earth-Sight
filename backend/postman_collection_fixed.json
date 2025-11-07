@@ -1,0 +1,430 @@
+{
+  "info": {
+    "name": "EarthSight Backend API - Complete Collection",
+    "_postman_id": "earthsight-backend-v2",
+    "description": "Complete API collection for EarthSight backend with proper authentication.\n\n**Setup Instructions:**\n1. Set {{baseUrl}} to http://localhost:5000\n2. Run 'Auth - Login' request\n3. Copy the token from response\n4. Set {{authToken}} variable with the token\n5. All authenticated requests will now work correctly",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register New User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.token) {",
+                  "        pm.collectionVariables.set('authToken', jsonData.token);",
+                  "        console.log('Token saved:', jsonData.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user. Token is automatically saved to authToken variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.token) {",
+                  "        pm.collectionVariables.set('authToken', jsonData.token);",
+                  "        console.log('✅ Token saved to authToken variable');",
+                  "        console.log('Token:', jsonData.token);",
+                  "        console.log('User:', jsonData.user.name, '(' + jsonData.user.email + ')');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with email and password. Token is automatically saved to authToken variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile"]
+            },
+            "description": "Get current user profile (requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"emailNotifications\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile"]
+            },
+            "description": "Update user profile (requires authentication)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Predictions",
+      "item": [
+        {
+          "name": "Generate Prediction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('lastPrediction', JSON.stringify(jsonData));",
+                  "    console.log('✅ Prediction saved for PDF generation');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location\": \"Los Angeles\",\n  \"latitude\": 34.0522,\n  \"longitude\": -118.2437,\n  \"area\": 1500,\n  \"bedrooms\": 3,\n  \"bathrooms\": 2,\n  \"floors\": 2,\n  \"age\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/predict/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "predict", ""]
+            },
+            "description": "Generate house price prediction (requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Prediction History",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/predict/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "predict", "history"]
+            },
+            "description": "Get user's prediction history (requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "Model Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/predict/model-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "predict", "model-status"]
+            },
+            "description": "Check AI model status"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "PDF Reports",
+      "item": [
+        {
+          "name": "Generate PDF Report (Authenticated)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"predictionData\": {\n    \"predictedPrice\": 450000,\n    \"confidence\": 85,\n    \"priceRange\": {\n      \"min\": 420000,\n      \"max\": 480000\n    },\n    \"marketAnalysis\": {\n      \"trend\": \"stable\",\n      \"competitiveness\": \"moderate\"\n    },\n    \"forecast\": {\n      \"oneYear\": 465000,\n      \"threeYears\": 495000,\n      \"fiveYears\": 530000\n    },\n    \"factors\": [\n      {\n        \"name\": \"Location\",\n        \"impact\": \"High\",\n        \"contribution\": 35\n      },\n      {\n        \"name\": \"Area\",\n        \"impact\": \"High\",\n        \"contribution\": 30\n      },\n      {\n        \"name\": \"Bedrooms\",\n        \"impact\": \"Medium\",\n        \"contribution\": 15\n      },\n      {\n        \"name\": \"Age\",\n        \"impact\": \"Medium\",\n        \"contribution\": 20\n      }\n    ]\n  },\n  \"userInput\": {\n    \"location\": \"Los Angeles\",\n    \"latitude\": 34.0522,\n    \"longitude\": -118.2437,\n    \"area\": 1500,\n    \"bedrooms\": 3,\n    \"bathrooms\": 2,\n    \"floors\": 2,\n    \"age\": 10\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pdf/report",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pdf", "report"]
+            },
+            "description": "Generate PDF report with authenticated user info. User name and email will be pulled from the JWT token, not from the request body."
+          },
+          "response": []
+        },
+        {
+          "name": "Generate PDF Report (Blob Download)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/pdf"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"predictionData\": {\n    \"predictedPrice\": 450000,\n    \"confidence\": 85,\n    \"priceRange\": {\n      \"min\": 420000,\n      \"max\": 480000\n    },\n    \"marketAnalysis\": {\n      \"trend\": \"stable\",\n      \"competitiveness\": \"moderate\"\n    },\n    \"forecast\": {\n      \"oneYear\": 465000,\n      \"threeYears\": 495000,\n      \"fiveYears\": 530000\n    },\n    \"factors\": [\n      {\n        \"name\": \"Location\",\n        \"impact\": \"High\",\n        \"contribution\": 35\n      },\n      {\n        \"name\": \"Area\",\n        \"impact\": \"High\",\n        \"contribution\": 30\n      }\n    ]\n  },\n  \"userInput\": {\n    \"location\": \"Los Angeles\",\n    \"area\": 1500,\n    \"bedrooms\": 3,\n    \"bathrooms\": 2,\n    \"floors\": 2,\n    \"age\": 10\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pdf/report?format=blob",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pdf", "report"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "blob"
+                }
+              ]
+            },
+            "description": "Download PDF directly as blob (requires authentication)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Environment",
+      "item": [
+        {
+          "name": "Get Dummy Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/environment/dummy-data",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "environment", "dummy-data"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/environment/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "environment", "statistics"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Carbon Intensity (Global)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/environment/carbon-intensity/global",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "environment", "carbon-intensity", "global"]
+            },
+            "description": "Get global average carbon intensity data"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Marine Life Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/environment/marine-life",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "environment", "marine-life"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Check if API is running"
+      },
+      "response": []
+    }
+  ]
+}
