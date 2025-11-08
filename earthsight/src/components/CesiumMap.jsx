@@ -348,37 +348,43 @@ export default function CesiumMap({ points = [] }) {
   return (
     <div className="w-full h-96 rounded-xl overflow-hidden border border-border/50 relative">
       {/* Controls overlay */}
-      <div className="absolute top-3 left-3 z-50 bg-slate-900/80 p-2 rounded-md border border-slate-700/50 text-xs flex flex-col gap-2">
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={terrainEnabled} onChange={(e) => setTerrainEnabled(e.target.checked)} />
-          <span>Terrain</span>
-        </label>
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={satelliteEnabled} onChange={(e) => setSatelliteEnabled(e.target.checked)} />
-          <span>Satellite (Esri)</span>
+      <div className="absolute top-3 left-3 z-50 bg-slate-900/95 p-3 rounded-md border border-slate-700/50 text-xs flex flex-col gap-2 shadow-xl">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={satelliteEnabled} onChange={(e) => setSatelliteEnabled(e.target.checked)} className="cursor-pointer" />
+          <span className="text-white font-semibold">Satellite (Esri)</span>
         </label>
         <div className="flex items-center gap-2">
-          <input value={customUrl} onChange={(e) => setCustomUrl(e.target.value)} placeholder="Custom XYZ URL (e.g. GEE tile proxy)" className="text-xs px-2 py-1 rounded bg-slate-800/60 border border-slate-700/40 w-56" />
+          <input 
+            value={customUrl} 
+            onChange={(e) => setCustomUrl(e.target.value)} 
+            placeholder="Custom XYZ URL (e.g. GEE tile proxy)" 
+            className="text-xs px-2 py-1 rounded bg-slate-800/80 border border-slate-700/50 w-56 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500" 
+          />
         </div>
         <div className="flex items-center gap-2">
-          <button className="text-xs px-2 py-1 rounded bg-slate-700 hover:bg-slate-600" onClick={() => {
-            const v = viewerRef.current && viewerRef.current.cesiumElement
-            if (v && markers && markers.length > 0) {
-              const m = markers[0]
-              v.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(m.lng, m.lat, 2000000), duration: 1.5 })
-            }
-          }}>Center</button>
+          <button 
+            className="text-xs px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-colors w-full" 
+            onClick={() => {
+              const v = viewerRef.current && viewerRef.current.cesiumElement
+              if (v && markers && markers.length > 0) {
+                const m = markers[0]
+                v.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(m.lng, m.lat, 2000000), duration: 1.5 })
+              }
+            }}
+          >
+            Center
+          </button>
         </div>
       </div>
       
       {/* Small bottom-centered hint (dismissible) */}
       {showHint && !selected && (
         <div
-          className="absolute left-1/2 -translate-x-1/2 bottom-4 z-50 bg-slate-900/90 px-3 py-2 rounded-md border border-slate-700/50 text-xs text-slate-200 cursor-pointer"
+          className="absolute left-1/2 -translate-x-1/2 bottom-4 z-50 bg-emerald-600/95 px-4 py-2 rounded-md border border-emerald-500 text-xs text-white font-semibold cursor-pointer hover:bg-emerald-700 transition-colors shadow-lg"
           onClick={() => setShowHint(false)}
           title="Click to dismiss"
         >
-          Click a marker to see details
+          👆 Click a marker to see details
         </div>
       )}
   <Viewer ref={viewerRef} terrainProvider={terrainProvider} full={false} style={{ height: '100%', width: '100%' }} baseLayerPicker={false} timeline={false} animation={false} vrButton={false} homeButton={true}>
@@ -406,12 +412,12 @@ export default function CesiumMap({ points = [] }) {
 
 
       {/* Info panel for selected marker */}
-      <div className="absolute top-3 right-3 z-50 bg-slate-900/90 p-3 rounded-md border border-slate-700/50 text-sm w-72 max-h-80 overflow-auto">
+      <div className="absolute top-3 right-3 z-50 bg-slate-900/95 p-4 rounded-md border border-slate-700/50 text-sm w-72 max-h-80 overflow-auto shadow-xl">
         {selected ? (
           <div>
-            <div className="font-semibold mb-1">{selected.title || selected.name}</div>
-            <div className="text-xs text-slate-300 mb-2">{selected.description || selected.desc || ''}</div>
-            <div className="text-xs text-slate-400 mb-2">Type: {selected.type || 'unknown'}</div>
+            <div className="font-bold mb-2 text-white text-base">{selected.title || selected.name}</div>
+            <div className="text-xs text-slate-200 mb-2 leading-relaxed">{selected.description || selected.desc || ''}</div>
+            <div className="text-xs text-emerald-400 mb-2 font-semibold">Type: {selected.type || 'unknown'}</div>
 
             {/* Always show photo if available */}
             {(() => {
@@ -422,38 +428,38 @@ export default function CesiumMap({ points = [] }) {
 
             {/* If this is a marine marker, show marine stats (fetching handled elsewhere) */}
             {((selected.type && String(selected.type).toLowerCase().includes('marine')) || (selected.raw && selected.raw.mainSpecies)) ? (
-              <div className="mt-2">
-                <div className="text-xs text-slate-300 mb-1">Marine life stats</div>
+              <div className="mt-3">
+                <div className="text-xs text-white font-bold mb-2">Marine life stats</div>
                 <div className="space-y-1">{renderMarineStats()}</div>
               </div>
             ) : null}
 
-            <div className="mt-3 text-right">
-              <button className="px-2 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600" onClick={() => { setSelected(null); setMarineStats(null) }}>Close</button>
+            <div className="mt-4 text-right">
+              <button className="px-3 py-1.5 text-xs rounded bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-colors" onClick={() => { setSelected(null); setMarineStats(null) }}>Close</button>
             </div>
           </div>
         ) : (
-          <div className="text-slate-400 text-sm">Click a marker to see details</div>
+          <div className="text-slate-300 text-sm">Click a marker to see details</div>
         )}
       </div>
       {/* Legend overlay */}
-      <div className="absolute bottom-3 left-3 z-50 bg-slate-900/85 p-2 rounded-md border border-slate-700/40 text-xs text-slate-200">
-        <div className="font-semibold text-[12px] mb-1">Legend</div>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm" style={{ background: '#FF4444' }}></span><span className="truncate">Deforestation</span></div>
-          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm" style={{ background: '#8B4513' }}></span><span className="truncate">Mining</span></div>
-          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm" style={{ background: '#FF8C00' }}></span><span className="truncate">Forest Fire</span></div>
-          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm" style={{ background: '#1e90ff' }}></span><span className="truncate">Marine life</span></div>
+      <div className="absolute bottom-3 left-3 z-50 bg-slate-900/95 p-3 rounded-md border border-slate-700/50 text-xs shadow-xl">
+        <div className="font-bold text-sm mb-2 text-white">Legend</div>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm" style={{ background: '#FF4444' }}></span><span className="truncate text-white font-semibold">Deforestation</span></div>
+          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm" style={{ background: '#8B4513' }}></span><span className="truncate text-white font-semibold">Mining</span></div>
+          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm" style={{ background: '#FF8C00' }}></span><span className="truncate text-white font-semibold">Forest Fire</span></div>
+          <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm" style={{ background: '#1e90ff' }}></span><span className="truncate text-white font-semibold">Marine life</span></div>
         </div>
       </div>
       {/* Hover tooltip for species bars */}
       {hoverInfo && (
-        <div className="absolute top-24 right-3 z-60 bg-black/90 p-2 rounded-md border border-slate-700 text-xs w-56">
+        <div className="absolute top-24 right-3 z-60 bg-slate-900/95 p-3 rounded-md border border-slate-700 text-xs w-56 shadow-xl">
           {hoverInfo.image ? (
-            <img src={hoverInfo.image} alt={hoverInfo.species} className="w-full h-20 object-cover rounded mb-2" />
+            <img src={hoverInfo.image} alt={hoverInfo.species} className="w-full h-20 object-cover rounded mb-2 border border-slate-700" />
           ) : null}
-          <div className="font-semibold text-sm">{hoverInfo.species}</div>
-          <div className="text-[11px] text-slate-300 truncate">{hoverInfo.description}</div>
+          <div className="font-bold text-sm text-white mb-1">{hoverInfo.species}</div>
+          <div className="text-[11px] text-slate-200 leading-relaxed">{hoverInfo.description}</div>
         </div>
       )}
     </div>

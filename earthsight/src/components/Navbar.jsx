@@ -60,8 +60,14 @@ const NavBar = () => {
   const confirmLogout = () => {
     console.log('🔓 Logout confirmed in Navbar');
     setShowLogoutModal(false);
-    showToast('👋 Logged out successfully!', 'success', 2500);
-    logout(); // AuthContext handles navigation
+    
+    // Show toast and logout after a brief delay
+    showToast('👋 Logging out...', 'success', 1500);
+    
+    // Delay logout to allow modal to close smoothly
+    setTimeout(() => {
+      logout(); // AuthContext handles navigation
+    }, 100);
   };
 
   const cancelLogout = () => {
@@ -195,14 +201,17 @@ const NavBar = () => {
             {isAuthenticated && (
               <div className="ml-6 flex items-center gap-3">
                 {/* User Name */}
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 nav-user-info">
-                  <span className="text-xs font-medium nav-user-text">{user?.name || user?.email}</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 nav-user-info">
+                  <span className="text-xs font-bold text-emerald-700 nav-user-text">{user?.name || user?.email}</span>
                 </div>
 
                 {/* Logout Button */}
                 <button
-                  onClick={handleLogout}
-                  className="px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-all text-xs font-medium nav-logout-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLogout();
+                  }}
+                  className="px-4 py-1.5 rounded-full bg-red-500/20 border-2 border-red-500/50 hover:bg-red-500/30 hover:border-red-500 transition-all text-xs font-bold text-red-700 hover:text-red-800 shadow-sm hover:shadow-md nav-logout-btn"
                 >
                   Logout
                 </button>
@@ -247,11 +256,27 @@ const NavBar = () => {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm animate-fadeIn" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full border-2 border-emerald-300 animate-scaleIn" style={{ overflow: 'visible' }}>
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm animate-fadeIn" 
+          style={{ top: 0, left: 0, right: 0, bottom: 0 }}
+          onClick={(e) => {
+            // Only close if clicking the backdrop, not the modal content
+            if (e.target === e.currentTarget) {
+              cancelLogout();
+            }
+          }}
+        >
+          <div 
+            className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full border-2 border-emerald-300 animate-scaleIn" 
+            style={{ overflow: 'visible' }}
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Close Button */}
             <button
-              onClick={cancelLogout}
+              onClick={(e) => {
+                e.stopPropagation();
+                cancelLogout();
+              }}
               className="absolute -top-4 -right-4 z-[10000] w-12 h-12 bg-white hover:bg-red-50 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl border-3 border-emerald-400 hover:border-red-500"
               style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}
             >
@@ -301,7 +326,10 @@ const NavBar = () => {
               <div className="flex gap-3">
                 {/* Cancel Button */}
                 <button
-                  onClick={cancelLogout}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    cancelLogout();
+                  }}
                   className="flex-1 px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold border-2 border-slate-300 hover:border-slate-400 transition-all shadow-md"
                 >
                   Cancel
@@ -309,7 +337,10 @@ const NavBar = () => {
 
                 {/* Confirm Button */}
                 <button
-                  onClick={confirmLogout}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    confirmLogout();
+                  }}
                   className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold transition-all shadow-lg hover:shadow-xl"
                 >
                   Logout

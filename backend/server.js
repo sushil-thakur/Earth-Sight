@@ -28,35 +28,55 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 // Configure CORS for both development and production
-const envOrigin = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(s => s.trim()) : []
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
+  'https://earth-sight.onrender.com'
+];
+
+// Add any additional origins from environment variable
+const envOrigin = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(s => s.trim()) : [];
+const allAllowedOrigins = [...allowedOrigins, ...envOrigin];
+
+console.log('🌍 CORS: Allowed origins:', allAllowedOrigins);
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like curl, mobile apps, or server-to-server)
-    if (!origin) return callback(null, true)
+    // Allow requests with no origin (like curl, mobile apps, Postman, or server-to-server)
+    if (!origin) {
+      console.log('✅ CORS: Allowing request with no origin (Postman/curl/server)');
+      return callback(null, true);
+    }
 
-    // Allow explicit env-configured origins (production URLs)
-    if (envOrigin.length > 0 && envOrigin.includes(origin)) return callback(null, true)
+    // Check if origin is in allowed list
+    if (allAllowedOrigins.includes(origin)) {
+      console.log(`✅ CORS: Allowing origin: ${origin}`);
+      return callback(null, true);
+    }
 
-    // In development: Allow any localhost origin
+    // In development mode: Allow any localhost/127.0.0.1 with any port
     if (process.env.NODE_ENV !== 'production') {
       try {
-        const url = new URL(origin)
-        if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return callback(null, true)
+        const url = new URL(origin);
+        if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+          console.log(`✅ CORS: Allowing localhost origin: ${origin}`);
+          return callback(null, true);
+        }
       } catch (err) {
         // ignore URL parse errors
       }
     }
 
-    // In production: strict origin checking
-    if (process.env.NODE_ENV === 'production') {
-      console.warn(`CORS: Blocked origin ${origin}`)
-      return callback(new Error('CORS policy: Origin not allowed'))
-    }
-
-    return callback(null, true) // Allow in development by default
+    // Reject unknown origins
+    console.warn(`❌ CORS: Blocked origin: ${origin}`);
+    return callback(new Error(`CORS policy: Origin ${origin} not allowed`), false);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
 // Allow larger JSON payloads (extracted PDF text can be large). Set to 5mb.
 app.use(bodyParser.json({ limit: process.env.BODY_PARSER_LIMIT || '5mb' }));

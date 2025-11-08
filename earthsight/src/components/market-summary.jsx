@@ -175,8 +175,8 @@ export function MarketSummary({ location, locationData }) {
         prop.address?.line1 || 'N/A',
         `${prop.address?.locality || ''}, ${prop.address?.countrySubd || ''}`,
         prop.address?.postal1 || postalCode,
-        prop.location?.latitude || 'N/A',
-        prop.location?.longitude || 'N/A'
+        (prop.location?.latitude || 'N/A').toString(),
+        (prop.location?.longitude || 'N/A').toString()
       ])
 
       autoTable(doc, {
@@ -208,8 +208,8 @@ export function MarketSummary({ location, locationData }) {
 
       const pois = attomData.data.pois
       if (pois.success && pois.data && Array.isArray(pois.data)) {
-        const poiRows = pois.data.slice(0, 30).map(poi => [
-          poi.name || 'N/A',
+        const poiRows = pois.data.slice(0, 30).map((poi, idx) => [
+          poi.name || `POI-${idx}`,
           poi.type || 'N/A',
           poi.distance || 'N/A'
         ])
@@ -416,7 +416,7 @@ export function MarketSummary({ location, locationData }) {
                 },
                 { icon: DollarSign, label: "Avg Price", value: displayValues.averagePrice, color: "emerald" },
               ].map(({ icon: Icon, label, value }, idx) => (
-                <div key={idx} className="relative group/card">
+                <div key={`metric-${label}-${idx}`} className="relative group/card">
                   <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-emerald-400 to-teal-400 opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
                   <div className="relative backdrop-blur-xl bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 hover:border-emerald-300 transition-all shadow-md">
                     <div className="inline-flex p-2.5 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 mb-3 shadow-lg">
@@ -456,7 +456,7 @@ export function MarketSummary({ location, locationData }) {
                     const Icon = icons[idx % icons.length]
                     return (
                       <div
-                        key={idx}
+                        key={`amenity-${amenity}-${idx}`}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border-2 border-emerald-200 hover:border-emerald-400 transition-all shadow-sm"
                       >
                         <Icon className="w-4 h-4 text-emerald-600" />
@@ -478,7 +478,7 @@ export function MarketSummary({ location, locationData }) {
                 <div className="space-y-3">
                   {displayValues.recentListings.map((listing, idx) => (
                     <div
-                      key={idx}
+                      key={`listing-${listing.address || listing.price || idx}-${idx}`}
                       className="relative group/listing p-4 rounded-xl bg-white border-2 border-emerald-200 hover:border-emerald-400 transition-all cursor-pointer shadow-sm"
                     >
                       <div className="flex items-center justify-between mb-2">
@@ -667,8 +667,14 @@ export function MarketSummary({ location, locationData }) {
 
       {/* Documentation Modal */}
       {showDocumentation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="relative max-w-4xl w-full max-h-[90vh] overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-cyan-500/30 shadow-2xl shadow-cyan-500/20">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setShowDocumentation(false)}
+        >
+          <div 
+            className="relative max-w-4xl w-full max-h-[90vh] overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-cyan-500/30 shadow-2xl shadow-cyan-500/20"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header */}
             <div className="sticky top-0 z-10 bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -676,7 +682,10 @@ export function MarketSummary({ location, locationData }) {
                 <h2 className="text-2xl font-bold text-white">Market Summary Guide</h2>
               </div>
               <button
-                onClick={() => setShowDocumentation(false)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowDocumentation(false)
+                }}
                 className="p-2 rounded-lg hover:bg-white/20 transition-all"
                 title="Close"
               >

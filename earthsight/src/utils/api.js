@@ -1,6 +1,14 @@
 import axios from 'axios'
 
-const api = axios.create({ baseURL: '/api' })
+// Use environment variable for API base URL, fallback to localhost for development
+const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
+
+console.log('🔗 API Base URL:', API_BASE_URL);
+
+const api = axios.create({ 
+  baseURL: `${API_BASE_URL}/api`,
+  withCredentials: true // Include credentials for CORS requests
+})
 
 export const environmentApi = {
   getDummyData: () => api.get('/environment/dummy-data').then(r => r.data),

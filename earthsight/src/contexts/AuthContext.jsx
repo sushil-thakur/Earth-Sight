@@ -101,6 +101,9 @@ export const AuthProvider = ({ children }) => {
         
         console.log('✅ User state updated:', userData)
         console.log('✅ Login successful - session will expire in 10 minutes')
+        
+        // Force a small delay to ensure state is fully updated before any navigation
+        await new Promise(resolve => setTimeout(resolve, 50))
       }
       return { success: true, data: res.data }
     } catch (err) {
@@ -140,7 +143,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null)
     console.log('✅ User logged out, state cleared')
     
-    // Redirect to home page after a brief delay to show toast
+    // Force a clean redirect to home page to reset all state
     setTimeout(() => {
       window.location.href = '/'
     }, 100)

@@ -38,8 +38,13 @@ const AuthModal = () => {
         if (!res || res.success === false) throw new Error(res?.error || 'Registration failed')
         showToast('🎊 Account created successfully!', 'success', 2500)
       }
-      // success
+      
+      // Close modal and wait for state to update
       close()
+      
+      // Small delay to ensure auth state propagates before any navigation
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
     } catch (err) {
       // Prefer backend error message when available (axios)
       const serverMsg = err?.response?.data?.error || err?.response?.data?.message
