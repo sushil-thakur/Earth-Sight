@@ -13,6 +13,12 @@ const NEWS_API_URL = import.meta.env.VITE_NEWS_API_URL || 'https://newsdata.io/a
  */
 export const getEnvironmentNews = async (params = {}) => {
   try {
+    // Check if API key is configured
+    if (!NEWS_API_KEY || NEWS_API_KEY === 'your_newsdata_api_key_here') {
+      console.warn('⚠️ News API key not configured. Using mock data.')
+      return getMockNews()
+    }
+
     const {
       language = 'en',
       country = null
@@ -31,10 +37,11 @@ export const getEnvironmentNews = async (params = {}) => {
     }
 
     const response = await axios.get(`${NEWS_API_URL}/news`, {
-      params: queryParams
+      params: queryParams,
+      timeout: 10000 // 10 second timeout
     })
 
-    if (response.data && response.data.status === 'success') {
+    if (response.data && response.data.status === 'success' && response.data.results?.length > 0) {
       // Transform the data to match our app's format
       const transformedNews = response.data.results.map((article, index) => ({
         id: article.article_id || `news-${index}`,
@@ -49,6 +56,7 @@ export const getEnvironmentNews = async (params = {}) => {
         country: article.country?.[0] || 'Unknown'
       }))
 
+      console.log(`✅ Loaded ${transformedNews.length} news articles from API`)
       return {
         success: true,
         data: transformedNews,
@@ -57,19 +65,14 @@ export const getEnvironmentNews = async (params = {}) => {
       }
     }
 
-    return {
-      success: false,
-      error: 'No news data available',
-      data: []
-    }
+    // If API returns no results, use mock data
+    console.warn('⚠️ News API returned no results. Using mock data.')
+    return getMockNews()
 
   } catch (error) {
-    console.error('News API Error:', error.response?.data || error.message)
-    return {
-      success: false,
-      error: error.response?.data?.results?.message || error.message || 'Failed to fetch news',
-      data: []
-    }
+    console.error('❌ News API Error:', error.response?.data || error.message)
+    console.warn('⚠️ Using mock news data as fallback.')
+    return getMockNews()
   }
 }
 
@@ -209,6 +212,95 @@ const getDefaultImage = (category) => {
   }
   
   return images[category?.toLowerCase()] || images.default
+}
+
+/**
+ * Get mock news data as fallback when API is unavailable
+ * @returns {Object} - Mock news response
+ */
+const getMockNews = () => {
+  const mockArticles = [
+    {
+      id: 'mock-1',
+      title: 'Global Climate Summit Announces Ambitious Carbon Reduction Targets for 2030',
+      description: 'World leaders commit to new carbon emission goals with focus on renewable energy transition and sustainable development across all sectors.',
+      date: '2 hours ago',
+      category: 'Environment',
+      image: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=400&h=300&fit=crop',
+      source: 'Environmental News',
+      link: 'https://example.com/news/1',
+      keywords: ['climate', 'carbon', 'renewable energy'],
+      country: 'Global'
+    },
+    {
+      id: 'mock-2',
+      title: 'Amazon Rainforest Conservation Efforts Show Positive Results',
+      description: 'New satellite imagery reveals forest regeneration in protected areas, attributed to community-led conservation programs and stricter enforcement.',
+      date: '5 hours ago',
+      category: 'Environment',
+      image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&h=300&fit=crop',
+      source: 'Nature Today',
+      link: 'https://example.com/news/2',
+      keywords: ['deforestation', 'amazon', 'conservation'],
+      country: 'Brazil'
+    },
+    {
+      id: 'mock-3',
+      title: 'Ocean Cleanup Initiative Removes 100 Tons of Plastic from Pacific',
+      description: 'Breakthrough technology successfully extracts record amount of plastic waste from ocean, marking major milestone in marine conservation efforts.',
+      date: '1 day ago',
+      category: 'Environment',
+      image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+      source: 'Ocean Conservation',
+      link: 'https://example.com/news/3',
+      keywords: ['ocean', 'pollution', 'cleanup'],
+      country: 'Global'
+    },
+    {
+      id: 'mock-4',
+      title: 'Renewable Energy Surpasses Fossil Fuels in Global Production',
+      description: 'Solar and wind power generation reaches historic milestone, overtaking coal and natural gas in worldwide energy production for the first time.',
+      date: '2 days ago',
+      category: 'Science',
+      image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=300&fit=crop',
+      source: 'Energy News',
+      link: 'https://example.com/news/4',
+      keywords: ['renewable', 'solar', 'wind'],
+      country: 'Global'
+    },
+    {
+      id: 'mock-5',
+      title: 'Endangered Species Populations Rebound in Protected Habitats',
+      description: 'Wildlife populations show significant recovery in newly established conservation zones, demonstrating effectiveness of protection policies.',
+      date: '3 days ago',
+      category: 'Environment',
+      image: 'https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=400&h=300&fit=crop',
+      source: 'Wildlife Foundation',
+      link: 'https://example.com/news/5',
+      keywords: ['wildlife', 'conservation', 'endangered species'],
+      country: 'Global'
+    },
+    {
+      id: 'mock-6',
+      title: 'Urban Green Spaces Reduce City Heat by 5°C Study Finds',
+      description: 'Research shows urban vegetation significantly lowers heat island effect, improving air quality and public health in major cities worldwide.',
+      date: '4 days ago',
+      category: 'Environment',
+      image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop',
+      source: 'Urban Ecology',
+      link: 'https://example.com/news/6',
+      keywords: ['urban', 'green spaces', 'climate'],
+      country: 'Global'
+    }
+  ]
+
+  return {
+    success: true,
+    data: mockArticles,
+    total: mockArticles.length,
+    nextPage: null,
+    isMockData: true
+  }
 }
 
 export default {

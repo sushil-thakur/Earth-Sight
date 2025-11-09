@@ -6,7 +6,7 @@ const DomsGallary = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   // Unsplash API configuration
-  const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY || 'GsUednnwMHO6FL8Fm4ldeWgedM9wip9-8xs0TYFLzM0'
+  const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY
 
   // Search queries for different categories
   const searchQueries = [
@@ -44,6 +44,14 @@ const DomsGallary = () => {
       try {
         setIsLoading(true)
 
+        // Check if API key is configured properly
+        if (!UNSPLASH_ACCESS_KEY || UNSPLASH_ACCESS_KEY === 'your_unsplash_access_key_here') {
+          console.warn('⚠️ Unsplash API key not configured. Using local images.')
+          setGalleryImages(localFallbacks.slice(0, searchQueries.length))
+          setIsLoading(false)
+          return
+        }
+
         // Fetch multiple results per query and pick one unique image for each query
         const perPage = 5
         const usedIds = new Set()
@@ -53,14 +61,27 @@ const DomsGallary = () => {
         for (let i = 0; i < searchQueries.length; i++) {
           const { query, alt } = searchQueries[i]
           try {
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+
             const response = await fetch(
               `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${perPage}&orientation=landscape`,
               {
                 headers: {
                   Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`,
                 },
+                signal: controller.signal
               }
             )
+
+            clearTimeout(timeoutId)
+
+            if (!response.ok) {
+              console.warn(`⚠️ Unsplash API error (${response.status}): ${response.statusText}`)
+              images.push(localFallbacks[i % localFallbacks.length])
+              continue
+            }
+
             const data = await response.json()
             const results = Array.isArray(data?.results) ? shuffle(data.results) : []
 
@@ -91,17 +112,23 @@ const DomsGallary = () => {
             }
 
             // Fallback to local if Unsplash didn't return a unique image
+            console.warn(`⚠️ No unique Unsplash image for "${query}", using local fallback`)
             images.push(localFallbacks[i % localFallbacks.length])
           } catch (err) {
-            console.warn(`Unsplash query failed for \"${query}\":`, err)
+            const errorMsg = err.name === 'AbortError' ? 'Request timeout' : err.message || 'Unknown error'
+            console.warn(`⚠️ Unsplash query failed for "${query}": ${errorMsg}`)
             images.push(localFallbacks[i % localFallbacks.length])
           }
         }
 
+        const unsplashCount = images.filter(img => img.src && img.src.includes('unsplash')).length
+        console.log(`✅ Gallery loaded: ${images.length} images (${unsplashCount} from Unsplash, ${images.length - unsplashCount} local)`)
+        
         setGalleryImages(images)
         setIsLoading(false)
       } catch (error) {
-        console.error('Error fetching Unsplash images:', error)
+        console.error('❌ Error fetching Unsplash images:', error)
+        console.warn('⚠️ Using all local fallback images')
         setGalleryImages(localFallbacks.slice(0, searchQueries.length))
         setIsLoading(false)
       }
