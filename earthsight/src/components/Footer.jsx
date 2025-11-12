@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaDiscord, FaTwitter, FaYoutube, FaFacebook } from "react-icons/fa";
 import { FootLinks } from "../constants";
+import { useAuth } from "../contexts/AuthContext";
+import { useAuthModal } from "../contexts/AuthModalContext";
 
 const socialLinks = [
   { href: "https://discord.com", icon: <FaDiscord /> },
@@ -12,6 +14,25 @@ const socialLinks = [
 
 const Footer = () => {
   const [subscribeResult, setSubscribeResult] = useState("");
+  const { user } = useAuth();
+  const { open } = useAuthModal();
+  const navigate = useNavigate();
+
+  // Protected routes that require authentication
+  const protectedRoutes = ['/deforestation', '/real-estate'];
+
+  const handleNavigation = (e, link) => {
+    // Check if the route is protected
+    if (protectedRoutes.includes(link)) {
+      // If user is not logged in, prevent navigation and show auth modal
+      if (!user) {
+        e.preventDefault();
+        open(); // Open authentication modal
+        return;
+      }
+    }
+    // If not protected or user is logged in, allow normal navigation
+  };
 
   const handleSubscribe = async (event) => {
     event.preventDefault();
@@ -66,9 +87,13 @@ const Footer = () => {
               <li key={idx}>
                 <Link
                   to={foot.link}
+                  onClick={(e) => handleNavigation(e, foot.link)}
                   className="hover:text-emerald-400 transition-colors duration-300"
                 >
                   {foot.name}
+                  {protectedRoutes.includes(foot.link) && !user && (
+                    <span className="ml-1 text-xs text-emerald-500">🔒</span>
+                  )}
                 </Link>
               </li>
             ))}

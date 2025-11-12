@@ -95,49 +95,27 @@ router.post('/login', async (req, res) => {
     // Generate token
     const token = generateToken(user._id);
 
-    // Send alert email to the logged-in user (with deduplication)
+    // Send environmental alert to logged-in user (using same data as scheduled alerts)
     try {
-      console.log(`[ALERT] Checking login alert for:`, user.email);
+      console.log(`[ALERT] Sending environmental alert to logged-in user:`, user.email);
       
-      const loginAlertData = {
-        type: 'login',
-        icon: '🔔',
-        severity: 'Info',
-        location: 'User Login',
-        lat: 0,
-        lng: 0,
-        timestamp: new Date().toISOString(),
-        area: 0,
-        confidence: 100,
-        message: 'You have successfully logged in to EarthSlight.'
-      };
+      // Use the same environmental data generator as the scheduled alerts
+      const environmentalData = emailService.generateDummyAlertData();
       
-      // Generate hash for this login alert (per user)
-      const alertHash = `login_${user.email}`;
+      // Generate hash for this alert
+      const alertHash = emailService.generateAlertHash(environmentalData);
       
-      // Check if login alert was recently sent (within 5 minutes cooldown)
-      const LOGIN_COOLDOWN = 5 * 60 * 1000; // 5 minutes
-      if (emailService.sentAlerts.has(alertHash)) {
-        const lastSentTime = emailService.sentAlerts.get(alertHash);
-        const timeSinceLastSent = Date.now() - lastSentTime;
-        
-        if (timeSinceLastSent < LOGIN_COOLDOWN) {
-          console.log(`[ALERT] Skipping duplicate login alert for ${user.email} (sent ${Math.floor(timeSinceLastSent / 1000)}s ago)`);
-          // Skip sending duplicate
-        } else {
-          // Cooldown expired, send alert
-          await emailService.sendAlertToUser(user, loginAlertData);
-          emailService.sentAlerts.set(alertHash, Date.now());
-          console.log(`[ALERT] Login alert sent to:`, user.email);
-        }
+      // Check if this exact alert was recently sent (within 1 hour cooldown)
+      if (emailService.isAlertRecentlySent(alertHash)) {
+        console.log(`[ALERT] Skipping duplicate environmental alert for ${user.email} (same alert sent within last hour)`);
       } else {
-        // First login alert for this user
-        await emailService.sendAlertToUser(user, loginAlertData);
-        emailService.sentAlerts.set(alertHash, Date.now());
-        console.log(`[ALERT] Login alert sent to:`, user.email);
+        // Send the environmental alert
+        await emailService.sendAlertToUser(user, environmentalData);
+        emailService.markAlertAsSent(alertHash);
+        console.log(`[ALERT] Environmental alert sent to:`, user.email, `(${environmentalData.type} at ${environmentalData.location})`);
       }
     } catch (emailErr) {
-      console.error('Failed to send login alert email:', emailErr);
+      console.error('Failed to send environmental alert email:', emailErr);
     }
 
     res.json({
