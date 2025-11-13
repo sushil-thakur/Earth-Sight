@@ -21,7 +21,7 @@ import {
   HelpCircle,
   X,
 } from "lucide-react"
-import { getComprehensiveMarketAnalysis } from "../services/attomDataService"
+import { getComprehensiveMarketAnalysis, validateATTOMAPIKey } from "../services/attomDataService"
 import { showToast } from "./FuturisticToast"
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -32,6 +32,24 @@ export function MarketSummary({ location, locationData }) {
   const [attomData, setAttomData] = useState(null)
   const [error, setError] = useState(null)
   const [showDocumentation, setShowDocumentation] = useState(false)
+  const [apiKeyValid, setApiKeyValid] = useState(null)
+
+  // Validate API key on mount
+  useEffect(() => {
+    const validateKey = async () => {
+      const result = await validateATTOMAPIKey()
+      setApiKeyValid(result.valid)
+      
+      if (result.valid) {
+        console.log('✅ ATTOM API key validated successfully')
+      } else {
+        console.error('❌ ATTOM API key validation failed:', result.error)
+        showToast(`⚠️ ATTOM API: ${result.error}`, "warning", 5000)
+      }
+    }
+    
+    validateKey()
+  }, [])
 
   // Fetch ATTOM data when postal code is provided
   const fetchMarketData = async () => {
@@ -384,7 +402,12 @@ export function MarketSummary({ location, locationData }) {
           {error && (
             <p className="mt-2 text-sm text-red-400">⚠️ {error}</p>
           )}
-          {hasAttomData && (
+          {apiKeyValid === false && (
+            <p className="mt-2 text-xs text-amber-400 flex items-center gap-1">
+              ⚠️ ATTOM API key validation failed - some features may not work
+            </p>
+          )}
+          {apiKeyValid === true && hasAttomData && (
             <p className="mt-2 text-xs text-emerald-400 flex items-center gap-1">
               ✓ Real-time data from ATTOM API
             </p>

@@ -3,6 +3,18 @@ import axios from 'axios'
 const ATTOM_API_KEY = import.meta.env.VITE_ATTOM_API_KEY
 const ATTOM_BASE_URL = import.meta.env.VITE_ATTOM_BASE_URL || 'https://api.gateway.attomdata.com/propertyapi/v1.0.0'
 
+// Validate API key on module load
+const isApiKeyValid = () => {
+  if (!ATTOM_API_KEY || ATTOM_API_KEY === 'your_attom_api_key_here') {
+    console.warn('⚠️ ATTOM API key not configured or invalid')
+    return false
+  }
+  console.log('✅ ATTOM API key configured:', ATTOM_API_KEY.substring(0, 8) + '...')
+  return true
+}
+
+const API_KEY_VALID = isApiKeyValid()
+
 // Create axios instance with default config
 const attomClient = axios.create({
   baseURL: ATTOM_BASE_URL,
@@ -13,14 +25,117 @@ const attomClient = axios.create({
   timeout: 30000
 })
 
+// Add request interceptor to log requests
+attomClient.interceptors.request.use(
+  config => {
+    console.log(`🌐 ATTOM API Request: ${config.method.toUpperCase()} ${config.url}`, config.params)
+    return config
+  },
+  error => Promise.reject(error)
+)
+
 // Add response interceptor for better error handling
 attomClient.interceptors.response.use(
-  response => response,
+  response => {
+    console.log('✅ ATTOM API Response:', response.status, response.statusText)
+    return response
+  },
   error => {
-    console.error('ATTOM API Error:', error.response?.data || error.message)
+    if (error.response) {
+      console.error('❌ ATTOM API Error Response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        headers: error.response.headers
+      })
+      
+      // Specific error messages
+      if (error.response.status === 401) {
+        console.error('❌ ATTOM API: Invalid API key or authentication failed')
+      } else if (error.response.status === 403) {
+        console.error('❌ ATTOM API: Access forbidden - check your API key permissions')
+      } else if (error.response.status === 429) {
+        console.error('❌ ATTOM API: Rate limit exceeded')
+      }
+    } else if (error.request) {
+      console.error('❌ ATTOM API: No response received:', error.message)
+    } else {
+      console.error('❌ ATTOM API Error:', error.message)
+    }
     return Promise.reject(error)
   }
 )
+
+/**
+ * Validate ATTOM API Key - Test if the API key is working with a simple request
+ * Uses Denver, CO coordinates as a test location
+ */
+export const validateATTOMAPIKey = async () => {
+  if (!API_KEY_VALID) {
+    return {
+      valid: false,
+      error: 'API key not configured or invalid'
+    }
+  }
+
+  try {
+    console.log('🔍 Testing ATTOM API key...')
+    
+    // Test with Denver, CO coordinates (known to have properties)
+    const response = await attomClient.get('/property/snapshot', {
+      params: {
+        latitude: 39.7392,
+        longitude: -104.9903,
+        radius: 1
+      }
+    })
+
+    if (response.data && response.data.property && response.data.property.length > 0) {
+      console.log('✅ ATTOM API key is VALID - Found', response.data.property.length, 'properties')
+      return {
+        valid: true,
+        message: 'API key is working correctly',
+        testResults: {
+          propertiesFound: response.data.property.length,
+          testLocation: 'Denver, CO'
+        }
+      }
+    }
+
+    console.warn('⚠️ ATTOM API responded but no properties found')
+    return {
+      valid: true,
+      warning: 'API key works but no properties returned',
+      testResults: {
+        propertiesFound: 0,
+        testLocation: 'Denver, CO'
+      }
+    }
+  } catch (error) {
+    console.error('❌ ATTOM API key validation FAILED:', error.message)
+    
+    let errorMessage = 'API key validation failed'
+    if (error.response) {
+      if (error.response.status === 401) {
+        errorMessage = 'Invalid API key - Authentication failed'
+      } else if (error.response.status === 403) {
+        errorMessage = 'API key does not have permission to access this endpoint'
+      } else if (error.response.status === 429) {
+        errorMessage = 'Rate limit exceeded - Too many requests'
+      } else {
+        errorMessage = error.response.data?.status?.msg || `API error: ${error.response.status}`
+      }
+    } else if (error.request) {
+      errorMessage = 'No response from ATTOM API - Check network connection'
+    }
+
+    return {
+      valid: false,
+      error: errorMessage,
+      details: error.response?.data || error.message
+    }
+  }
+}
 
 /**
  * Property Snapshot API - Get snapshot of properties in an area by coordinates or postal code
