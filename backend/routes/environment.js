@@ -31,20 +31,81 @@ const generateDummyData = () => {
 
   // Generate random coordinates around the world with real environmental hotspots
   const locations = [
-    { lat: -12.6097, lng: -69.1897, name: 'Madre de Dios, Peru (illegal gold mining & deforestation)' },
-    { lat: -3.2040, lng: -52.2070, name: 'Pará / Altamira, Brazil (Amazon deforestation hotspots)' },
-    { lat: -4.0533, lng: 137.1160, name: 'Grasberg / Mimika, Papua, Indonesia (mine disaster & mining impacts)' },
-    { lat: 62.0355, lng: 129.6755, name: 'Sakha (Yakutsk), Russia (boreal forest wildfire activity)' },
-    { lat: 50.2333, lng: -121.4333, name: 'Lytton area, British Columbia, Canada (recent wildfires)' },
-    { lat: -19.6499, lng: 134.1910, name: 'Barkly / Tennant Creek, Northern Territory, Australia (bushfire/heat risks)' },
-    { lat: -2.2096, lng: 113.9165, name: 'Central Kalimantan (Palangka Raya), Indonesia (peatland deforestation & fire risk)' },
-    { lat: 1.0461, lng: 29.6472, name: 'Mambasa / Ituri, DRC (forest loss / logging pressure)' },
-    { lat: 5.6948, lng: -76.6541, name: 'Atrato River / Quibdó, Colombia (mercury contamination from gold mining)' },
-    { lat: 26.8467, lng: 80.9462, name: 'Uttar Pradesh region, India (seasonal agricultural & forest fires)' }
+    {
+      lat: -12.6097,
+      lng: -69.1897,
+      name: 'Madre de Dios, Peru (illegal gold mining & deforestation)',
+      latestData: 'Between 1984 – first half 2025: ~139,169 ha deforested by gold mining; ~550 ha of peatland lost in last 2 years.'
+    },
+    {
+      lat: -3.2040,
+      lng: -52.2070,
+      name: 'Pará / Altamira, Brazil (Amazon deforestation hotspots)',
+      latestData: 'Aug 2024–Jul 2025: ~5,796 km² deforested in Brazilian Amazon (INPE); 2024 fire season in Amazon was record-high fire hotspots.'
+    },
+    {
+      lat: -4.0533,
+      lng: 137.1160,
+      name: 'Grasberg / Mimika, Papua, Indonesia (mine disaster & mining impacts)',
+      latestData: 'No reliable 2025-specific publicly reported data found for mining-driven deforestation or disaster in this exact location.'
+    },
+    {
+      lat: 62.0355,
+      lng: 129.6755,
+      name: 'Sakha (Yakutsk), Russia (boreal forest wildfire activity)',
+      latestData: '2024–2025 fire season: Sakha was a hotspot; global data shows extreme fire activity in Sakha, with increasing trend. (Copernicus report)'
+    },
+    {
+      lat: 50.2333,
+      lng: -121.4333,
+      name: 'Lytton area, British Columbia, Canada (recent wildfires)',
+      latestData: '2025 B.C. wildfire season: ~886,300 ha burned across B.C. (regional total; Lytton area part of provincial risk).'
+    },
+    {
+      lat: -19.6499,
+      lng: 134.1910,
+      name: 'Barkly / Tennant Creek, Northern Territory, Australia (bushfire/heat risks)',
+      latestData: 'No recent (2025) publicly available quantified data on bushfires or deforestation specific to this area.'
+    },
+    {
+      lat: -2.2096,
+      lng: 113.9165,
+      name: 'Central Kalimantan (Palangka Raya), Indonesia (peatland deforestation & fire risk)',
+      latestData: 'No reliable 2025-specific public data found on peatland fire or deforestation for this exact coordinate.'
+    },
+    {
+      lat: 1.0461,
+      lng: 29.6472,
+      name: 'Mambasa / Ituri, DRC (forest loss / logging pressure)',
+      latestData: 'Publicly accessible 2025-specific logging or deforestation data for this region is limited; no robust number found.'
+    },
+    {
+      lat: 5.6948,
+      lng: -76.6541,
+      name: 'Atrato River / Quibdó, Colombia (mercury contamination from gold mining)',
+      latestData: 'No validated 2025-level data on deforestation or mercury contamination specific to this coordinate found in public sources.'
+    },
+    {
+      lat: 26.8467,
+      lng: 80.9462,
+      name: 'Uttar Pradesh region, India (seasonal agricultural & forest fires)',
+      latestData: 'Could not find publicly reported 2025 data for fire-driven forest loss specific to this part of Uttar Pradesh.'
+    }
   ];
 
   locations.forEach((location, index) => {
-    const risk = risks[index % risks.length];
+    // Determine risk type based on location characteristics
+    let risk;
+    const locationName = location.name.toLowerCase();
+    
+    if (locationName.includes('gold mining') || locationName.includes('mine disaster') || locationName.includes('mercury contamination')) {
+      risk = risks[1]; // mining - brown ⛏️
+    } else if (locationName.includes('wildfire') || locationName.includes('fire risk') || locationName.includes('bushfire')) {
+      risk = risks[2]; // forest_fire - orange 🔥
+    } else {
+      risk = risks[0]; // deforestation - red 🌳
+    }
+
     const severity = ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)];
     const confidence = Math.floor(Math.random() * 30) + 70; // 70-100%
 
@@ -70,6 +131,7 @@ const generateDummyData = () => {
         color: risk.color,
         icon: risk.icon,
         location: location.name,
+        latestData: location.latestData,
         timestamp: new Date().toISOString(),
         area: Math.floor(Math.random() * 1000) + 100, // hectares
         impact: {
