@@ -7,7 +7,7 @@ import { GLTF } from 'three-stdlib';
 import { useSceneStore } from '../../../core/SceneManager';
 
 const SCROLL_HINT_TIMEOUT = 15000;
-const FULLSCREEN_HINT_TIMEOUT = 20000;
+// const FULLSCREEN_HINT_TIMEOUT = 20000; // Removed: no longer used
 
 const HTML_POSITION_X_OFFSET = -0.2;
 const HTML_POSITION_Y_OFFSET = 0.01;
