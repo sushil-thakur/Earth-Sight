@@ -37,7 +37,7 @@ const Monitor: React.FC<MonitorProps> = ({ roomGLTF }): JSX.Element => {
     const [monitorScreenGeometry, setMonitorScreenGeometry] = useState<Box3 | null>(null); // monitor screen geometry from monitor model, will be set after the model is loaded
     const [isFullscreen, setIsFullscreen] = useState(false); // is fullscreen mode enabled for html
     const [showScrollHint, setShowScrollHint] = useState(true);
-    const [showFullscreenHint, setShowFullscreenHint] = useState(true);
+    // const [showFullscreenHint, setShowFullscreenHint] = useState(true); // Removed: declared but never used
 
     const monitorScreenRef = React.useRef<Group>(null); // ref to monitor screen node
 
@@ -70,26 +70,26 @@ const Monitor: React.FC<MonitorProps> = ({ roomGLTF }): JSX.Element => {
     useEffect(() => {
         if (sceneZoomed === 'in') {
             let scrollTimer: number | undefined;
-            let fullscreenTimer: number | undefined;
+            // let fullscreenTimer: number | undefined; // Removed: no longer needed
 
             // scroll hint
             scrollTimer = setTimeout(() => {
                 setShowScrollHint(false);
             }, SCROLL_HINT_TIMEOUT);
 
-            // fullscreen hint
-            fullscreenTimer = setTimeout(() => {
-                setShowFullscreenHint(false);
-            }, FULLSCREEN_HINT_TIMEOUT);
+            // fullscreen hint - removed as it was never displayed
+            // fullscreenTimer = setTimeout(() => {
+            //     setShowFullscreenHint(false);
+            // }, FULLSCREEN_HINT_TIMEOUT);
 
             return () => {
                 if (scrollTimer) clearTimeout(scrollTimer);
-                if (fullscreenTimer) clearTimeout(fullscreenTimer);
+                // if (fullscreenTimer) clearTimeout(fullscreenTimer);
             };
         } else {
             // reset hints when zoomed out
             setShowScrollHint(true);
-            setShowFullscreenHint(true);
+            // setShowFullscreenHint(true); // Removed: declared but never used
         }
     }, [sceneZoomed]);
 
